@@ -1,6 +1,7 @@
 <h1>Pet Feeder Backend</h1>
 <h2>List Of Contents</h2>
 <ul>
+    <li><h3><a href="#Setup">Setup</a></h3></li>
     <li><h3><a href="#Database">Data Base Model</a></h3></li>
         <ul>
             <li><a href="#D-Pet">Pet</a></li>
@@ -12,9 +13,57 @@
             <li><a>Endpoints</a></li>
         </ul>
 </ul>
+<h2 id="Setup">Setting up Django Project</h2>
 
+<ol>
+  <li>
+    <strong>Navigate to the project directory</strong>
+    <pre><code>cd this-repo</code></pre>
+    <p>Replace <code>this-repo</code> with your actual directory name.</p>
+  </li>
+  <li>
+    <strong>Create a virtual environment</strong>
+    <p>Creating a virtual environment is recommended as it isolates your Python/Django setup on a per-project basis.</p>
+    <pre><code>python -m venv env</code></pre>
+    <p>This will create a new virtual environment in the <code>env</code> directory.</p>
+  </li>
+  <li>
+    <strong>Activate the virtual environment</strong>
+    <p>If you're on a Windows machine:</p>
+    <pre><code>env\Scripts\activate</code></pre>
+    <p>If you're on Unix or MacOS:</p>
+    <pre><code>source env/bin/activate</code></pre>
+  </li>
+  <li>
+    <strong>Install dependencies</strong>
+    <p>Here, we'll use pip to install Django and other dependencies from the <code>requirements.txt</code>file:</p>
+    <pre><code>pip install -r requirements.txt</code></pre>
+  </li>
+  <li>
+    <strong>Migrate the database</strong>
+    <p>Django comes with built-in commands for migrating your database. Here's how you do it:</p>
+    <pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre>
+  </li>
+  <li>
+    <strong>Create a superuser</strong>
+    <p>This command will allow you to create an admin user (superuser) who can log into the Django admin site:</p>
+    <pre><code>python manage.py createsuperuser</code></pre>
+    <p>You'll be asked to enter an email address and a password for the superuser.</p>
+  </li>
+  <li>
+    <strong>Run the Django app</strong>
+    <p>Use the following command to start the server:</p>
+    <pre><code>python manage.py runserver</code></pre>
+    <p>You should now be able to access your Django project at <a href="http://127.0.0.1:8000"><code>http://127.0.0.1:8000</code></a>.</p>
+  </li>
+</ol>
+
+<p>This setup guide assumes Python and Pip are already installed on the machine. It's also important to note that the
+default server setup is sufficient for development purposes. 
+When running in a production scenario, consider using an actual server like Gunicorn or uWSGI.</p>
 <h2 id="Database">Database Documentation</h2>
-<img src="PetFeeder_meal.png" width=300>
+<img src="PetFeeder_meal.png" width=400>
 <p>Our database is made up of three tables: <code>Pet</code>, <code>Food</code>, and <code>Meal</code>.</p>
 
 <h3 id="D-Pet">1. Pet</h3>
