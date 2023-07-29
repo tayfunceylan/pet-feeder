@@ -1,0 +1,82 @@
+<h1>Pet Feeder Backend</h1>
+<h2>List Of Contents</h2>
+<ul>
+    <li><h3><a href="#Database">Data Base Model</a></h3></li>
+        <ul>
+            <li><a href="#D-Pet">Pet</a></li>
+            <li><a href="D-Food">Food</a></li>
+            <li><a href="D-Meal">Meal</a></li>
+        </ul>
+    <li><h3><a href="#API-Endpoints">Rest API</a></h3></li>
+        <ul>
+            <li><a>Endpoints</a></li>
+        </ul>
+</ul>
+
+<h2 id="Database">Database Documentation</h2>
+<img src="PetFeeder_meal.png" width=300>
+<p>Our database is made up of three tables: <code>Pet</code>, <code>Food</code>, and <code>Meal</code>.</p>
+
+<h3 id="D-Pet">1. Pet</h3>
+
+<p>This table stores all data related to pets. Here are the fields for <code>Pet</code>:</p>
+
+<ul>
+  <li><code>name</code>: A <code>CharField</code> storing the name of the pet. Maximum length is 30 characters.</li>
+  <li><code>age</code>: An <code>IntegerField</code> storing the age of the pet.</li>
+  <li><code>race</code>: A <code>CharField</code> storing the race of the pet. Maximum length is 40 characters.</li>
+</ul>
+
+<p>This model returns the <code>name</code> field in its <code>__str__</code> method. The pets are ordered by their <code>name</code> in ascending order.</p>
+
+<h3 id="D-Food">2. Food</h3>
+
+<p>This table stores all data related to pet food. Here are the fields for <code>Food</code>:</p>
+
+<ul>
+  <li><code>name</code>: A <code>CharField</code> storing the name of the food. Maximum length is 100 characters.</li>
+  <li><code>brand</code>: A <code>CharField</code> storing the brand of the food. Maximum length is 30 characters.</li>
+  <li><code>category</code>: A <code>CharField</code> storing the category to which the food belongs. It can be 'Dry' (D), 'Wet' (W), or 'Snack' (S). Its length is set to 1 character.</li>
+  <li><code>price</code>: An <code>IntegerField</code> storing the price of the food.</li>
+  <li><code>unit</code>: A <code>CharField</code> indicating in which unit the food is measured. It can be 'grams' (g) or 'milliliters' (ml). Its length is set to 1 character.</li>
+</ul>
+
+<h3 id="D-Meal">3. Meal</h3>
+
+<p>This table stores all data related to the meals the pets have. Here are the fields for <code>Meal</code>:</p>
+
+<ul>
+  <li><code>time</code>: A <code>DateTimeField</code> storing the timestamp when the meal was created. It is automatically set to the time of creation.</li>
+  <li><code>food</code>: A <code>ForeignKey</code> linking to the <code>Food</code> model. If the food instance is deleted, all meals associated with it will also be deleted due to the <code>CASCADE</code> deletion rule.</li>
+  <li><code>pet</code>: A <code>ForeignKey</code> linking to the <code>Pet</code> model. If the pet instance is deleted, all meals associated with it will also be deleted due to the <code>CASCADE</code> deletion rule.</li>
+  <li><code>quantity</code>: An <code>IntegerField</code> storing the quantity of food consumed during the meal. Its default value is 0.</li>
+</ul>
+
+<p>These models should altogether provide a comprehensive overview of pet meals, including what foods are eaten, by which pets, and in what quantities.</p>
+
+
+<h2 id="API-Endpoints">REST API Documentation</h2>
+
+<p>This document outlines the endpoints provided by our Django-based REST API, which revolves around three key resources: <code>Meal</code>, <code>Food</code>, and <code>Pet</code>.</p>
+
+<h3>Endpoints</h3>
+
+<dl>
+
+<dt><code>GET, POST /api/food/</code></dt>
+<dd>Show a list of all food items or create a new food item if authenticated. The <code>POST</code> method requires a JSON body with food data.</dd>
+
+<dt><code>GET, PUT, DELETE /api/food/&lt;id&gt;/</code></dt>
+<dd>Retrieve, update or delete a specific food item by id if authenticated.</dd>
+
+<dt><code>GET, POST /api/pet/</code></dt>
+<dd>Show a list of all pets or create a new pet if authenticated. The <code>POST</code> method requires a JSON body with pet data.</dd>
+
+<dt><code>GET, PUT, DELETE /api/pet/&lt;id&gt;/</code></dt>
+<dd>Retrieve, update or delete a specific pet by id if authenticated.</dd>
+
+</dl>
+
+<p>Note: All API endpoints require user authentication.</p>
+
+

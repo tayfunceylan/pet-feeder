@@ -15,6 +15,7 @@ class FoodSerializer(ModelSerializer):
 
 
 class MealSerializer(ModelSerializer):
+    # TODO: Add Read only fields for Foreign Keys
     class Meta:
         model = Meal
         fields = '__all__'

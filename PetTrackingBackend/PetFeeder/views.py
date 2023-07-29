@@ -6,10 +6,9 @@ from rest_framework import generics
 # Create your views here.
 
 
-class MealList(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    queryset = Meal.objects.all()
-    serializer_class = MealSerializer
+#   TODO: Adding Meal Rest API Endpoints
+#   TODO: on Post-Request: associate it with a cat and a Food
+#   TODO: on Get-Request: respond with all Meals.
 
 
 class FoodList(generics.ListCreateAPIView):
@@ -29,11 +28,6 @@ class PetList(generics.ListCreateAPIView):
 class PetDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
-
-
-class MealDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Meal.objects.all()
-    serializer_class = MealSerializer
 
 
 class FoodDetail(generics.RetrieveUpdateDestroyAPIView):
