@@ -5,14 +5,15 @@
     <li><h3><a href="#Database">Data Base Model</a></h3></li>
         <ul>
             <li><a href="#D-Pet">Pet</a></li>
-            <li><a href="D-Food">Food</a></li>
-            <li><a href="D-Meal">Meal</a></li>
+            <li><a href="#D-Food">Food</a></li>
+            <li><a href="#D-Meal">Meal</a></li>
         </ul>
     <li><h3><a href="#API-Endpoints">Rest API</a></h3></li>
         <ul>
             <li><a>Endpoints</a></li>
         </ul>
 </ul>
+<hr>
 <h2 id="Setup">Setting up Django Project</h2>
 
 <ol>
@@ -62,8 +63,10 @@ python manage.py migrate</code></pre>
 <p>This setup guide assumes Python and Pip are already installed on the machine. It's also important to note that the
 default server setup is sufficient for development purposes. 
 When running in a production scenario, consider using an actual server like Gunicorn or uWSGI.</p>
+
+<hr>
 <h2 id="Database">Database Documentation</h2>
-<img src="PetFeeder_meal.png" width=400>
+<img src="Meal_Diagramm.png" width=400>
 <p>Our database is made up of three tables: <code>Pet</code>, <code>Food</code>, and <code>Meal</code>.</p>
 
 <h3 id="D-Pet">1. Pet</h3>
@@ -103,29 +106,70 @@ When running in a production scenario, consider using an actual server like Guni
 
 <p>These models should altogether provide a comprehensive overview of pet meals, including what foods are eaten, by which pets, and in what quantities.</p>
 
+<hr>
+<h2>Rest API Documentation</h2>
+<h3>Running the Server</h3>
 
-<h2 id="API-Endpoints">REST API Documentation</h2>
+<p>To start your Django server, first, ensure you're in the directory that contains the <code>manage.py</code>
+file.
+Use the command line to navigate to this directory,
+then run the following command: <code>python manage.py runserver</code>
+The system will start a development server, typically accessible at 
+<a href="http://127.0.0.1:8000/"><code>http://127.0.0.1:8000/</code></a> .
+</p>
+<h3>Examining the API</h3>
 
-<p>This document outlines the endpoints provided by our Django-based REST API, which revolves around three key resources: <code>Meal</code>, <code>Food</code>, and <code>Pet</code>.</p>
+<p>When the Django server is on and active, you are able to view your API by accessing <a href="http://127.0.0.1:8000/"><code>http://127.0.0.1:8000/</code></a> from your browser of choice. Ensuring that your Django Rest Framework's navigable API feature is switched on, you will be able to browse through the API conveniently from your browser itself.</p>
 
-<h3>Endpoints</h3>
+<p>To get to the specific endpoints as previously detailed in the API documentation, simply add your desired endpoint to the base URL. 
+For example, if you aim to view and create meals, you would access 
+<a href="http://127.0.0.1:8000/meals/"><code>http://127.0.0.1:8000/meals/</code></a>.</p>
+<h3>Meal Endpoints</h3>
 
-<dl>
+<h4>List and Create Meals</h4>
+<ul>
+  <li>Endpoint: <code>/meals/</code></li>
+  <li>Method: <code>GET, POST</code></li>
+</ul>
 
-<dt><code>GET, POST /api/food/</code></dt>
-<dd>Show a list of all food items or create a new food item if authenticated. The <code>POST</code> method requires a JSON body with food data.</dd>
+<h4>Retrieve, Update and Delete a Specific Meal</h4>
+<ul>
+  <li>Endpoint: <code>/meals/&lt;id&gt;/</code></li>
+  <li>Method: <code>GET, PUT, PATCH, DELETE</code></li>
+</ul>
 
-<dt><code>GET, PUT, DELETE /api/food/&lt;id&gt;/</code></dt>
-<dd>Retrieve, update or delete a specific food item by id if authenticated.</dd>
+<h4>Get Daily Meals</h4>
+<ul>
+  <li>Endpoint: <code>/meals/daily_meals/</code></li>
+  <li>Method: <code>GET</code></li>
+</ul>
 
-<dt><code>GET, POST /api/pet/</code></dt>
-<dd>Show a list of all pets or create a new pet if authenticated. The <code>POST</code> method requires a JSON body with pet data.</dd>
+<h3>Food Endpoints</h3>
 
-<dt><code>GET, PUT, DELETE /api/pet/&lt;id&gt;/</code></dt>
-<dd>Retrieve, update or delete a specific pet by id if authenticated.</dd>
+<h4>List and Create Foods</h4>
+<ul>
+  <li>Endpoint: <code>/foods/</code></li>
+  <li>Method: <code>GET, POST</code></li>
+</ul>
 
-</dl>
+<h4>Retrieve, Update and Delete a Specific Food</h4>
+<ul>
+  <li>Endpoint: <code>/foods/&lt;id&gt;/</code></li>
+  <li>Method: <code>GET, PUT, PATCH, DELETE</code></li>
+</ul>
 
-<p>Note: All API endpoints require user authentication.</p>
+<h3>Pet Endpoints</h3>
+
+<h4>List and Create Pets</h4>
+<ul>
+  <li>Endpoint: <code>/pets/</code></li>
+  <li>Method: <code>GET, POST</code></li>
+</ul>
+
+<h4>Retrieve, Update and Delete a Specific Pet</h4>
+<ul>
+  <li>Endpoint: <code>/pets/&lt;id&gt;/</code></li>
+  <li>Method: <code>GET, PUT, PATCH, DELETE</code></li>
+</ul>
 
 
