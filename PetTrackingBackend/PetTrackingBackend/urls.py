@@ -16,9 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from PetFeeder import views as pfv
 
-urlpatterns = [
+router = DefaultRouter()
+router.register(r"Meal", pfv.MealViewSet, basename="meal")
+router.register(r"Food", pfv.FoodViewSet, basename="food")
+router.register(r"Pet", pfv.PetViewSet, basename="pet")
+urlpatterns = router.urls
+
+urlpatterns += [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('', include('PetFeeder.urls'))
 ]

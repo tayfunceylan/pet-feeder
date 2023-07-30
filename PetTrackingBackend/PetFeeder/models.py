@@ -1,5 +1,5 @@
 from django.db import models
-
+from datetime import datetime
 
 class Pet(models.Model):
     name = models.CharField(max_length=30)
@@ -11,6 +11,7 @@ class Pet(models.Model):
 
     class Meta:
         ordering = ['name']
+        db_table = 'Pet'
 
 
 class Food(models.Model):
@@ -29,10 +30,15 @@ class Food(models.Model):
     )
     unit = models.CharField(max_length=1, choices=UNIT)
 
+    class Meta:
+        db_table = 'Food'
+
 
 class Meal(models.Model):
-    time = models.DateTimeField(auto_now_add=True)
+    time = models.DateTimeField(default=datetime.now, blank=True)
     food = models.ForeignKey(Food, on_delete=models.CASCADE)
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=0)
+    quantity = models.IntegerField()
 
+    class Meta:
+        db_table = 'Meal'

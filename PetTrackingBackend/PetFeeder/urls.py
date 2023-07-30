@@ -2,11 +2,28 @@ from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from .views import *
 
+meal_list = MealViewSet.as_view({
+    'get': 'list',
+    'post': 'create',
+})
+meal_detail = MealViewSet.as_view({
+    'get': 'retrieve',
+    'post': 'create',
+    'put': 'update',
+    'delete': 'destroy',
+})
+food_list = FoodViewSet.as_view({
+    'get': 'list',
+    'post': 'create',
+})
+food_detail = FoodViewSet.as_view({
+    'get': 'retrieve',
+    'post': 'create',
+    'put': 'update',
+    'delete': 'destroy',
+})
+
 urlpatterns = [
-    path("Pet/", PetList.as_view()),
-    path('Food/', FoodList.as_view()),
-    path("Pet/<int:pk>", PetDetail.as_view()),
-    path('Food/<int:pk>', FoodDetail.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
