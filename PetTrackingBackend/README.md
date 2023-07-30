@@ -144,6 +144,12 @@ For example, if you aim to view and create meals, you would access
   <li>Method: <code>GET</code></li>
 </ul>
 
+<h4>Get Meal from Date</h4>
+<ul>
+  <li>Endpoint: <code>/meals/daily_meals/?date=YYYY-MM-DD</code></li>
+  <li>Method: <code>GET</code></li>
+</ul>
+
 <h3>Food Endpoints</h3>
 
 <h4>List and Create Foods</h4>

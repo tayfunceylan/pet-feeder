@@ -1,16 +1,12 @@
 from django.db.models.functions import TruncDate
-from django.shortcuts import render
-from rest_framework.permissions import IsAuthenticated
-from .models import *
-from .serializers import *
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import generics, status, viewsets, permissions
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.decorators import api_view, action
-from datetime import timedelta
-from django.core.paginator import Paginator
-from django.utils.dateparse import parse_date
+
+from .serializers import *
+
 
 # Create your views here.
 
@@ -71,6 +67,3 @@ class PetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
-
-
-

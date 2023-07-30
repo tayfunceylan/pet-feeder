@@ -1,7 +1,6 @@
-from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
-from .views import *
 from rest_framework.routers import DefaultRouter
+
+from .views import *
 
 router = DefaultRouter()
 router.register(r"Meal", MealViewSet, basename="meal")
@@ -11,9 +10,3 @@ urlpatterns = router.urls
 
 urlpatterns += [
 ]
-
-
-
-
-
-
