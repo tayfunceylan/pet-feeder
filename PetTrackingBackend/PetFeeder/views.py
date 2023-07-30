@@ -8,6 +8,10 @@ from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, action
+from datetime import timedelta
+from django.core.paginator import Paginator
+from django.utils.dateparse import parse_date
+
 # Create your views here.
 
 
@@ -40,6 +44,21 @@ class MealViewSet(viewsets.ModelViewSet):
             return paginator.get_paginated_response(serializer.data)
 
         return Response({"detail": "No pagination applied."})
+
+    @action(detail=False)
+    def get_day(self, request):
+
+        # Get the `date` from query parameters, or you can define a default date
+        request_date = request.query_params.get('date')             # format is ?date=YYYY-MM-DD
+        date_meals = Meal.objects.filter(time__date=request_date)
+
+        # Serialize the queryset
+        serializer = MealSerializer(date_meals, many=True)
+        serialized_meals = serializer.data  # This is now a list of dictionaries
+
+        # Prepare daily_data
+        daily_data = {'date': request_date, 'meals': serialized_meals}
+        return Response(daily_data)
 
 
 class FoodViewSet(viewsets.ModelViewSet):
