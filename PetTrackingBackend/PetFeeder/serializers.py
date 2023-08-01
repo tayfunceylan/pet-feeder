@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from .models import Pet, Food, Meal
 from rest_framework.serializers import ModelSerializer
 

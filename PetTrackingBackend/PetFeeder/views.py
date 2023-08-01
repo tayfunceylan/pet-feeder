@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
@@ -29,6 +30,7 @@ class MealViewSet(viewsets.ModelViewSet):
         dates = Meal.objects.order_by().annotate(date=TruncDate('time')).values('date').distinct()
         page = paginator.paginate_queryset(dates, request, self)
 
+        # only display the pagination if needed
         if page is not None:
             results = []
             for item in page:
@@ -67,3 +69,24 @@ class PetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
+
+    @action(detail=False, description="Search All the Meals a pet has eaten.", methods=['GET'])
+    def get_meals(self, reqeust):
+        request_data = reqeust.query_params.get('PID')      # get the data
+
+        # Try to get the Pet with ID. If the ID is wrong return with Error 404
+        try:
+            pet = Pet.objects.get(id=request_data)
+        except ObjectDoesNotExist:
+            return Response({"detail": "Pet with the given id does not exist"}, 404)
+
+        # get the meal too
+        pet_meals = Meal.objects.filter(pet__id=request_data)
+        # serialize Both objects
+        pet_serializer = PetSerializer(pet).data
+        meal_serializer = MealSerializer(pet_meals, many=True)
+        serialized_meals = meal_serializer.data
+
+        # return both objects
+        pet_data = {"pet": pet_serializer, "meals": serialized_meals}
+        return Response(pet_data)
