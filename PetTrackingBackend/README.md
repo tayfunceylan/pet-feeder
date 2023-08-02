@@ -174,8 +174,14 @@ For example, if you aim to view and create meals, you would access
 
 <h4>Retrieve, Update and Delete a Specific Pet</h4>
 <ul>
-  <li>Endpoint: <code>/pets/&lt;id&gt;/</code></li>
+  <li>Endpoint: <code>/pets/&lt;pid&gt;/</code></li>
   <li>Method: <code>GET, PUT, PATCH, DELETE</code></li>
+</ul>
+
+<h4>Retrieve the meals from a certain Pet</h4>
+<ul>
+  <li>Endpoint: <code>/pets/get_meals/?PID=&lt;pid&gt;/</code></li>
+  <li>Method: <code>GET</code></li>
 </ul>
 
 
