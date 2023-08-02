@@ -1,5 +1,7 @@
 from django.db import models
 from datetime import datetime
+from django.utils import timezone
+from django.utils.timezone import now as time_zone_now
 
 class Pet(models.Model):
     name = models.CharField(max_length=30)
@@ -35,7 +37,7 @@ class Food(models.Model):
 
 
 class Meal(models.Model):
-    time = models.DateTimeField(default=datetime.now, blank=True)
+    time = models.DateTimeField(default=time_zone_now,  blank=True)
     food = models.ForeignKey(Food, on_delete=models.CASCADE)
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
     quantity = models.IntegerField()
