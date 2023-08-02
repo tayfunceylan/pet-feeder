@@ -1,0 +1,36 @@
+# https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx
+version: '3.8'
+
+services:
+  django:
+    container_name: django
+    build: .
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_DEBUG: 1
+      DJANGO_SECRET_KEY: o3+e4a00d5koj!o96+**gm8mkk8+_+lyk5(8=t0o9vybp_!n13
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_EMAIL: mail@tyfn.de
+      DJANGO_SUPERUSER_PASSWORD: 86*@3G5c!FW%PgBD
+      # SQL_ENGINE: django.db.backends.postgresql
+      # SQL_DATABASE: ${POSTGRES_DB}
+      # SQL_USER: ${POSTGRES_USER}
+      # SQL_PASSWORD: ${POSTGRES_PASSWORD}
+      # SQL_HOST: db
+      # SQL_PORT: 5432
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
