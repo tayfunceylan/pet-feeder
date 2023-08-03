@@ -23,6 +23,9 @@ python manage.py createsuperuser
 cd frontend
 yarn install
 yarn dev -o
+
+npm install
+npm run dev
 ```
 
 ## Production
