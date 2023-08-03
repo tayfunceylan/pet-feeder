@@ -17,12 +17,6 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-if you want to use docker for development you can also just run
-
-```sh
-docker compose up -d
-```
-
 ### Frontend
 
 ```sh
