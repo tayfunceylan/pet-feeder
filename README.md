@@ -17,12 +17,18 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
+if you want to use docker for development you can also just run
+
+```sh
+docker compose up -d
+```
+
 ### Frontend
 
 ```sh
 cd frontend
-yarn install
-yarn dev -o
+yarn install # npm install
+yarn dev -o # npm run dev -- -o
 ```
 
 ## Production
