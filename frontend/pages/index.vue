@@ -1,204 +1,66 @@
 <template>
-  <v-toolbar color="secondary">
-    <v-spacer></v-spacer>
-    <v-btn>&lt</v-btn>
-    <v-btn>Heute</v-btn>
-    <v-btn>></v-btn>
-    <v-spacer></v-spacer>
-  </v-toolbar>
-
-  <v-table v-for="category in categories">
-    <thead @click=editMeal(NaN)>
-      <tr>
-        <th>
-          {{ category.name }}
-        </th>
-        <th v-for="n in Math.max(0, category.meals.length - 1)">
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="meal in category.meals" :key="meal.time" @click=editMeal(meal)>
-        <td>{{ petsToString(meal.pets) }}</td>
-        <td>{{ meal.quantitiy + foods[meal.food].unit }}</td>
-        <td>{{ toTimeString(meal.time) }}</td>
-      </tr>
-    </tbody>
-  </v-table>
-
-  <v-dialog v-model=dialog width="700">
-    <v-card>
-      <v-card-item>
-        <v-row>
-          <v-col cols="12" md="4">
-            <v-select label="Pets" :items=petList item-title="name" item-value="id" v-model=selectedMeal.pets multiple></v-select>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-text-field :label="`Menge in ${selectedMeal.food.length ? foods[selectedMeal.food].unit : ''}`" v-model=selectedMeal.quantitiy type="number"></v-text-field>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select label="Futter" :items=foodList item-title="name" item-value="id" v-model=selectedMeal.food></v-select>
-          </v-col>
-        </v-row>
-        <v-row class="justify-space-evenly">
-          <v-card-actions>
-            <v-btn color="primary" block @click="dialog = false">Close</v-btn>
-          </v-card-actions>
-          <v-card-actions>
-            <v-btn color="primary" block @click=duplicateMeal()>Duplicate</v-btn>
-          </v-card-actions>
-          <v-card-actions>
-            <v-btn color="primary" block @click=saveMeal()>Save</v-btn>
-          </v-card-actions>
-        </v-row>
-      </v-card-item>
+    <v-card class="mx-auto" max-width="600">
+      <v-toolbar color="secondary">
+        <v-toolbar-title></v-toolbar-title>
+        
+        <v-spacer></v-spacer>
+        <v-btn>&lt</v-btn>
+        <v-btn>Heute</v-btn>
+        <v-btn>></v-btn>
+        <v-spacer></v-spacer>
+  
+        <v-btn variant="text" icon="mdi-cog"></v-btn>
+      </v-toolbar>
+  
+      <v-list lines="one">
+        <v-list-subheader>Nassfutter</v-list-subheader>
+  
+        <v-list-item
+          v-for="folder in folders"
+          :key="folder.title"
+          :title="folder.title"
+          :subtitle="folder.subtitle"
+        >
+          <template v-slot:prepend>
+            <v-avatar color="grey-lighten-1">
+              <v-icon color="white">mdi-folder</v-icon>
+            </v-avatar>
+            <v-avatar color="grey-lighten-1">
+              <v-icon color="white">mdi-folder</v-icon>
+            </v-avatar>
+          </template>
+  
+          <template v-slot:append>
+            <v-btn
+              color="grey-lighten-1"
+              icon="mdi-information"
+              variant="text"
+            ></v-btn>
+          </template>
+        </v-list-item>
+  
+        <v-divider inset></v-divider>
+        
+      </v-list>
     </v-card>
-  </v-dialog>
-</template>
-
-<script setup lang="ts">
-const foodList = ref()
-foodList.value = [
-  {
-    id: 1,
-    name: 'MjAMjAM',
-    unit: 'g',
-  },
-  {
-    id: 2,
-    name: 'Animonda',
-    unit: 'g',
-  }
-]
-
-const petList = ref()
-petList.value = [
-  {
-    id: 1,
-    name: 'Manga',
-  },
-  {
-    id: 2,
-    name: 'Duman',
-  }
-]
-
-const reduceList = (list: any[]) => {
-  return list.reduce((obj: any, item: any) => {
-    obj[item.id] = item
-    return obj
-  }, {})
-}
-
-const pets = ref(reduceList(petList.value))
-const foods = ref(reduceList(foodList.value))
-
-const categories = ref()
-categories.value = [
-  {
-    name: 'Nassfutter',
-    meals: [
-      {
-        id: 1,
-        pets: [1, 2],
-        quantitiy: 60,
-        time: 1691110294,
-        food: 1,
-      },
-      {
-        id: 2,
-        pets: [1, 2],
-        quantitiy: 80,
-        time: 1691110294,
-        food: 1,
-      },
-      {
-        id: 3,
-        pets: [1, 2],
-        quantitiy: 100,
-        time: 1691110294,
-        food: 1,
-      },
-    ],
-  },
-  {
-    name: 'Trockenfutter',
-    meals: [
-      {
-        id: 4,
-        pets: [1, 2],
-        quantitiy: 70,
-        time: 1691110294,
-        food: 1,
-      },
-      {
-        id: 5,
-        pets: [1],
-        quantitiy: 90,
-        time: 1691110294,
-        food: 1,
-      },
-      {
-        id: 6,
-        pets: [1, 2],
-        quantitiy: 110,
-        time: 1691110294,
-        food: 2,
-      },
-    ],
-  },
-  {
-    name: 'Snacks',
-    meals: [],
-  }
-]
-
-// dialog pops up when dialog = true
-const dialog = ref(false)
-
-// function that turns timestamp into a date string HH:MM
-const toTimeString = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleTimeString('de-DE', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }) + ' Uhr'
-}
-
-// pets: [1, 2], -> pets: "Manga, Duman"
-// join with .join(", ")
-const petsToString = (petsList: number[]) => {
-  return petsList.map((petID) => pets.value[petID].name).join(', ')
-}
-
-const petIdsToList = (petIds: number[]) => {
-  return petIds.map((petID) => pets.value[petID].name)
-}
-
-const selectedMeal = ref()
-
-const editMeal = (meal: any) => {
-  selectedMeal.value = {
-    pets: [],
-    quantitiy: "",
-    food: [],
-  }
-  if (meal){
-    selectedMeal.value.id = meal.id
-    selectedMeal.value.pets = meal.pets
-    selectedMeal.value.quantitiy = meal.quantitiy
-    selectedMeal.value.food = meal.food
-  }
-  dialog.value = true
-}
-
-const saveMeal = (duplicate: boolean = false) => {
-  var id = duplicate ? NaN : selectedMeal.value.id
-  var pets = petIdsToList(selectedMeal.value.pets)
-  var quantitiy = selectedMeal.value.quantitiy + foods.value[selectedMeal.value.food].unit
-  var food = foods.value[selectedMeal.value.food]
-  console.log(`id: ${id} pets: ${pets} quantitiy: ${quantitiy} food: ${food.name}`)
-}
-
-const duplicateMeal = () => { saveMeal(true) }
-
-</script>
+  </template>
+  <script>
+    export default {
+      data: () => ({
+        folders: [
+          {
+            title: '60g',
+            subtitle: '8:00 Uhr',
+          },
+          {
+            title: '80',
+            subtitle: '14:00 Uhr',
+          },
+          {
+            title: '100g',
+            subtitle: '18:00 Uhr',
+          },
+        ],
+      }),
+    }
+  </script>

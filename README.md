@@ -25,8 +25,6 @@ yarn install # npm install
 yarn dev -o # npm run dev -- -o
 ```
 
-## test
-
 ## Production
 
 For production, there are two steps:
