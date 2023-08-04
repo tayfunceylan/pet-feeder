@@ -1,18 +1,15 @@
 from rest_framework import serializers
+from rest_framework.relations import PrimaryKeyRelatedField
 from .models import Pet, Food, Meal
 from rest_framework.serializers import ModelSerializer
 
 
 class PetSerializer(ModelSerializer):
+    # The name can only occur once and is handled in the views.py
     class Meta:
         model = Pet
         fields = '__all__'
 
-    @staticmethod
-    def validate_name(value):
-        if Pet.objects.filter(name=value).exists():
-            raise serializers.ValidationError("A Pet with this name already exists.")
-        return value
 
 
 class FoodSerializer(ModelSerializer):

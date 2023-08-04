@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from django.forms.models import model_to_dict
 from .serializers import *
 
 class DayPage(PageNumberPagination):
@@ -65,6 +65,24 @@ class PetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
+
+    # Handle multiple occurrence of names
+    def create(self, request, *args, **kwargs):
+        new_pet = request.data
+        existing_pets = Pet.objects.filter(name=new_pet['name'])
+
+        # check if the pet.name is already existing. return the existing cat-names
+        if existing_pets.exists():
+            return Response({'detail': 'Pet with the same n ame already exists',
+                             'your_pet:': new_pet,
+                             'existing_pets': [model_to_dict(pet) for pet in existing_pets.iterator()]},
+                            status=400)
+
+        # Perform the creation after validating that the name is not already existent
+        serialized_pet = self.get_serializer(data=new_pet)
+        serialized_pet.is_valid(raise_exception=True)
+        self.perform_create(serialized_pet)
+        return Response(serialized_pet.data, status=201)
 
     @action(detail=False, description="Search All the Meals a pet has eaten.", methods=['GET'])
     def get_meals(self, reqeust):
