@@ -21,11 +21,8 @@ python manage.py createsuperuser
 
 ```sh
 cd frontend
-yarn install
-yarn dev -o
-
-npm install
-npm run dev
+yarn install # npm install
+yarn dev -o # npm run dev -- -o
 ```
 
 ## Production
