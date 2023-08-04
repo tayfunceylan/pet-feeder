@@ -11,6 +11,7 @@ class BasicTestCase(APITestCase):
         self.client.login(username="test-user", password="test")
         self.number_of_pets = 1
         self.number_of_foods = 1
+        self.number_of_meals = 1
         self.test_pet = Pet.objects.create(
             name="Pet1",
             age=2,

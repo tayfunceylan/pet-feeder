@@ -1,6 +1,5 @@
 from django.forms.models import model_to_dict
 from rest_framework import status
-
 from .test_setup import BasicTestCase
 
 
