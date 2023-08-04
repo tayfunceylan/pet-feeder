@@ -9,9 +9,13 @@ class BasicTestCase(APITestCase):
     def setUp(self) -> None:
         self.test_user = User.objects.create_user(username="test-user", password="test")
         self.client.login(username="test-user", password="test")
-        self.test_pet = Pet.objects.create(name="Pet1", age=2, race="cat")
         self.number_of_pets = 1
-
+        self.number_of_foods = 1
+        self.test_pet = Pet.objects.create(
+            name="Pet1",
+            age=2,
+            race="cat"
+        )
         self.test_food = Food.objects.create(
             name='test_food',
             brand='test_brand',
