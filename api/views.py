@@ -95,7 +95,7 @@ class PetViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Pet with the given id does not exist"}, 404)
 
         # get the meal too
-        pet_meals = Meal.objects.filter(pet__id=request_data)
+        pet_meals = Meal.objects.filter(pet__id=request_data).distinct()
         # serialize Both objects
         pet_serializer = PetSerializer(pet).data
         meal_serializer = MealSerializer(pet_meals, many=True)
