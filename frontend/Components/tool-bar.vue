@@ -18,7 +18,7 @@
 
 <style scoped lang="sass">
 
-  .nav-holder
-    position: absolute
+.nav-holder
+  position: absolute
 
 </style>

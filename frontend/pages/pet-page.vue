@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
-import NavBar from "~/Components/nav-bar.vue";
+import NavBar from "~/Components/tool-bar.vue";
+import ToolBar from "~/Components/tool-bar.vue";
 </script>
 
 <template>
   <h1>PetPage
   </h1>
-  <nav-bar/>
+  <tool-bar/>
 
 </template>
 

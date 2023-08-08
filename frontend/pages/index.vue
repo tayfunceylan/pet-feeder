@@ -2,7 +2,7 @@
   <div>
     <NuxtPage/>
   </div>
-  <nav-bar/>
+  <tool-bar/>
 </template>
 
 <style lang="sass">
@@ -22,5 +22,6 @@ p
 <script setup lang="ts">
 
 
-import NavBar from "~/Components/nav-bar.vue";
+import NavBar from "~/Components/tool-bar.vue";
+import ToolBar from "~/Components/tool-bar.vue";
 </script>

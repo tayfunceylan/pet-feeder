@@ -26,17 +26,17 @@
 .meal-holder
   display: flex
   width: 320px
-  height: 100px
+  height: 80px
   flex-direction: row
   gap: 0
   box-shadow: $default-shadow
 
 .meal-info
-  border-radius: 5px 0 0 5px
+  border-radius: $radius 0 0 $radius
   display: flex
   flex: 1
   width: 270px
-  height: 100px
+  height: 80px
   background-color: $background-bright
   align-items: center
   justify-content: space-evenly
@@ -74,11 +74,11 @@
 .meal-quantity
   background-color: $primary-blue
   width: 60px
-  height: 100px
+  height: 80px
   display: flex
   justify-content: center
   align-items: center
-  border-radius: 0 5px 5px 0
+  border-radius: 0 $radius $radius 0
 
 
 </style>
