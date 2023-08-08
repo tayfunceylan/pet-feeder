@@ -78,7 +78,9 @@ class PetTestCase(BasicTestCase):
 
         # validate if the request is correct
         self.assertEqual(response.data['pet'], model_to_dict(self.test_pet))
-        self.check_equality(response.data['meals'][0], model_to_dict(new_meal), ['quantity', 'pet', 'food'])
+        self.check_equality(response.data['meals'][0], model_to_dict(new_meal), ['quantity', 'food'])
+        self.assertEqual(response.data['meals'][0]['pet'], [1])
+
         print(f'test_get_meal_from_pet (PID): OK')
 
     # noinspection DuplicatedCode

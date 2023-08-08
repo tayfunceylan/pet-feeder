@@ -24,11 +24,15 @@ class BasicTestCase(APITestCase):
             price=10,
             unit='g',
         )
-        self.test_meal = Meal.objects.create(
-            food_id=1,
-            pet_id=1,
+        self.test_meal = Meal(
             quantity=100,
+            food_id=1,
         )
+        self.test_meal.save()
+        self.test_food.save()
+        self.test_pet.save()
+        self.test_user.save()
+        self.test_meal.pet.add(self.test_pet)
 
     def check_equality(self, response_data: dict, input_data: dict, keys=None):
         key_list = keys if type(keys) == list else input_data.keys()

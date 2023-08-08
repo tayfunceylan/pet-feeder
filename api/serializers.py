@@ -11,7 +11,6 @@ class PetSerializer(ModelSerializer):
         fields = '__all__'
 
 
-
 class FoodSerializer(ModelSerializer):
     class Meta:
         model = Food

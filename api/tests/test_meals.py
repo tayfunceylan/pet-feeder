@@ -12,7 +12,7 @@ class MealTestCase(BasicTestCase):
     base_url = '/Meal'
     new_Meal = {
         'food': 1,
-        'pet': 1,
+        'pet': [1],
         'quantity': 100,
     }
 
@@ -26,7 +26,8 @@ class MealTestCase(BasicTestCase):
         self.assertEqual(response.data['count'], self.number_of_meals)
         self.check_equality(response.data['results'][0],
                             model_to_dict(self.test_meal),
-                            ['quantity', 'food', 'pet'])
+                            ['quantity', 'food'])
+        self.assertEqual(response.data['results'][0]['pet'], [self.number_of_pets])
         # TODO: get the datetime
         print(f'test_Meal_get_list: OK')
 
