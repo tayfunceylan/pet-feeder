@@ -23,62 +23,58 @@
 <style scoped lang="sass">
 @import "assets/_colors"
 
+@include  text-standard
 .meal-holder
   display: flex
   width: 320px
-  height: 80px
+  height: $meal-height
   flex-direction: row
   gap: 0
   box-shadow: $default-shadow
+  border-radius: $radius
 
-.meal-info
-  border-radius: $radius 0 0 $radius
-  display: flex
-  flex: 1
-  width: 270px
-  height: 80px
-  background-color: $background-bright
-  align-items: center
-  justify-content: space-evenly
-  align-content: center
-  flex-direction: row
-  padding-left: 15px
+  .meal-info
+    @include all-center
+    border-radius: $radius 0 0 $radius
+    flex: 1
+    width: 270px
+    height: $meal-height
+    background-color: $background-bright
+    justify-content: space-evenly
+    flex-direction: row
+    padding-left: 15px
 
-  .pet-info
-    height: 50px
-    width:  50px
-    display: flex
-    align-items: center
-    flex-wrap: wrap
-    gap: 2px
+    .pet-info
+      height: 50px
+      width:  50px
+      display: flex
+      align-items: center
+      flex-wrap: wrap
+      gap: 2px
 
-    .pet
-      width: 20px
-      height: 20px
-      border-radius: 50%
-      background-color: $background-dark
+      .pet
+        width: 20px
+        height: 20px
+        border-radius: 50%
+        background-color: $background-dark
 
-    .fed
-      background-color: $primary-red
+      .fed
+        background-color: $primary-red
 
-  .meal-details
-    flex: 2
-    width: 120px
-    height: 30px
-    display: flex
-    flex-direction: column
-    justify-content: center
-    align-items: center
-    flex-shrink: 0
+    .meal-details
+      @include all-center
+      flex: 2
+      width: 120px
+      height: 30px
+      flex-direction: column
+      flex-shrink: 0
 
-.meal-quantity
-  background-color: $primary-blue
-  width: 60px
-  height: 80px
-  display: flex
-  justify-content: center
-  align-items: center
-  border-radius: 0 $radius $radius 0
+  .meal-quantity
+    @include all-center
+    background-color: $primary-blue
+    width: 60px
+    height: $meal-height
+    border-radius: 0 $radius $radius 0
 
 
 </style>

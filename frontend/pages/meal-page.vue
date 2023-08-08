@@ -7,6 +7,7 @@ import ToolBar from "~/Components/tool-bar.vue";
 </script>>
 
 <template>
+
   <page-header></page-header>
   <div class="meal-list">
     <meal-info/>
@@ -28,14 +29,13 @@ import ToolBar from "~/Components/tool-bar.vue";
 @import "assets/colors"
 
 .meal-list
+  @include all-center
+  background-color: $background-dark
   margin-top: $navbar-height
   padding-top: 15px
-  display: flex
   width: 100vw
   padding-bottom: 20px
   flex-direction: column
-  align-items: center
-  justify-content: center
   gap: 15px
 
 

@@ -10,6 +10,9 @@
 body
   background-color: $background-dark
 
+#__nuxt
+  background-color: $background-dark
+
 .bold
   font-weight: bold
   font-size: $bold-size
