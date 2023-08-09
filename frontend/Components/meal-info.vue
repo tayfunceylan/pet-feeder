@@ -10,12 +10,12 @@
       <div class="pet"></div>
     </div>
     <div class="meal-details">
-      <b class="bold">Food type</b>
-      <p>12:30 Uhr</p>
+      <b class="bold" id="food-type">Food type</b>
+      <p id="time">12:30 Uhr</p>
     </div>
   </div>
   <div class="meal-quantity">
-    <b class="bold">100g</b>
+    <b class="bold" id="quantity">100g</b>
   </div>
 </div>
 </template>

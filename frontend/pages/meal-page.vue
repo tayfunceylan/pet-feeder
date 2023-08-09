@@ -28,13 +28,15 @@ import ToolBar from "~/Components/tool-bar.vue";
 <style scoped lang="sass">
 @import "assets/colors"
 
+body
+  background-color: $background-dark
+
 .meal-list
   @include all-center
   background-color: $background-dark
-  margin-top: $navbar-height
-  padding-top: 15px
+  padding-top: 19px + $navbar-height
   width: 100vw
-  padding-bottom: 20px
+  padding-bottom: 50px + $navbar-height
   flex-direction: column
   gap: 15px
 

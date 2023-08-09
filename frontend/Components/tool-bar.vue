@@ -1,19 +1,22 @@
 <script setup lang="ts">
+import {a} from "unplugin-vue-router/dist/options-56006a88";
+
+const active_elm = ref("one")
 
 </script>
 
 <template>
   <div class="tool-height">
     <div class="tool-holder">
-      <div class="active"></div>
+      <div class="active" :class="[active_elm]"></div>
       <div class="nav-button">
-        <router-link to="food-page" class="bold">food</router-link>
+        <button class="bold" @click="active_elm = 'zero'">food</button>
       </div>
       <div class="nav-button">
-        <router-link to="meal-page" class="bold">meal</router-link>
+        <button class="bold" @click="active_elm = 'one'">meal</button>
       </div>
       <div class="nav-button">
-        <router-link to="pet-page" class="bold">pet</router-link>
+        <button class="bold" @click="active_elm = 'two'">pet</button>
       </div>
     </div>
   </div>
@@ -63,11 +66,25 @@ $button-width: math.div($bar-width, 3)
 .active
   @include all-center
   @include button-design
+  pointer-events: none
   position: absolute
-  background-color: #9ac1ed
+  background-color: $primary-blue
   mix-blend-mode: lighten
   /* calculate the position of the active button */
-  transform: translateX(- $button-width + ($button-width * 1))
+  transform: translateX(v-bind(active_x)px)
+  transition: transform 0.4s ease-in-out, background-color 0.5s ease-in-out
+
+  &.zero
+    background-color: $secondary-red
+    transform: translateX(- $button-width + ($button-width * 0))
+
+  &.one
+    transform: translateX(- $button-width + ($button-width * 1))
+
+  &.two
+    background-color: $secondary-blue
+    transform: translateX(- $button-width + ($button-width * 2))
+
 
 
 </style>
