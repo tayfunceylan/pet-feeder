@@ -9,9 +9,9 @@ const data = ref({
   pets: [1, 2],
   fed: [1],
   num_pets: 2,
-  food: 'steak',
+  food: 'food 1',
   date: '2023-10-05',
-  time: '12:30',
+  time: '12:20',
   quantity: 100,
   unit: 'g',
 })
@@ -21,12 +21,13 @@ function change_fed(id){
   else data.value.fed.push(id)
 }
 
-function update_everything(data){
-  data.value.food = data.food
-  data.value.date = data.date
-  data.value.time = data.time
-  data.value.quantity = data.quantity
-  data.value.unit = data.unit
+// TODO: on update make put request
+function update(new_data){
+  data.value.food = new_data.food
+  data.value.date = new_data.date
+  data.value.time = new_data.time
+  data.value.quantity = new_data.quantity
+  data.value.unit = new_data.unit
 }
 </script>
 
@@ -49,18 +50,14 @@ function update_everything(data){
       <Transition name="inputs">
         <meal-input
             v-if="isActive"
+            :input="data"
             :active="isActive"
             :pets="data.pets"
             :fed="data.fed"
             :num_pets="data.num_pets"
-            :food="data.food"
-            :time="data.time"
-            :date="data.date"
-            :quantity="data.quantity"
-            :unit="data.unit"
-            @open-meal="isActive=true"
+            @update="(new_data) => update(new_data)"
+            @close-meal="isActive=false"
             @update-pets="(id) => change_fed(id)"
-            @update-everything="(new_data) => update_everything(new_data)"
         />
       </Transition>
     </div>

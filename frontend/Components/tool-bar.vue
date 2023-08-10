@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {a} from "unplugin-vue-router/dist/options-56006a88";
 
 const active_elm = ref("one")
 

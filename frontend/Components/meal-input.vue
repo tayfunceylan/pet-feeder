@@ -1,10 +1,18 @@
 <script setup lang="ts">
-const props = defineProps(['active', 'fed', 'pets', 'num_pets', 'food', 'date', 'time', 'quantity', 'unit'])
-defineEmits(['open-meal', "update-pets", 'update-everything'])
+const props = defineProps(['input', 'active', 'fed', 'pets', 'num_pets',])
+defineEmits(['close-meal', "update-pets", 'update'])
+
+// TODO: Request available food
 const food_types = ["food 1", "steak"]
 
-console.log(props.quantity)
-
+const input_data = ref({
+  fed: [1],
+  food: props.input.food,
+  date: props.input.date,
+  time: props.input.time,
+  quantity: props.input.quantity,
+  unit: props.input.unit,
+})
 
 </script>
 
@@ -12,7 +20,7 @@ console.log(props.quantity)
   <Transition>
     <div class="meal-input-wrap">
       <div  class="pet-selector">
-        <div v-for="pet in pets" id="{{pet}}"
+        <div v-for="pet in input.pets" id="{{pet}}"
              class="pets"
              :class="[fed.includes(pet) ? 'isFed' : 'starving']"
              :style="{backgroundColor: pet == 1 ? '#9ac1ed' : '#efab92'}"
@@ -22,35 +30,28 @@ console.log(props.quantity)
       <div class="row-wrapper">
         <div >
           <label>Food:</label>
-          <select class="food" v-bind:value="food">
+          <select class="food" v-model="input_data.food">
             <option v-for="food in food_types">{{food}}</option>
           </select>
         </div>
         <div class="quantity">
-          <input class="quantity-input" type="number" v-bind:value="quantity">
-          <label>{{unit}}</label>
+          <input class="quantity-input" type="number" v-model="input_data.quantity">
+          <label>{{input_data.unit}}</label>
         </div>
       </div>
       <div class="row-wrapper">
         <div class="date">
           <label>Date</label>
-          <input class="date-picker" type="date" v-bind:value="date">
+          <input class="date-picker" type="date" v-model="input_data.date">
         </div>
         <div class="time">
           <label>Time</label>
-          <input class="time-picker" type="time" v-bind:value="time">
+          <input class="time-picker" type="time" v-model="input_data.time">
         </div>
       </div>
       <div class="row-wrapper button-wrap">
-        <button class="cancel"><span>cancel</span></button>
-        <button class="save"
-                @click="$emit('update-everything', {
-                    food: props.food,
-                    date: props.date,
-                    time: props.time,
-                    quantity: props.quantity,
-                    unit: props.unit,
-                })">
+        <button class="cancel" @click="$emit('close-meal')"><span>cancel</span></button>
+        <button class="save" @click="$emit('update', input_data)">
           <span>save</span>
         </button>
       </div>
