@@ -71,7 +71,7 @@ $button-width: math.div($bar-width, 3)
   background-color: $primary-blue
   mix-blend-mode: lighten
   /* calculate the position of the active button */
-  transform: translateX(v-bind(active_x)px)
+  transform: translateX(- $button-width + ($button-width * 1))
   transition: transform 0.4s ease-in-out, background-color 0.5s ease-in-out
 
   &.zero

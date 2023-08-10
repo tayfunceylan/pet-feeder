@@ -1,23 +1,28 @@
-<script setup lang="ts">
+<script setup lang="js">
+import {OnClickOutside} from "@vueuse/components";
+
+const active = ref("closed")
 
 </script>
 
 <template>
-<div class="meal-holder">
-  <div class="meal-info">
-    <div class="pet-info">
-      <div class="pet fed"></div>
-      <div class="pet"></div>
+  <OnClickOutside @trigger="active='closed'">
+    <div class="meal-holder" :class="[active]" @click="active='open'">
+      <div class="meal-info">
+        <div class="pet-info">
+          <div class="pet fed"></div>
+          <div class="pet"></div>
+        </div>
+        <div class="meal-details">
+          <b class="bold" id="food-type">Food type</b>
+          <p id="time">12:30 Uhr</p>
+        </div>
+      </div>
+      <div class="meal-quantity">
+        <b class="bold" id="quantity">100g</b>
+      </div>
     </div>
-    <div class="meal-details">
-      <b class="bold" id="food-type">Food type</b>
-      <p id="time">12:30 Uhr</p>
-    </div>
-  </div>
-  <div class="meal-quantity">
-    <b class="bold" id="quantity">100g</b>
-  </div>
-</div>
+  </OnClickOutside>
 </template>
 
 <style scoped lang="sass">
@@ -31,7 +36,12 @@
   flex-direction: row
   gap: 0
   box-shadow: $default-shadow
+  transition: all 0.4s ease-in-out
   border-radius: $radius
+
+  &.open
+    height: $meal-height + 100px
+    flex-direction: column
 
   .meal-info
     @include all-center
@@ -68,6 +78,10 @@
       height: 30px
       flex-direction: column
       flex-shrink: 0
+
+    &.open .meal-details
+      @include all-center
+      width: 100%
 
   .meal-quantity
     @include all-center
