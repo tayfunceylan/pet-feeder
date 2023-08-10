@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import NavBar from "~/Components/tool-bar.vue";
-import MealInfo from "~/Components/meal-info.vue";
+import MealInfo from "~/Components/meal-card.vue";
 import PageHeader from "~/Components/page-header.vue";
 import ToolBar from "~/Components/tool-bar.vue";
 </script>>
