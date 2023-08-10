@@ -11,9 +11,14 @@ const data = ref({
   num_pets: 2,
   food: 'my food',
   time: '12:30',
-  quantity: '100',
+  quantity: 100,
   unit: 'g',
 })
+
+function change_fed(id){
+  if(data.value.fed.includes(id)) data.value.fed.splice(data.value.fed.indexOf(id), 1)
+  else data.value.fed.push(id)
+}
 </script>
 
 <template>
@@ -44,7 +49,7 @@ const data = ref({
             :quantity="data.quantity"
             :unit="data.unit"
             @open-meal="isActive=true"
-            @update-pets="data.fed"
+            @update-pets="(id) => change_fed(id)"
         />
       </Transition>
     </div>

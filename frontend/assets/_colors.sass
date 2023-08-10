@@ -22,10 +22,14 @@ $navbar-height: 60px
 $meal-height: 80px
 
 @mixin text-standard
-  .bold
+  .bold, label
     font-weight: bold
     font-size: $bold-size
     color: $default-text-color
-  p
+  p, option
     font-size: $default-size
     color: $default-text-color
+
+@mixin text-style-normal
+  font-size: $default-size
+  color: $default-text-color

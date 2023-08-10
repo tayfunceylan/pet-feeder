@@ -7,7 +7,7 @@ defineEmits(['open-meal'])
     <div class="meal-holder" :class="[!active? 'open': 'closed']" @click="$emit('open-meal')">
       <div class="meal-info">
         <div class="pet-info">
-          <div class="pet" v-for="pet in pets" :class="[fed.includes(pet) ? 'fed' : '']"></div>
+          <div class="pet" v-for="pet in pets" :class="[fed.includes(pet) ? 'fed' : 'starving']"></div>
         </div>
         <div class="meal-details">
           <Transition>
@@ -38,6 +38,9 @@ defineEmits(['open-meal'])
   &.closed
     height: 40px
 
+  &.closed .meal-info
+    border-radius: $radius 0 0 0
+    transition: border-radius 0.5s ease-in-out
 
   .meal-info
     @include all-center
@@ -65,7 +68,12 @@ defineEmits(['open-meal'])
         background-color: $background-dark
 
       .fed
+        transition: all 0.3s ease-in-out
         background-color: $primary-red
+
+      .starving
+        transition: all 0.3s ease-in-out
+        background-color: $background-dark
 
     .meal-details
       @include all-center
@@ -84,6 +92,10 @@ defineEmits(['open-meal'])
     background-color: $primary-blue
     width: 60px
     border-radius: 0 $radius $radius 0
+
+  &.closed .meal-quantity
+    transition: border-radius 0.5s ease-in-out
+    border-radius: 0 $radius 0 0
 
 
 .v-enter-active,
