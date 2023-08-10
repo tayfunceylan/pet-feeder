@@ -1,8 +1,11 @@
 <script setup lang="ts">
-defineProps(['active', 'fed', 'pets', 'num_pets', 'food', 'time', 'quantity', 'unit'])
-defineEmits(['open-meal', "update-pets"])
+const props = defineProps(['active', 'fed', 'pets', 'num_pets', 'food', 'date', 'time', 'quantity', 'unit'])
+defineEmits(['open-meal', "update-pets", 'update-everything'])
 const food_types = ["food 1", "steak"]
-const feeding = ref([])
+
+console.log(props.quantity)
+
+
 </script>
 
 <template>
@@ -19,25 +22,37 @@ const feeding = ref([])
       <div class="row-wrapper">
         <div >
           <label>Food:</label>
-          <select class="food">
-            <option v-for="food in food_types" value="{{food}}">{{food}}</option>
+          <select class="food" v-bind:value="food">
+            <option v-for="food in food_types">{{food}}</option>
           </select>
         </div>
         <div class="quantity">
-          <input class="quantity-input" type="number" value="{{quantity}}">
+          <input class="quantity-input" type="number" v-bind:value="quantity">
           <label>{{unit}}</label>
         </div>
       </div>
       <div class="row-wrapper">
         <div class="date">
           <label>Date</label>
-          <input class="date-picker" type="date" value="{{quantity}}">
+          <input class="date-picker" type="date" v-bind:value="date">
         </div>
         <div class="time">
           <label>Time</label>
-          <input class="time-picker" type="time" value="{{quantity}}">
-          <label>Uhr</label>
+          <input class="time-picker" type="time" v-bind:value="time">
         </div>
+      </div>
+      <div class="row-wrapper button-wrap">
+        <button class="cancel"><span>cancel</span></button>
+        <button class="save"
+                @click="$emit('update-everything', {
+                    food: props.food,
+                    date: props.date,
+                    time: props.time,
+                    quantity: props.quantity,
+                    unit: props.unit,
+                })">
+          <span>save</span>
+        </button>
       </div>
     </div>
   </Transition>
@@ -47,6 +62,7 @@ const feeding = ref([])
 @import "assets/colors"
 @include text-standard
 
+$row-height: 40px
 
 label
   width: 50px
@@ -60,7 +76,7 @@ label
   flex-direction: row
   gap: 20px
   .food
-    height: 30px
+    height: $row-height
     width: 130px
     font-weight: bold
     margin-left: 10px
@@ -87,12 +103,14 @@ label
   .quantity
     display: flex
     flex-direction: row
-    gap: 10px
+    justify-content: space-between
+    align-items: center
     width: 80px
+    gap: 10px
     input
       @include text-style-normal
       text-align: center
-      height: 30px
+      height: $row-height
       width: 50px
       border: 2px solid $background-bright
       border-radius: 10px
@@ -107,8 +125,33 @@ label
   .date
     display: flex
     flex-direction: row
-  .date-picker
-    width: 120px
+    align-items: center
+    .date-picker
+      @include text-style-normal
+      height: $row-height
+      width: 100px
+      transition: 0.3s ease-in-out
+      &:focus
+        outline: none
+        border: 2px solid $background-bright
+        background-color: $background-bright
+        border-radius: 10px
+
+  .time
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    align-items: center
+    .time-picker
+      height: $row-height
+      @include text-style-normal
+      transition: 0.3s ease-in-out
+
+      &:focus
+        outline: none
+        border: 2px solid $background-bright
+        background-color: $background-bright
+        border-radius: 10px
 
 .meal-input-wrap
   padding: 10px
@@ -131,6 +174,34 @@ label
     background-color: $primary-red
     stroke: 2px $primary-red
 
+.button-wrap
+  justify-content: space-evenly
+
+button
+  width: 80px
+  height: 30px
+  border-radius: 10px
+  @include text-style-normal
+  font-weight: bold
+  transition: all 0.4s ease-in-out
+
+.cancel
+  background-color: transparent
+  span
+    text-decoration: underline $default-text-color
+    transition: 0.3s ease-in-out
+
+  &:active
+    transform: scale(0.9)
+    span
+      letter-spacing: 1px
+
+
+.save
+  background-color: $primary-blue
+  &:active
+    transform: scale(1.1)
+    background-color: $secondary-blue
 
 .v-enter-active,
 .v-leave-active

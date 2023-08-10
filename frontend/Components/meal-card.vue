@@ -9,7 +9,8 @@ const data = ref({
   pets: [1, 2],
   fed: [1],
   num_pets: 2,
-  food: 'my food',
+  food: 'steak',
+  date: '2023-10-05',
   time: '12:30',
   quantity: 100,
   unit: 'g',
@@ -18,6 +19,14 @@ const data = ref({
 function change_fed(id){
   if(data.value.fed.includes(id)) data.value.fed.splice(data.value.fed.indexOf(id), 1)
   else data.value.fed.push(id)
+}
+
+function update_everything(data){
+  data.value.food = data.food
+  data.value.date = data.date
+  data.value.time = data.time
+  data.value.quantity = data.quantity
+  data.value.unit = data.unit
 }
 </script>
 
@@ -46,10 +55,12 @@ function change_fed(id){
             :num_pets="data.num_pets"
             :food="data.food"
             :time="data.time"
+            :date="data.date"
             :quantity="data.quantity"
             :unit="data.unit"
             @open-meal="isActive=true"
             @update-pets="(id) => change_fed(id)"
+            @update-everything="(new_data) => update_everything(new_data)"
         />
       </Transition>
     </div>
@@ -80,7 +91,7 @@ function change_fed(id){
   border-radius: $radius
 
   &.open
-    height: $meal-height + 150px
+    height: $meal-height + 180px
 
 .inputs-enter-active,
 .inputs-leave-active
