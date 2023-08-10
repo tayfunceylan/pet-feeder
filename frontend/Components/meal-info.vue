@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps(['active', 'pets', 'fed', 'num_pets', 'food', 'time', 'quantity', 'unit'])
+const props = defineProps(['active', 'pets', 'fed', 'food', 'time', 'quantity', 'unit'])
 defineEmits(['open-meal'])
 </script>
 
@@ -7,7 +7,7 @@ defineEmits(['open-meal'])
     <div class="meal-holder" :class="[!active? 'open': 'closed']" @click="$emit('open-meal')">
       <div class="meal-info">
         <div class="pet-info">
-          <div class="pet" v-for="pet in pets" :class="[fed.includes(pet) ? 'fed' : 'starving']"></div>
+          <div class="pet" v-for="pet in props.pets" :class="[fed.includes(pet) ? 'fed' : 'starving']"></div>
         </div>
         <div class="meal-details">
           <Transition>
