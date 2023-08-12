@@ -5,48 +5,32 @@ import ToolBar from "~/Components/tool-bar.vue";
 import axios from "axios";
 import { useNow, useDateFormat } from '@vueuse/core'
 
-const formatted = useDateFormat(useNow(), 'YYYY-MM-DD')
-const meal_list = ref(null)
-const pets = reactive(null)
+// const formatted = useDateFormat(useNow(), 'YYYY-MM-DD')
+const formatted = "2023-08-11"
 
-axios.get('http://127.0.0.1:8000/Meal/?date='+formatted)
-    .then(response => {
-      meal_list.value = response.data
-    })
-    .catch(error => {
-      console.log(error);
-    })
-axios.get('http://127.0.0.1:8000/Pet/')
-    .then(response => {
-      pets.value = response.data
-      console.log("pets ", pets.value)
-    })
-    .catch(error => {
-      console.log(error);
-    })
-/*
-async function getMealList(){
-  const res = await fetch('http://127.0.0.1:8000/Meal/?date='+formatted)
-  const finalRes = await  res.json()
-  meal_list.value = finalRes
-}
-getMealList()
-async function getPets(){
-  const res = await fetch('http://127.0.0.1:8000/Pet/')
-  const finalRes = await res.json()
-  pets.value = finalRes
-}
-getPets()
+const {pending: pendingMeals, data: dateMeals} = await useAsyncData(
+    "mealsList",
+    () => $fetch(`http://127.0.0.1:8000/Meal/get_day/?date=${formatted}`, {
+      lazy: true,
+      server: false,
+    }).catch((error) => {console.log(`mealsList error: ${error}`)})
+)
 
- */
+const {pending: pendingPets, data: pets} = await useAsyncData(
+    "pets",
+    () => $fetch('http://127.0.0.1:8000/Pet/',{
+      lazy: true,
+      server: false,
+    }).catch((error) => {console.log(`pets error: ${error}`)}),
+)
 </script>>
 
 <template>
   <div class="page">
     <page-header></page-header>
-    <div class="meal-list">
-      <meal-info v-for="meal in meal_list" :petsList="pets" :meal_data="meal" />
-
+    <p v-if="pendingMeals && pendingPets">Loading ...</p>
+    <div class="meal-list" v-else-if="dateMeals != null">
+      <meal-info v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" />
     </div>
     <tool-bar/>
 

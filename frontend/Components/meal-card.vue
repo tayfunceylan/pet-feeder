@@ -2,115 +2,60 @@
 import {OnClickOutside} from "@vueuse/components/index"
 import MealInfo from "~/Components/meal-info.vue"
 import MealInput from "~/Components/meal-input.vue";
+import {integer} from "vscode-languageserver-types";
 import axios from "axios";
-import async from "async";
-const props = defineProps(["meal_data", "petsList"])
-const isActive = ref(false)
-console.log("Pets: ", props.petsList)
-
-console.log(props.meal_data)
-const food = ref({
-  brand: null,
-  category: null,
-  id: null,
-  name: null,
-  price: null,
-  unit: null,
-})
-const meal = ref({
-  food: null,
-  id: null,
-  pet: null,
-  quantity: null,
-  time: null,
-})
-/*
-async function getMeal(){
-  const res = await fetch('http://127.0.0.1:8000/Meal/'+props.meal_data.id)
-  const finalRes = await res.json()
-  meal.value = finalRes
-}
-getMeal()
-async function getFood(){
-  const res = await fetch('http://127.0.0.1:8000/Food/'+props.meal_data.food)
-  const finalRes = await res.json()
-  food.value = finalRes
-}
-getFood()
-*/
-axios.get('http://127.0.0.1:8000/Food/'+props.meal_data.food)
-    .then(response => {
-      food.value = response.data
-    })
-    .catch(error => {
-      console.log(error);
-    })
-
-axios.get('http://127.0.0.1:8000/Meal/'+props.meal_data.id)
-    .then(response => {
-      meal.value = response.data
-    })
-    .catch(error => {
-      console.log(error);
-    })
+const props = defineProps(["mealID", "petsList"])
 
 
+let meal = ref(null);
+let food = ref(null);
+let isActive = ref(false);
 
-const data = ref({
-  pets: [1, 2],
-  fed: [1],
-  num_pets: 2,
-  food: food.value.name,
-  date: useDateFormat(meal.value.time, 'YYYY-MM-DD'),
-  time: useDateFormat(meal.value.time, 'HH:mm'),
-  quantity: 100,
-  unit: 'g',
-})
+onMounted(async () => {
+  await fetchMeal();
+});
 
-function change_fed(id){
-  if(data.value.fed.includes(id)) data.value.fed.splice(data.value.fed.indexOf(id), 1)
-  else data.value.fed.push(id)
+
+async function fetchMeal(){
+  const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`)
+  meal.value = mealResponse.data
+
+  // Use the food id from meal data to fetch the food data
+  const foodId = meal.value.food
+  const foodResponse = await axios.get(`http://127.0.0.1:8000/Food/${foodId}/`)
+  food.value = foodResponse.data
 }
 
-// TODO: on update make put request
-function update(new_data){
-  data.value.food = new_data.food
-  data.value.date = new_data.date
-  data.value.time = new_data.time
-  data.value.quantity = new_data.quantity
-  data.value.unit = new_data.unit
-}
+
 </script>
 
 <template>
   <OnClickOutside @trigger="isActive=false">
-    <div class="meal-card" :class="isActive ? 'open' : ''">
+    <div class="meal-card" :class="isActive ? 'open' : ''" v-if="meal" :key="meal">
       <Transition>
         <meal-info
             :active="isActive"
-            :fed="meal.pet"
-            :pets="props.pets"
-            :food="food.name"
-            :time="useDateFormat(meal.time, 'HH:mm')"
-            :quantity="meal.quantity"
-            :unit="food.unit"
+            :foodDetail="food"
+            :mealDetail="meal"
+            :pets="petsList"
             @open-meal="isActive=true"
         />
       </Transition>
-      <Transition name="inputs">
+      <Transition>
         <meal-input
             v-if="isActive"
-            :input="data"
-            :active="isActive"
-            :pets="data.pets"
-            :fed="data.fed"
-            :num_pets="data.num_pets"
-            @update="(new_data) => update(new_data)"
+            :active="!isActive"
+            :foodDetail="food"
+            :mealDetail="meal"
+            :pets="petsList"
+            @open-meal="isActive=true"
             @close-meal="isActive=false"
-            @update-pets="(id) => change_fed(id)"
+            @refresh-meal="fetchMeal"
         />
       </Transition>
     </div>
+    <div v-else>Loading Card...</div>
+
   </OnClickOutside>
 
 </template>

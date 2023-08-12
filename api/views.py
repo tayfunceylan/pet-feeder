@@ -1,22 +1,42 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
-from rest_framework import viewsets, permissions
-from rest_framework.decorators import action
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
 from .serializers import *
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
 
 
 class DayPage(PageNumberPagination):
     page_size = 1
 
 
+"""@api_view(["POST"])
+def signup(request):
+    serializer = UserSerializers(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        user = User.objects.get(username=request.data["username"])
+        user.set_password(request.data["password"])
+        user.save()
+        token = Token.objects.create(user=user)
+        return Response({"token": token.key, "user": serializer.data})
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+"""
+
+
 # ====================[ Get: list of ..., Post: create a new instance ]=========================
 class MealViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = Meal.objects.all().order_by('-time')
+    # permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = []
+    permission_classes = []
+    queryset = Meal.objects.all().order_by("-time")
     serializer_class = MealSerializer
 
     # Get Daily Meals in paginate
@@ -24,15 +44,20 @@ class MealViewSet(viewsets.ModelViewSet):
     def daily_meals(self, request):
         paginator = DayPage()
         # Get all the distinct dates (all the days with meals)
-        dates = Meal.objects.order_by().annotate(date=TruncDate('time')).values('date').distinct()
+        dates = (
+            Meal.objects.order_by()
+            .annotate(date=TruncDate("time"))
+            .values("date")
+            .distinct()
+        )
         page = paginator.paginate_queryset(dates, request, self)
 
         # only display the pagination if needed
         if page is not None:
             results = []
             for item in page:
-                date_meals = Meal.objects.filter(time__date=item['date'])
-                daily_data = {'date': item['date'], 'meals': date_meals}
+                date_meals = Meal.objects.filter(time__date=item["date"])
+                daily_data = {"date": item["date"], "meals": date_meals}
                 results.append(daily_data)
 
             serializer = DailyMealSerializer(results, many=True)
@@ -42,9 +67,8 @@ class MealViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def get_day(self, request):
-
         # Get the `date` from query parameters, or you can define a default date
-        request_date = request.query_params.get('date')             # format is ?date=YYYY-MM-DD
+        request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
         date_meals = Meal.objects.filter(time__date=request_date)
 
         # Serialize the queryset
@@ -52,32 +76,39 @@ class MealViewSet(viewsets.ModelViewSet):
         serialized_meals = serializer.data  # This is now a list of dictionaries
 
         # Prepare daily_data
-        daily_data = {'date': request_date, 'meals': serialized_meals}
+        daily_data = {"date": request_date, "meals": serialized_meals}
         return Response(daily_data)
 
 
 class FoodViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [SessionAuthentication, BasicAuthentication]
+    # permission_classes = [IsAuthenticated]
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
 
 
 class PetViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
 
     # Handle multiple occurrence of names
     def create(self, request, *args, **kwargs):
         new_pet = request.data
-        existing_pets = Pet.objects.filter(name=new_pet['name'])
+        existing_pets = Pet.objects.filter(name=new_pet["name"])
 
         # check if the pet.name is already existing. return the existing cat-names
         if existing_pets.exists():
-            return Response({'detail': 'Pet with the same n ame already exists',
-                             'your_pet:': new_pet,
-                             'existing_pets': [model_to_dict(pet) for pet in existing_pets.iterator()]},
-                            status=400)
+            return Response(
+                {
+                    "detail": "Pet with the same n ame already exists",
+                    "your_pet:": new_pet,
+                    "existing_pets": [
+                        model_to_dict(pet) for pet in existing_pets.iterator()
+                    ],
+                },
+                status=400,
+            )
 
         # Perform the creation after validating that the name is not already existent
         serialized_pet = self.get_serializer(data=new_pet)
@@ -85,9 +116,13 @@ class PetViewSet(viewsets.ModelViewSet):
         self.perform_create(serialized_pet)
         return Response(serialized_pet.data, status=201)
 
-    @action(detail=False, description="Search All the Meals a pet has eaten.", methods=['GET'])
+    @action(
+        detail=False,
+        description="Search All the Meals a pet has eaten.",
+        methods=["GET"],
+    )
     def get_meals(self, reqeust):
-        request_data = reqeust.query_params.get('PID')      # get the data
+        request_data = reqeust.query_params.get("PID")  # get the data
 
         # Try to get the Pet with ID. If the ID is wrong return with Error 404
         try:

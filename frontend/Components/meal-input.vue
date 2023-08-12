@@ -1,37 +1,60 @@
 <script setup lang="ts">
-const props = defineProps(['input', 'active', 'fed', 'pets', 'num_pets',])
-defineEmits(['close-meal', "update-pets", 'update'])
+import { useDateFormat, } from '@vueuse/core'
+import axios from "axios";
+const props = defineProps(['input', 'active', 'foodDetail', 'mealDetail', 'pets'])
+const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food"])
 
-// TODO: Request available food
-const food_types = ["food 1", "steak"]
-
-const input_data = ref({
-  fed: [1],
-  food: props.input.food,
-  date: props.input.date,
-  time: props.input.time,
-  quantity: props.input.quantity,
-  unit: props.input.unit,
+const {pending: pendingFoodTypes, data: food_types} = await useFetch(`http://127.0.0.1:8000/Food/`, {
+  lazy: true,
+  server: false
 })
 
+const input_data = ref({
+  fed: props.mealDetail.pet,
+  food: props.foodDetail,
+  date: new Date(props.mealDetail.time).toISOString().substring(0, 10),
+  time: new Date(props.mealDetail.time).toISOString().substring(11, 16),
+  quantity: props.mealDetail.quantity,
+  unit: props.foodDetail.unit,
+})
+
+
+function PutMeal(){
+  axios.put(`http://127.0.0.1:8000/Meal/${props.mealDetail.id}/`, {
+    quantity: input_data.value.quantity,
+    food: input_data.value.food.id,
+    pet: input_data.value.fed,
+    time: `${input_data.value.date}T${input_data.value.time}`
+  }).then(() => {
+    emits("refresh-meal");
+  })
+}
+
+function change_fed(id){
+  if(input_data.value.fed.includes(id)) input_data.value.fed.splice(input_data.value.fed.indexOf(id), 1)
+  else input_data.value.fed.push(id)
+  console.log(input_data.value.fed)
+}
+const count = ref(0)
 </script>
 
 <template>
   <Transition>
     <div class="meal-input-wrap">
-      <div  class="pet-selector">
-        <div v-for="pet in input.pets" id="{{pet}}"
+      <div  class="pet-selector" :key="count">
+        <div v-for="pet in pets" id="{{pet.id}}"
              class="pets"
-             :class="[fed.includes(pet) ? 'isFed' : 'starving']"
-             :style="{backgroundColor: pet == 1 ? '#9ac1ed' : '#efab92'}"
-             @click="$emit('update-pets', pet)"
+             :class="[mealDetail.pet.includes(pet) ? 'isFed' : 'starving']"
+             :style="{'background-color': props.mealDetail.pet.includes(pet.id) ? pet.color : 'none'}"
+             @click="() => {change_fed(pet.id); count++}"
         />
       </div>
       <div class="row-wrapper">
         <div >
           <label>Food:</label>
-          <select class="food" v-model="input_data.food">
-            <option v-for="food in food_types">{{food}}</option>
+          <div v-if="pendingFoodTypes">Get Food ...</div>
+          <select v-else class="food" v-model="input_data.food">
+            <option v-for="food in food_types" :value="food">{{food.id}}</option>
           </select>
         </div>
         <div class="quantity">
@@ -41,17 +64,17 @@ const input_data = ref({
       </div>
       <div class="row-wrapper">
         <div class="date">
-          <label>Date</label>
-          <input class="date-picker" type="date" v-model="input_data.date">
+          <label>Date: </label>
+          <input class="date-picker" type="date" v-model="input_data.date" @change="() => {console.log('date: ', input_data.date)}">
         </div>
         <div class="time">
           <label>Time</label>
-          <input class="time-picker" type="time" v-model="input_data.time">
+          <input class="time-picker" type="time" v-model="input_data.time" @change="() => {console.log('time: ', input_data.time)}">
         </div>
       </div>
       <div class="row-wrapper button-wrap">
         <button class="cancel" @click="$emit('close-meal')"><span>cancel</span></button>
-        <button class="save" @click="$emit('update', input_data)">
+        <button class="save" @click="PutMeal">
           <span>save</span>
         </button>
       </div>

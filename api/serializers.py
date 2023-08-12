@@ -2,19 +2,26 @@ from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 from .models import Pet, Food, Meal
 from rest_framework.serializers import ModelSerializer
+from django.contrib.auth.models import User
+
+
+class UserSerializers(ModelSerializer):
+    class Meta(object):
+        model = User
+        fields = ["id", "username", "password", "email"]
 
 
 class PetSerializer(ModelSerializer):
     # The name can only occur once and is handled in the views.py
     class Meta:
         model = Pet
-        fields = '__all__'
+        fields = "__all__"
 
 
 class FoodSerializer(ModelSerializer):
     class Meta:
         model = Food
-        fields = '__all__'
+        fields = "__all__"
 
     @staticmethod
     def validate_name(value):
@@ -26,10 +33,9 @@ class FoodSerializer(ModelSerializer):
 class MealSerializer(ModelSerializer):
     class Meta:
         model = Meal
-        fields = '__all__'
+        fields = "__all__"
 
 
 class DailyMealSerializer(serializers.Serializer):
     date = serializers.DateField()
     meals = MealSerializer(many=True)  # `Meal` instances for that day
-

@@ -1,25 +1,31 @@
-<script setup lang="ts">
-const props = defineProps(['active', 'pets', 'fed', 'food', 'time', 'quantity', 'unit'])
+<script setup lang="js">
+import { useDateFormat } from '@vueuse/core'
+const props = defineProps(['active', 'foodDetail', 'mealDetail', 'pets'])
 defineEmits(['open-meal'])
+const formatted = (date) => new Date(date).toISOString().substring(11, 16)
 </script>
 
 <template>
-    <div class="meal-holder" :class="[!active? 'open': 'closed']" @click="$emit('open-meal')">
-      <div class="meal-info">
-        <div class="pet-info">
-          <div class="pet" v-for="pet in props.pets" :class="[fed.includes(pet) ? 'fed' : 'starving']"></div>
-        </div>
-        <div class="meal-details">
-          <Transition>
-            <b class="bold" v-if="!active" id="food-type">{{ food }}</b>
-          </Transition>
-          <p id="time">{{ time }} Uhr</p>
+  <div v-if="mealDetail === null || foodDetail === null || pets === null ">Loading Info...</div>
+  <div v-else class="meal-holder" :class="[!active? 'open': 'closed']" @click="$emit('open-meal')">
+    <div class="meal-info">
+      <div class="pet-info" :class="[!active? 'open': 'closed']" :key="props.pets">
+        <div class="pet" v-for="pet in props.pets"
+             :class="[props.mealDetail.pet.includes(pet.id) ? 'fed' : 'starving']"
+             :style="{'background-color': props.mealDetail.pet.includes(pet.id) ? pet.color : 'none'}">
         </div>
       </div>
-      <div class="meal-quantity">
-        <b class="bold" id="quantity">{{ quantity }}{{ unit }}</b>
+      <div class="meal-details">
+        <Transition>
+          <b class="bold" v-if="!active" id="food-type">{{ foodDetail.name }}</b>
+        </Transition>
+        <p id="time">{{ formatted(mealDetail.time) }} Uhr</p>
       </div>
     </div>
+    <div class="meal-quantity">
+      <b class="bold" id="quantity">{{ props.mealDetail.quantity }}{{ props.foodDetail.unit }}</b>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="sass">
@@ -60,6 +66,10 @@ defineEmits(['open-meal'])
       align-items: center
       flex-wrap: wrap
       gap: 2px
+      transition: 0.3s ease-in-out
+
+      &.closed
+        width:  70px
 
       .pet
         width: 20px
