@@ -3,6 +3,7 @@ import { useDateFormat } from '@vueuse/core'
 const props = defineProps(['active', 'foodDetail', 'mealDetail', 'pets'])
 defineEmits(['open-meal'])
 const formatted = (date) => new Date(date).toISOString().substring(11, 16)
+
 </script>
 
 <template>

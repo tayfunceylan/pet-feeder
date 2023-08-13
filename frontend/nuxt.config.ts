@@ -14,6 +14,7 @@ export default defineNuxtConfig({
   vite: {
     define: {
       'process.env.DEBUG': false,
+      transpile: ['@vuepic/vue-datepicker'],
     },
     css: {
       preprocessorOptions: {

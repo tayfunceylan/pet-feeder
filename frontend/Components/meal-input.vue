@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useDateFormat, } from '@vueuse/core'
+import '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 import axios from "axios";
 const props = defineProps(['input', 'active', 'foodDetail', 'mealDetail', 'pets'])
 const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food"])

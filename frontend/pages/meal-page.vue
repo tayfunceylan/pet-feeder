@@ -6,14 +6,17 @@ import axios from "axios";
 import { useNow, useDateFormat } from '@vueuse/core'
 
 // const formatted = useDateFormat(useNow(), 'YYYY-MM-DD')
-const formatted = "2023-08-11"
+const date = ref(new Date().toISOString().substring(0, 10))
 
-const {pending: pendingMeals, data: dateMeals} = await useAsyncData(
+const {pending: pendingMeals, data: dateMeals, refresh: refreshMeals} = await useAsyncData(
     "mealsList",
-    () => $fetch(`http://127.0.0.1:8000/Meal/get_day/?date=${formatted}`, {
+    () => $fetch(`http://127.0.0.1:8000/Meal/get_day/?date=${date.value}`, {
       lazy: true,
       server: false,
-    }).catch((error) => {console.log(`mealsList error: ${error}`)})
+    }).catch((error) => {console.log(`mealsList error: ${error}`)}),
+    {
+      watch: [date]
+    }
 )
 
 const {pending: pendingPets, data: pets} = await useAsyncData(
@@ -28,19 +31,24 @@ const {pending: pendingPets, data: pets} = await useAsyncData(
 <template>
   <div class="page">
     <page-header></page-header>
+    <div class="date-picker">
+      <button>&lt</button>
+      <input type="date" v-model="date" @change="() => console.log('data: ', date)">
+      <button>></button>
+    </div>
     <p v-if="pendingMeals && pendingPets">Loading ...</p>
     <div class="meal-list" v-else-if="dateMeals != null">
       <meal-info v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" />
     </div>
     <tool-bar/>
-
   </div>
 
 </template>
 
 <style scoped lang="sass">
 @import "assets/colors"
-
+p
+  @include text-standard
 .page
   height: 100vh
   width: 100vw
@@ -56,6 +64,16 @@ const {pending: pendingPets, data: pets} = await useAsyncData(
   gap: 15px
 
 
+.date-picker
+  margin-top: 60px
+  border: 1px solid wheat
+  display: flex
+  height: 70px
+  flex-direction: row
+  justify-content: space-evenly
+  align-items: center
 
+  *
+    @include text-style-normal
 
 </style>

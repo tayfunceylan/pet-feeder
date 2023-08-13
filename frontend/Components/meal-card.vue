@@ -15,6 +15,7 @@ onMounted(async () => {
   await fetchMeal();
 });
 
+const counter = ref(0)
 
 async function fetchMeal(){
   const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`)
@@ -24,37 +25,42 @@ async function fetchMeal(){
   const foodId = meal.value.food
   const foodResponse = await axios.get(`http://127.0.0.1:8000/Food/${foodId}/`)
   food.value = foodResponse.data
+  counter.value += 1
+  console.log(counter)
 }
-
 
 </script>
 
 <template>
   <OnClickOutside @trigger="isActive=false">
-    <div class="meal-card" :class="isActive ? 'open' : ''" v-if="meal" :key="meal">
-      <Transition>
-        <meal-info
-            :active="isActive"
-            :foodDetail="food"
-            :mealDetail="meal"
-            :pets="petsList"
-            @open-meal="isActive=true"
-        />
+    <div class="wrapper">
+      <Transition v-if="meal" name="card">
+        <div class="meal-card" :class="isActive ? 'open' : ''" :key="counter">
+          <Transition>
+            <meal-info
+                :active="isActive"
+                :foodDetail="food"
+                :mealDetail="meal"
+                :pets="petsList"
+                @open-meal="isActive=true"
+            />
+          </Transition>
+          <Transition>
+            <meal-input
+                v-if="isActive"
+                :active="!isActive"
+                :foodDetail="food"
+                :mealDetail="meal"
+                :pets="petsList"
+                @open-meal="isActive=true"
+                @close-meal="isActive=false"
+                @refresh-meal="fetchMeal"
+            />
+          </Transition>
+        </div>
       </Transition>
-      <Transition>
-        <meal-input
-            v-if="isActive"
-            :active="!isActive"
-            :foodDetail="food"
-            :mealDetail="meal"
-            :pets="petsList"
-            @open-meal="isActive=true"
-            @close-meal="isActive=false"
-            @refresh-meal="fetchMeal"
-        />
-      </Transition>
+      <div v-else>Loading Card...</div>
     </div>
-    <div v-else>Loading Card...</div>
 
   </OnClickOutside>
 
@@ -85,14 +91,21 @@ async function fetchMeal(){
   &.open
     height: $meal-height + 180px
 
-.inputs-enter-active,
-.inputs-leave-active
-  transition: all 0.5s ease
 
 
-.inputs-enter-from,
-.inputs-leave-to
+.card-enter-active
+  transition: all 0.6s ease-in-out
+.card-leave-active
+  position: fixed
+  transition: all 0.6s ease-in-out
+
+
+.card-enter-from
   opacity: 0
+  transform: translateX(-400px)
+.card-leave-to
+  opacity: 0
+  transform: translateX(400px)
 
 
 </style>
