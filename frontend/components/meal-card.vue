@@ -1,7 +1,7 @@
 <script setup lang="js">
 import {OnClickOutside} from "@vueuse/components/index"
-import MealInfo from "~/Components/meal-info.vue"
-import MealInput from "~/Components/meal-input.vue";
+import MealInfo from "~/components/meal-info.vue"
+import MealInput from "~/components/meal-input.vue";
 import {integer} from "vscode-languageserver-types";
 import axios from "axios";
 const props = defineProps(["mealID", "petsList"])

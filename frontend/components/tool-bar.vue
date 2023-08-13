@@ -9,13 +9,13 @@ const active_elm = ref("one")
     <div class="tool-holder">
       <div class="active" :class="[active_elm]"></div>
       <div class="nav-button">
-        <button class="bold" @click="active_elm = 'zero'">food</button>
+        <NuxtLink class="bold" to="/food-page" @click="active_elm = 'zero'">food</NuxtLink>
       </div>
       <div class="nav-button">
-        <button class="bold" @click="active_elm = 'one'">meal</button>
+        <NuxtLink class="bold" to="/meal-page" @click="active_elm = 'one'">meal</NuxtLink>
       </div>
       <div class="nav-button">
-        <button class="bold" @click="active_elm = 'two'">pet</button>
+        <NuxtLink class="bold" to="/pet-page" @click="active_elm = 'two'">pet</NuxtLink>
       </div>
     </div>
   </div>

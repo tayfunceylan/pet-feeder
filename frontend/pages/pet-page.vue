@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import ToolBar from "~/Components/tool-bar.vue";
+import ToolBar from "~/components/tool-bar.vue";
 </script>
 
 <template>

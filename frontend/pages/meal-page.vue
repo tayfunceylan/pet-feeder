@@ -1,7 +1,7 @@
 <script setup lang="js">
-import MealInfo from "~/Components/meal-card.vue";
-import PageHeader from "~/Components/page-header.vue";
-import ToolBar from "~/Components/tool-bar.vue";
+import MealInfo from "~/components/meal-card.vue";
+import PageHeader from "~/components/page-header.vue";
+import ToolBar from "~/components/tool-bar.vue";
 import axios from "axios";
 import { useNow, useDateFormat } from '@vueuse/core'
 
@@ -38,8 +38,6 @@ const changeDate = (day) => {
 </script>>
 
 <template>
-  <div class="page">
-    <page-header></page-header>
     <div class="date-picker" :key="counter">
       <button @click="changeDate(-1)">&lt</button>
       <input type="date" v-model="date">
@@ -49,24 +47,16 @@ const changeDate = (day) => {
     <div class="meal-list" v-else-if="dateMeals != null" >
       <meal-info v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" :key="meal.id"/>
     </div>
-    <tool-bar/>
-  </div>
-
 </template>
 
 <style scoped lang="sass">
 @import "assets/colors"
 p
   @include text-standard
-.page
-  height: 100vh
-  width: 100vw
-  background-color: $background-dark
 
 .meal-list
   @include all-center
   background-color: $background-dark
-  padding-top: 19px + $navbar-height
   width: 100vw
   padding-bottom: 50px + $navbar-height
   flex-direction: column
@@ -74,15 +64,25 @@ p
 
 
 .date-picker
-  margin-top: 60px
-  border: 1px solid wheat
+  margin-top: $navbar-height
   display: flex
-  height: 70px
+  height: 80px
   flex-direction: row
   justify-content: space-evenly
   align-items: center
 
   *
     @include text-style-normal
+
+input
+  background-color: $background-bright
+  padding: 5px 15px 5px 15px
+  border-radius: 8px
+button
+  background-color: $background-bright
+  border-radius: 50px
+  width: 30px
+  height: 30px
+
 
 </style>
