@@ -35,7 +35,6 @@ function PutMeal(){
 function change_fed(id){
   if(input_data.value.fed.includes(id)) input_data.value.fed.splice(input_data.value.fed.indexOf(id), 1)
   else input_data.value.fed.push(id)
-  console.log(input_data.value.fed)
 }
 const count = ref(0)
 </script>
