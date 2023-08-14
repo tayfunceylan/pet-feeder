@@ -10,5 +10,4 @@ router.register(r"pet", PetViewSet, basename="pet")
 urlpatterns = router.urls
 
 urlpatterns += [
-    path('login/', login_view, name='login'),
 ]

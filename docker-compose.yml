@@ -5,9 +5,10 @@ services:
   backend:
     container_name: django
     build: .
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+    command: > 
+     sh -c "python manage.py migrate &&
+            python manage.py ensureadminuser &&
+            python manage.py runserver 0.0.0.0:8000"
     environment:
       DJANGO_DEBUG: ${DJANGO_DEBUG}
       DJANGO_SECRET_KEY: ${POSTGRES_USER}

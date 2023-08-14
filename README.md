@@ -2,7 +2,8 @@
 
 ## Get Started
 
-Use docker compose to easyly run the dev setup (Django, Nuxt, Nginx Proxy).
+First rename `.env.example` to `.env` and adjust the environment vars to your liking.
+Then use `docker compose` to easily run the dev setup (Django, Nuxt, Nginx Proxy).
 
 ```sh
 docker compose -f dev.yml up
