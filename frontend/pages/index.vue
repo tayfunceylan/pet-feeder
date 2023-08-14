@@ -9,54 +9,89 @@
 
   <v-table v-for="category in categories">
     <thead @click=editMeal(NaN)>
-      <tr>
-        <th>
-          {{ category.name }}
-        </th>
-        <th v-for="n in Math.max(0, category.meals.length - 1)">
-        </th>
-      </tr>
+    <tr>
+      <th>
+        {{ category.name }}
+      </th>
+      <th v-for="n in Math.max(0, category.meals.length - 1)">
+      </th>
+    </tr>
     </thead>
     <tbody>
-      <tr v-for="meal in category.meals" :key="meal.time" @click=editMeal(meal)>
-        <td>{{ petsToString(meal.pets) }}</td>
-        <td>{{ meal.quantitiy + foods[meal.food].unit }}</td>
-        <td>{{ toTimeString(meal.time) }}</td>
-      </tr>
+    <tr v-for="meal in category.meals" :key="meal.time" @click=editMeal(meal)>
+      <td>{{ petsToString(meal.pets) }}</td>
+      <td>{{ meal.quantitiy + foods[meal.food].unit }}</td>
+      <td>{{ toTimeString(meal.time) }}</td>
+    </tr>
     </tbody>
   </v-table>
 
   <v-dialog v-model=dialog width="700">
     <v-card>
-      <v-card-item>
-        <v-row>
-          <v-col cols="12" md="4">
-            <v-select label="Pets" :items=petList item-title="name" item-value="id" v-model=selectedMeal.pets multiple></v-select>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-text-field :label="`Menge in ${selectedMeal.food.length ? foods[selectedMeal.food].unit : ''}`" v-model=selectedMeal.quantitiy type="number"></v-text-field>
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-select label="Futter" :items=foodList item-title="name" item-value="id" v-model=selectedMeal.food></v-select>
-          </v-col>
-        </v-row>
-        <v-row class="justify-space-evenly">
-          <v-card-actions>
-            <v-btn color="primary" block @click="dialog = false">Close</v-btn>
-          </v-card-actions>
-          <v-card-actions>
-            <v-btn color="primary" block @click=duplicateMeal()>Duplicate</v-btn>
-          </v-card-actions>
-          <v-card-actions>
-            <v-btn color="primary" block @click=saveMeal()>Save</v-btn>
-          </v-card-actions>
-        </v-row>
-      </v-card-item>
+        <v-card-item>
+          <v-row  class="mt-4">
+            <v-col cols="12" md="4">
+              <v-select label="Pets" :items=petList item-title="name" item-value="id" v-model=selectedMeal.pets
+                        variant="outlined" multiple></v-select>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-text-field :label="`Menge in ${selectedMeal.food.length ? foods[selectedMeal.food].unit : ''}`"
+                            v-model=selectedMeal.quantitiy variant="outlined" type="number"></v-text-field>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-select label="Futter" :items=foodList item-title="name" item-value="id" v-model=selectedMeal.food
+                        variant="outlined"></v-select>
+            </v-col>
+          </v-row>
+          <v-row class="justify-space-evenly mb-3">
+            <v-card-actions>
+              <v-btn color="primary" block @click="dialog = false">Close</v-btn>
+            </v-card-actions>
+            <v-card-actions>
+              <v-btn color="primary" block @click=duplicateMeal()>Duplicate</v-btn>
+            </v-card-actions>
+            <v-card-actions>
+              <v-btn color="primary" block @click=saveMeal()>Save</v-btn>
+            </v-card-actions>
+          </v-row>
+        </v-card-item>
     </v-card>
   </v-dialog>
+  <p>{{ meals }}</p>
+  <br>
+  <br>
+  <p>{{ date }}</p>
+  <v-btn color="primary"  @click=refresh>Refresh data</v-btn>
+  <v-btn color="primary"  @click=logout>Logout</v-btn>
 </template>
 
 <script setup lang="ts">
+// get date in format YYYY-MM-DD
+let date = new Date().toISOString().slice(0, 10)
+
+// invalidate cache on mount
+onMounted(() => {
+
+})
+
+// fetch data from backend and date in params
+const { data: meals, refresh } = await useFetch('/api/meal/get_day/',
+  {
+    server: false,
+    query: {
+      date: date,
+    },
+    // redirect to /api/auth/login if status is 403
+    onResponse({ response }) {
+      if (response.status == 403) {
+        window.location.href = '/api/auth/login'
+      }
+    },
+  },
+)
+
+refresh()
+
 const foodList = ref()
 foodList.value = [
   {
@@ -182,7 +217,7 @@ const editMeal = (meal: any) => {
     quantitiy: "",
     food: [],
   }
-  if (meal){
+  if (meal) {
     selectedMeal.value.id = meal.id
     selectedMeal.value.pets = meal.pets
     selectedMeal.value.quantitiy = meal.quantitiy
@@ -199,6 +234,15 @@ const saveMeal = (duplicate: boolean = false) => {
   console.log(`id: ${id} pets: ${pets} quantitiy: ${quantitiy} food: ${food.name}`)
 }
 
-const duplicateMeal = () => { saveMeal(true) }
+const duplicateMeal = () => {
+  saveMeal(true)
+}
 
+const logout = async () => {
+  await useFetch('/api/auth/logout', {
+    onResponse({ response }) {
+      if (response.status == 200) window.location.href = '/api/auth/login'
+    },
+  })
+}
 </script>

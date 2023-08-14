@@ -2,27 +2,10 @@
 
 ## Get Started
 
-### Backend
+Use docker compose to easyly run the dev setup (Django, Nuxt, Nginx Proxy).
 
 ```sh
-# Create a virtual environment to isolate our package dependencies locally
-python3 -m venv env
-source env/bin/activate  # On Windows use `env\Scripts\activate`
-
-# Install Django and Django REST framework into the virtual environment
-pip install django
-pip install djangorestframework
-
-python manage.py migrate
-python manage.py createsuperuser
-```
-
-### Frontend
-
-```sh
-cd frontend
-yarn install # npm install
-yarn dev -o # npm run dev -- -o
+docker compose -f dev.yml up
 ```
 
 ## Production
