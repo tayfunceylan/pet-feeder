@@ -34,8 +34,7 @@ def signup(request):
 # ====================[ Get: list of ..., Post: create a new instance ]=========================
 class MealViewSet(viewsets.ModelViewSet):
     # permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = []
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     queryset = Meal.objects.all().order_by("-time")
     serializer_class = MealSerializer
 

@@ -45,7 +45,9 @@ const changeDate = (day) => {
     </div>
     <p v-if="pendingMeals && pendingPets">Loading ...</p>
     <div class="meal-list" v-else-if="dateMeals != null" >
-      <meal-info v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" :key="meal.id"/>
+      <button>+</button>
+      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" :key="meal.id"/>
+
     </div>
 </template>
 
