@@ -33,7 +33,6 @@ def signup(request):
 
 # ====================[ Get: list of ..., Post: create a new instance ]=========================
 class MealViewSet(viewsets.ModelViewSet):
-    # permission_classes = [permissions.IsAuthenticated]
     permission_classes = [IsAuthenticated]
     queryset = Meal.objects.all().order_by("-time")
     serializer_class = MealSerializer
@@ -81,13 +80,13 @@ class MealViewSet(viewsets.ModelViewSet):
 
 class FoodViewSet(viewsets.ModelViewSet):
     # authentication_classes = [SessionAuthentication, BasicAuthentication]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
 
 
 class PetViewSet(viewsets.ModelViewSet):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
 
