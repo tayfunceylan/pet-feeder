@@ -579,7 +579,7 @@
     "which" "^3.0.1"
     "ws" "^8.13.0"
 
-"@nuxt/kit@^3.6.5", "@nuxt/kit@3.6.5":
+"@nuxt/kit@^3.5.0", "@nuxt/kit@^3.6.5", "@nuxt/kit@3.6.5":
   "integrity" "sha512-uBI5I2Zx6sk+vRHU+nBmifwxg/nyXCGZ1g5hUKrUfgv1ZfiKB8JkN5T9iRoduDOaqbwM6XSnEl1ja73iloDcrw=="
   "resolved" "https://registry.npmjs.org/@nuxt/kit/-/kit-3.6.5.tgz"
   "version" "3.6.5"
@@ -687,6 +687,14 @@
     "vite-node" "^0.33.0"
     "vite-plugin-checker" "^0.6.1"
     "vue-bundle-renderer" "^1.0.3"
+
+"@pinia/nuxt@^0.4.11":
+  "integrity" "sha512-bhuNFngJpmBCdAqWguezNJ/oJFR7wvKieqiZrmmdmPR07XjsidAw8RLXHMZE9kUm32M9E6T057OBbG/22jERTg=="
+  "resolved" "https://registry.npmjs.org/@pinia/nuxt/-/nuxt-0.4.11.tgz"
+  "version" "0.4.11"
+  dependencies:
+    "@nuxt/kit" "^3.5.0"
+    "pinia" ">=2.1.0"
 
 "@pkgjs/parseargs@^0.11.0":
   "integrity" "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="
@@ -4369,6 +4377,14 @@
   "resolved" "https://registry.npmjs.org/pify/-/pify-3.0.0.tgz"
   "version" "3.0.0"
 
+"pinia@>=2.1.0":
+  "integrity" "sha512-bIU6QuE5qZviMmct5XwCesXelb5VavdOWKWaB17ggk++NUwQWWbP5YnsONTk3b752QkW9sACiR81rorpeOMSvQ=="
+  "resolved" "https://registry.npmjs.org/pinia/-/pinia-2.1.6.tgz"
+  "version" "2.1.6"
+  dependencies:
+    "@vue/devtools-api" "^6.5.0"
+    "vue-demi" ">=0.14.5"
+
 "pinkie-promise@^2.0.0":
   "integrity" "sha512-0Gni6D4UcLTbv9c57DfxDGdr41XfgUjqWZu492f0cIGr16zDU06BWP/RAEvOuo7CQ0CNjHaLlM59YJJFm3NWlw=="
   "resolved" "https://registry.npmjs.org/pinkie-promise/-/pinkie-promise-2.0.1.tgz"
@@ -5850,7 +5866,7 @@
   dependencies:
     "@vue/devtools-api" "^6.5.0"
 
-"vue@^2.7.0 || ^3.2.25", "vue@^3.0.0", "vue@^3.0.0-0 || ^2.6.0", "vue@^3.2.0", "vue@^3.2.25", "vue@^3.3.4", "vue@>=2.7 || >=3", "vue@>=3.2.0", "vue@3.3.4":
+"vue@latest":
   "integrity" "sha512-VTyEYn3yvIeY1Py0WaYGZsXnz3y5UnGi62GjVEqvEGPl6nxbOrCXbVOTQWBEJUqAyTUk2uJ5JLVnYJ6ZzGbrSw=="
   "resolved" "https://registry.npmjs.org/vue/-/vue-3.3.4.tgz"
   "version" "3.3.4"

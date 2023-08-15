@@ -1,20 +1,25 @@
 <script setup lang="js">
-import MealInfo from "~/components/meal-card.vue";
-import PageHeader from "~/components/page-header.vue";
-import ToolBar from "~/components/tool-bar.vue";
-import axios from "axios";
-import { useNow, useDateFormat } from '@vueuse/core'
+
+import {useAuthStore} from "~/stores/auth";
 
 // const formatted = useDateFormat(useNow(), 'YYYY-MM-DD')
 const date = ref(new Date().toISOString().substring(0, 10))
 const counter = ref(0)
+const authStore = useAuthStore()
+
 
 const {pending: pendingMeals, data: dateMeals, execute: refreshMeals} = await useAsyncData(
     "mealsList",
     () => $fetch(`http://127.0.0.1:8000/Meal/get_day/?date=${date.value}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      },
       lazy: true,
       server: false,
-    }).catch((error) => {console.log(`mealsList error: ${error}`)}),
+    }).catch((error) => {
+      console.log(`mealsList error: ${error.status}`)
+      if(error.status) navigateTo('/login')
+    }),
     {
       watch: [date]
     }
@@ -23,9 +28,15 @@ const {pending: pendingMeals, data: dateMeals, execute: refreshMeals} = await us
 const {pending: pendingPets, data: pets} = await useAsyncData(
     "pets",
     () => $fetch('http://127.0.0.1:8000/Pet/',{
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      },
       lazy: true,
       server: false,
-    }).catch((error) => {console.log(`pets error: ${error}`)}),
+    }).catch((error) => {
+      console.log(`Pets error: ${error.status}`)
+      if(error.status) navigateTo('/login')
+    })
 )
 const changeDate = (day) => {
   let temp = date.value

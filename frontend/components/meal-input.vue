@@ -5,7 +5,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import axios from "axios";
 const props = defineProps(['input', 'active', 'foodDetail', 'mealDetail', 'pets'])
 const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food"])
-
+const authStore = useAuthStore()
 const {pending: pendingFoodTypes, data: food_types} = await useFetch(`http://127.0.0.1:8000/Food/`, {
   lazy: true,
   server: false
@@ -27,7 +27,11 @@ function PutMeal(){
     food: input_data.value.food.id,
     pet: input_data.value.fed,
     time: `${input_data.value.date}T${input_data.value.time}`
-  }).then(() => {
+  },{
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      },
+      }).then(() => {
     emits("refresh-meal");
   })
 }

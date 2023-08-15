@@ -4,12 +4,14 @@ import MealInfo from "~/components/meal-info.vue"
 import MealInput from "~/components/meal-input.vue";
 import {integer} from "vscode-languageserver-types";
 import axios from "axios";
+import {useAuthStore} from "~/stores/auth";
 const props = defineProps(["mealID", "petsList"])
 
 
 let meal = ref(null);
 let food = ref(null);
 let isActive = ref(false);
+const authStore = useAuthStore()
 
 onMounted(async () => {
   await fetchMeal();
@@ -18,12 +20,26 @@ onMounted(async () => {
 const counter = ref(0)
 
 async function fetchMeal(){
-  const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`)
+  const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`,{
+    headers: {
+      Authorization: `Bearer ${authStore.accessToken}`
+    },
+  }).catch((error) => {
+    console.log(`Meal error: ${error.status}`)
+    if(error.status) navigateTo('/login')
+  })
   meal.value = mealResponse.data
 
   // Use the food id from meal data to fetch the food data
   const foodId = meal.value.food
-  const foodResponse = await axios.get(`http://127.0.0.1:8000/Food/${foodId}/`)
+  const foodResponse = await axios.get(`http://127.0.0.1:8000/Food/${foodId}/`, {
+    headers: {
+      Authorization: `Bearer ${authStore.accessToken}`
+    },
+  }).catch((error) => {
+    console.log(`Food error: ${error.status}`)
+    if(error.status) navigateTo('/login')
+  })
   food.value = foodResponse.data
   counter.value += 1
   console.log(counter)
