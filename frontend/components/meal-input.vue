@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { useDateFormat, } from '@vueuse/core'
 import '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import axios from "axios";
+
 const props = defineProps(['input', 'active', 'foodDetail', 'mealDetail', 'pets'])
-const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food"])
+const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food", 'update-meal'])
 const authStore = useAuthStore()
+
 const {pending: pendingFoodTypes, data: food_types} = await useFetch(`http://127.0.0.1:8000/Food/`, {
   lazy: true,
-  server: false
+  server: false,
+  headers: {
+    Authorization: `Bearer ${authStore.accessToken}`
+  }
 })
 
 const input_data = ref({
@@ -19,22 +22,6 @@ const input_data = ref({
   quantity: props.mealDetail.quantity,
   unit: props.foodDetail.unit,
 })
-
-
-function PutMeal(){
-  axios.put(`http://127.0.0.1:8000/Meal/${props.mealDetail.id}/`, {
-    quantity: input_data.value.quantity,
-    food: input_data.value.food.id,
-    pet: input_data.value.fed,
-    time: `${input_data.value.date}T${input_data.value.time}`
-  },{
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      },
-      }).then(() => {
-    emits("refresh-meal");
-  })
-}
 
 function change_fed(id){
   if(input_data.value.fed.includes(id)) input_data.value.fed.splice(input_data.value.fed.indexOf(id), 1)
@@ -79,7 +66,7 @@ const count = ref(0)
       </div>
       <div class="row-wrapper button-wrap">
         <button class="cancel" @click="$emit('close-meal')"><span>cancel</span></button>
-        <button class="save" @click="PutMeal">
+        <button class="save" @click="$emit('update-meal', input_data)">
           <span>save</span>
         </button>
       </div>

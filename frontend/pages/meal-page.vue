@@ -46,6 +46,18 @@ const changeDate = (day) => {
   date.value = nextDate.toISOString().substring(0, 10)
   console.log("Next date is", nextDate.toISOString().substring(0, 10))
 }
+
+const addMeal = () => {
+  let meal = {
+    quantity: 0,
+    food: 1,
+    pet: [],
+    time: Date.now()
+  }
+  dateMeals.value.meals.push(meal)
+  console.log(dateMeals.value.meals)
+
+}
 </script>>
 
 <template>
@@ -56,8 +68,8 @@ const changeDate = (day) => {
     </div>
     <p v-if="pendingMeals && pendingPets">Loading ...</p>
     <div class="meal-list" v-else-if="dateMeals != null" >
-      <button>+</button>
-      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" :key="meal.id"/>
+      <button class="add" @click="addMeal">+</button>
+      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal"/>
 
     </div>
 </template>
@@ -92,10 +104,19 @@ input
   padding: 5px 15px 5px 15px
   border-radius: 8px
 button
+  @include text-style-normal
   background-color: $background-bright
   border-radius: 50px
   width: 30px
   height: 30px
 
+.add
+  width: 200px
+  transition: 0.7s ease-in-out
+  &:active
+    width: 220px
+  &:active
+    opacity: 0.8
+    background-color: white
 
 </style>

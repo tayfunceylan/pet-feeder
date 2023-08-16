@@ -2,9 +2,9 @@
 import {OnClickOutside} from "@vueuse/components/index"
 import MealInfo from "~/components/meal-info.vue"
 import MealInput from "~/components/meal-input.vue";
-import {integer} from "vscode-languageserver-types";
 import axios from "axios";
 import {useAuthStore} from "~/stores/auth";
+
 const props = defineProps(["mealID", "petsList"])
 
 
@@ -14,14 +14,28 @@ let isActive = ref(false);
 const authStore = useAuthStore()
 
 onMounted(async () => {
-  await fetchMeal();
+  if(props.mealID.id !== undefined) await fetchMeal()
+  else{
+    meal.value = props.mealID
+    console.log("Meal: ", meal.value)
+    const foodResponse = await axios.get(`http://127.0.0.1:8000/Food/${meal.value.food}/`, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      },
+    }).catch((error) => {
+      console.log(`Food error: ${error.status}`)
+      if(error.status === 401) navigateTo('/login')
+    })
+    food.value = foodResponse.data
+    counter.value += 1
+  }
 });
 
 const counter = ref(0)
 
 // Fetch Meal with id and food name / units from meal
-async function fetchMeal(){
-  const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`,{
+async function fetchMeal(id = null){
+  const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${id ? id : props.mealID.id}/`,{
     headers: {
       Authorization: `Bearer ${authStore.accessToken}`
     },
@@ -48,25 +62,38 @@ async function fetchMeal(){
 
 function updateMeal(newMeal){
   meal.value.fed = newMeal.fed
-  meal.value.food = newMeal.food
+  meal.value.food = newMeal.food.id
   meal.value.quantity = newMeal.quantity
-  meal.value.date = newMeal.date
-  meal.value.time = newMeal.time
 
-  console.log(meal)
-  axios.put(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`, {
-    quantity: meal.value.quantity,
-    food: meal.value.food.id,
-    pet: meal.value.fed,
-    time: `${meal.value.date}T${meal.value.time}`
-  }, {
-    headers: {
-      Authorization: `Bearer ${authStore.accessToken}`
-    },
-  }).catch((error) => {
-    console.log(`Meal error: ${error.status}`)
-    if(error.status === 401) navigateTo('/login')
-  })
+  if(meal.value.id === undefined){
+    axios.post(`http://127.0.0.1:8000/Meal/`, {
+      quantity: newMeal.quantity,
+      food: newMeal.food.id,
+      pet: newMeal.fed,
+      time: `${newMeal.date}T${newMeal.time}`
+    }, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      },
+    }).then((response) => fetchMeal(response.data.id)).catch((error) => {
+      console.log(`Meal error: ${error}`)
+      if(error.status === 401) navigateTo('/login')
+    })
+  }else{
+    axios.put(`http://127.0.0.1:8000/Meal/${meal.value.id}/`, {
+      quantity: newMeal.quantity,
+      food: newMeal.food.id,
+      pet: newMeal.fed,
+      time: `${newMeal.date}T${newMeal.time}`
+    }, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      },
+    }).then(() => fetchMeal(meal.value.id)).catch((error) => {
+      console.log(`Meal error: ${error}`)
+      if(error.status === 401) navigateTo('/login')
+    })
+  }
 }
 
 </script>
@@ -95,6 +122,7 @@ function updateMeal(newMeal){
                 @open-meal="isActive=true"
                 @close-meal="isActive=false"
                 @refresh-meal="fetchMeal"
+                @update-meal="updateMeal"
             />
           </Transition>
         </div>
