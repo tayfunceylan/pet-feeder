@@ -19,6 +19,7 @@ onMounted(async () => {
 
 const counter = ref(0)
 
+// Fetch Meal with id and food name / units from meal
 async function fetchMeal(){
   const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`,{
     headers: {
@@ -26,7 +27,7 @@ async function fetchMeal(){
     },
   }).catch((error) => {
     console.log(`Meal error: ${error.status}`)
-    if(error.status) navigateTo('/login')
+    if(error.status === 401) navigateTo('/login')
   })
   meal.value = mealResponse.data
 
@@ -38,11 +39,34 @@ async function fetchMeal(){
     },
   }).catch((error) => {
     console.log(`Food error: ${error.status}`)
-    if(error.status) navigateTo('/login')
+    if(error.status === 401) navigateTo('/login')
   })
   food.value = foodResponse.data
   counter.value += 1
   console.log(counter)
+}
+
+function updateMeal(newMeal){
+  meal.value.fed = newMeal.fed
+  meal.value.food = newMeal.food
+  meal.value.quantity = newMeal.quantity
+  meal.value.date = newMeal.date
+  meal.value.time = newMeal.time
+
+  console.log(meal)
+  axios.put(`http://127.0.0.1:8000/Meal/${props.mealID.id}/`, {
+    quantity: meal.value.quantity,
+    food: meal.value.food.id,
+    pet: meal.value.fed,
+    time: `${meal.value.date}T${meal.value.time}`
+  }, {
+    headers: {
+      Authorization: `Bearer ${authStore.accessToken}`
+    },
+  }).catch((error) => {
+    console.log(`Meal error: ${error.status}`)
+    if(error.status === 401) navigateTo('/login')
+  })
 }
 
 </script>

@@ -18,7 +18,7 @@ const {pending: pendingMeals, data: dateMeals, execute: refreshMeals} = await us
       server: false,
     }).catch((error) => {
       console.log(`mealsList error: ${error.status}`)
-      if(error.status) navigateTo('/login')
+      if(error.status === 401) navigateTo('/login')
     }),
     {
       watch: [date]
@@ -35,7 +35,7 @@ const {pending: pendingPets, data: pets} = await useAsyncData(
       server: false,
     }).catch((error) => {
       console.log(`Pets error: ${error.status}`)
-      if(error.status) navigateTo('/login')
+      if(error.status === 401) navigateTo('/login')
     })
 )
 const changeDate = (day) => {

@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <NuxtPage/>
-  </div>
-  <tool-bar/>
+
 </template>
 
 <style lang="sass">
@@ -24,6 +21,7 @@ p
 
 <script setup lang="ts">
 
+navigateTo('/login')
 
 import ToolBar from "~/components/tool-bar.vue";
 </script>
