@@ -1,16 +1,17 @@
 <script setup lang="js">
 
 import {useAuthStore} from "~/stores/auth";
+import {url} from "~/helpers/api";
 
 // const formatted = useDateFormat(useNow(), 'YYYY-MM-DD')
 const date = ref(new Date().toISOString().substring(0, 10))
 const counter = ref(0)
 const authStore = useAuthStore()
+const mealcounter = ref(0)
 
-
-const {pending: pendingMeals, data: dateMeals, execute: refreshMeals} = await useAsyncData(
+const {pending: pendingMeals, data: dateMeals, refresh: refreshMeals} = await useAsyncData(
     "mealsList",
-    () => $fetch(`http://127.0.0.1:8000/Meal/get_day/?date=${date.value}`, {
+    () => $fetch(`${url}/Meal/get_day/?date=${date.value}`, {
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`
       },
@@ -27,7 +28,7 @@ const {pending: pendingMeals, data: dateMeals, execute: refreshMeals} = await us
 
 const {pending: pendingPets, data: pets} = await useAsyncData(
     "pets",
-    () => $fetch('http://127.0.0.1:8000/Pet/',{
+    () => $fetch(`${url}/Pet/`,{
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`
       },
@@ -44,7 +45,6 @@ const changeDate = (day) => {
   const nextDate = new Date(currentDate)
   nextDate.setDate(currentDate.getDate() + day)
   date.value = nextDate.toISOString().substring(0, 10)
-  console.log("Next date is", nextDate.toISOString().substring(0, 10))
 }
 
 const addMeal = () => {
@@ -67,10 +67,9 @@ const addMeal = () => {
       <button @click="changeDate(1)">></button>
     </div>
     <p v-if="pendingMeals && pendingPets">Loading ...</p>
-    <div class="meal-list" v-else-if="dateMeals != null" >
+    <div class="meal-list" v-else-if="dateMeals != null" :key="mealcounter">
       <button class="add" @click="addMeal">+</button>
-      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal"/>
-
+      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" @refresh-list="refreshMeals"/>
     </div>
 </template>
 

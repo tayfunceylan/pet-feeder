@@ -1,7 +1,7 @@
 <script setup lang="js">
 import { useDateFormat } from '@vueuse/core'
 const props = defineProps(['active', 'foodDetail', 'mealDetail', 'pets'])
-defineEmits(['open-meal'])
+defineEmits(['open-meal', 'delete-meal'])
 const formatted = (date) => new Date(date).toISOString().substring(11, 16)
 
 </script>
@@ -23,8 +23,11 @@ const formatted = (date) => new Date(date).toISOString().substring(11, 16)
         <p id="time">{{ formatted(mealDetail.time) }} Uhr</p>
       </div>
     </div>
-    <div class="meal-quantity">
+    <div v-if=!active class="meal-quantity">
       <b class="bold" id="quantity">{{ props.mealDetail.quantity }}{{ props.foodDetail.unit }}</b>
+    </div>
+    <div v-else class="meal-quantity delete" @click="$emit('delete-meal')">
+      <b class="bold" id="quantity">X</b>
     </div>
   </div>
 </template>
@@ -103,6 +106,8 @@ const formatted = (date) => new Date(date).toISOString().substring(11, 16)
     background-color: $primary-blue
     width: 60px
     border-radius: 0 $radius $radius 0
+    &.delete
+      background-color: indianred
 
   &.closed .meal-quantity
     transition: border-radius 0.5s ease-in-out

@@ -4,9 +4,11 @@ import MealInfo from "~/components/meal-info.vue"
 import MealInput from "~/components/meal-input.vue";
 import axios from "axios";
 import {useAuthStore} from "~/stores/auth";
+import {url} from "~/helpers/api";
 
 const props = defineProps(["mealID", "petsList"])
-
+const emits = defineEmits(['refresh-list'])
+console.log("created ", props.mealID.id)
 
 let meal = ref(null);
 let food = ref(null);
@@ -18,7 +20,7 @@ onMounted(async () => {
   else{
     meal.value = props.mealID
     console.log("Meal: ", meal.value)
-    const foodResponse = await axios.get(`http://127.0.0.1:8000/Food/${meal.value.food}/`, {
+    const foodResponse = await axios.get(`${url}/Food/${meal.value.food}/`, {
       headers: {
         Authorization: `Bearer ${authStore.accessToken}`
       },
@@ -35,7 +37,7 @@ const counter = ref(0)
 
 // Fetch Meal with id and food name / units from meal
 async function fetchMeal(id = null){
-  const mealResponse = await axios.get(`http://127.0.0.1:8000/Meal/${id ? id : props.mealID.id}/`,{
+  const mealResponse = await axios.get(`${url}/Meal/${id ? id : props.mealID.id}/`,{
     headers: {
       Authorization: `Bearer ${authStore.accessToken}`
     },
@@ -47,7 +49,7 @@ async function fetchMeal(id = null){
 
   // Use the food id from meal data to fetch the food data
   const foodId = meal.value.food
-  const foodResponse = await axios.get(`http://127.0.0.1:8000/Food/${foodId}/`, {
+  const foodResponse = await axios.get(`${url}/Food/${foodId}/`, {
     headers: {
       Authorization: `Bearer ${authStore.accessToken}`
     },
@@ -66,7 +68,7 @@ function updateMeal(newMeal){
   meal.value.quantity = newMeal.quantity
 
   if(meal.value.id === undefined){
-    axios.post(`http://127.0.0.1:8000/Meal/`, {
+    axios.post(`${url}/Meal/`, {
       quantity: newMeal.quantity,
       food: newMeal.food.id,
       pet: newMeal.fed,
@@ -80,7 +82,7 @@ function updateMeal(newMeal){
       if(error.status === 401) navigateTo('/login')
     })
   }else{
-    axios.put(`http://127.0.0.1:8000/Meal/${meal.value.id}/`, {
+    axios.put(`${url}/Meal/${meal.value.id}/`, {
       quantity: newMeal.quantity,
       food: newMeal.food.id,
       pet: newMeal.fed,
@@ -95,7 +97,18 @@ function updateMeal(newMeal){
     })
   }
 }
-
+function deleteMeal(){
+  if(meal.value.id !== undefined){
+    axios.delete(`${url}/Meal/${meal.value.id}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`
+      },
+    }).then((response) => {console.log("meal: ", meal.value.id); emits('refresh-list')}).catch((error) => {
+      console.log(`Meal delete error: ${error}`)
+      if(error.status === 401) navigateTo('/login')
+    })
+  }
+}
 </script>
 
 <template>
@@ -110,6 +123,7 @@ function updateMeal(newMeal){
                 :mealDetail="meal"
                 :pets="petsList"
                 @open-meal="isActive=true"
+                @delete-meal="deleteMeal"
             />
           </Transition>
           <Transition>
