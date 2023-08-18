@@ -14,7 +14,6 @@ const credentials = ref({
 })
 watch(authentication, ()=>{
   if(authentication.loggedIn) navigateTo('/meal-page')
-
 })
 </script>
 

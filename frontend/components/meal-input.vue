@@ -64,11 +64,11 @@ const count = ref(0)
       <div class="row-wrapper">
         <div class="date">
           <label>Date: </label>
-          <input class="date-picker" type="date" v-model="input_data.date" @change="() => {console.log('date: ', input_data.date)}">
+          <input class="date-picker" type="date" v-model="input_data.date">
         </div>
         <div class="time">
           <label>Time</label>
-          <input class="time-picker" type="time" v-model="input_data.time" @change="() => {console.log('time: ', input_data.time)}">
+          <input class="time-picker" type="time" v-model="input_data.time">
         </div>
       </div>
 

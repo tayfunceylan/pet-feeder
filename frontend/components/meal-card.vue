@@ -12,6 +12,8 @@ let meal = ref(null);
 let food = ref(null);
 let isActive = ref(false);
 const authStore = useAuthStore()
+// hard update counter
+const counter = ref(0)
 
 onMounted(async () => {
   // upon creation handle the mealCard differently if the meal came from the database or is newly created
@@ -25,7 +27,6 @@ onMounted(async () => {
   }
 });
 
-const counter = ref(0)
 
 // Fetch Meal with id and food name / units from meal
 async function fetchMeal(id = null){
