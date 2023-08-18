@@ -1,5 +1,4 @@
 <script setup lang="js">
-import { useDateFormat } from '@vueuse/core'
 const props = defineProps(['active', 'foodDetail', 'mealDetail', 'pets'])
 defineEmits(['open-meal', 'delete-meal'])
 const formatted = (date) => new Date(date).toISOString().substring(11, 16)
@@ -10,12 +9,14 @@ const formatted = (date) => new Date(date).toISOString().substring(11, 16)
   <div v-if="mealDetail === null || foodDetail === null || pets === null ">Loading Info...</div>
   <div v-else class="meal-holder" :class="[!active? 'open': 'closed']" @click="$emit('open-meal')">
     <div class="meal-info">
+
       <div class="pet-info" :class="[!active? 'open': 'closed']" :key="props.pets">
         <div class="pet" v-for="pet in props.pets"
              :class="[props.mealDetail.pet.includes(pet.id) ? 'fed' : 'starving']"
              :style="{'background-color': props.mealDetail.pet.includes(pet.id) ? pet.color : 'none'}">
         </div>
       </div>
+
       <div class="meal-details">
         <Transition>
           <b class="bold" v-if="!active" id="food-type">{{ foodDetail.name }}</b>
@@ -23,12 +24,14 @@ const formatted = (date) => new Date(date).toISOString().substring(11, 16)
         <p id="time">{{ formatted(mealDetail.time) }} Uhr</p>
       </div>
     </div>
+
     <div v-if=!active class="meal-quantity">
       <b class="bold" id="quantity">{{ props.mealDetail.quantity }}{{ props.foodDetail.unit }}</b>
     </div>
     <div v-else class="meal-quantity delete" @click="$emit('delete-meal')">
       <b class="bold" id="quantity">X</b>
     </div>
+
   </div>
 </template>
 

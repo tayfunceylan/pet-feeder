@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import {fetchFoodList} from "~/helpers/api";
 
 const props = defineProps(['input', 'active', 'foodDetail', 'mealDetail', 'pets'])
 const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food", 'update-meal'])
 const authStore = useAuthStore()
+const food_types = ref(null)
 
-const {pending: pendingFoodTypes, data: food_types} = await useFetch(`http://127.0.0.1:8000/Food/`, {
-  lazy: true,
-  server: false,
-  headers: {
-    Authorization: `Bearer ${authStore.accessToken}`
-  }
-})
+onMounted( async () => {
+  // get the food list through api. TODO: get it from foodStore
+      const response = await fetchFoodList(authStore)
+      food_types.value = response?.data
+    }
+)
+
 
 const input_data = ref({
+  // collect the input data in component and give it to parent upon saving
   fed: props.mealDetail.pet,
   food: props.foodDetail,
   date: new Date(props.mealDetail.time).toISOString().substring(0, 10),
@@ -24,6 +27,7 @@ const input_data = ref({
 })
 
 function change_fed(id){
+  // Push the ped id into fed if the id is not existent. else remove it through splice
   if(input_data.value.fed.includes(id)) input_data.value.fed.splice(input_data.value.fed.indexOf(id), 1)
   else input_data.value.fed.push(id)
 }
@@ -33,6 +37,7 @@ const count = ref(0)
 <template>
   <Transition>
     <div class="meal-input-wrap">
+
       <div  class="pet-selector" :key="count">
         <div v-for="pet in pets" id="{{pet.id}}"
              class="pets"
@@ -41,12 +46,13 @@ const count = ref(0)
              @click="() => {change_fed(pet.id); count++}"
         />
       </div>
+
       <div class="row-wrapper">
         <div >
           <label>Food:</label>
-          <div v-if="pendingFoodTypes">Get Food ...</div>
+          <div v-if="!food_types">Get Food ...</div>
           <select v-else class="food" v-model="input_data.food">
-            <option v-for="food in food_types" :value="food">{{food.id}}</option>
+            <option v-for="food in food_types" :value="food">{{food.name}}</option>
           </select>
         </div>
         <div class="quantity">
@@ -54,6 +60,7 @@ const count = ref(0)
           <label>{{input_data.unit}}</label>
         </div>
       </div>
+
       <div class="row-wrapper">
         <div class="date">
           <label>Date: </label>
@@ -64,12 +71,14 @@ const count = ref(0)
           <input class="time-picker" type="time" v-model="input_data.time" @change="() => {console.log('time: ', input_data.time)}">
         </div>
       </div>
+
       <div class="row-wrapper button-wrap">
         <button class="cancel" @click="$emit('close-meal')"><span>cancel</span></button>
         <button class="save" @click="$emit('update-meal', input_data)">
           <span>save</span>
         </button>
       </div>
+
     </div>
   </Transition>
 </template>

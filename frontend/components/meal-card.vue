@@ -1,10 +1,9 @@
 <script setup lang="js">
 import {OnClickOutside} from "@vueuse/components/index"
+import {useAuthStore} from "~/stores/auth";
 import MealInfo from "~/components/meal-info.vue"
 import MealInput from "~/components/meal-input.vue";
-import axios from "axios";
-import {useAuthStore} from "~/stores/auth";
-import {url} from "~/helpers/api";
+import {deleteMealID, fetchFoodID, fetchMealID, postMeal, putMeal} from "~/helpers/api";
 
 const props = defineProps(["mealID", "petsList"])
 const emits = defineEmits(['refresh-list'])
@@ -15,18 +14,12 @@ let isActive = ref(false);
 const authStore = useAuthStore()
 
 onMounted(async () => {
+  // upon creation handle the mealCard differently if the meal came from the database or is newly created
+  // if the id is undefined, it means that it was newly created else it came from the database
   if(props.mealID.id !== undefined) await fetchMeal()
   else{
     meal.value = props.mealID
-    console.log("Meal: ", meal.value)
-    const foodResponse = await axios.get(`${url}/Food/${meal.value.food}/`, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      },
-    }).catch((error) => {
-      console.log(`Food error: ${error.status}`)
-      if(error.status === 401) navigateTo('/login')
-    })
+    const foodResponse = await fetchFoodID(authStore, meal.value.food)
     food.value = foodResponse.data
     counter.value += 1
   }
@@ -36,76 +29,38 @@ const counter = ref(0)
 
 // Fetch Meal with id and food name / units from meal
 async function fetchMeal(id = null){
-  const mealResponse = await axios.get(`${url}/Meal/${id ? id : props.mealID.id}/`,{
-    headers: {
-      Authorization: `Bearer ${authStore.accessToken}`
-    },
-  }).catch((error) => {
-    console.log(`Meal error: ${error.status}`)
-    if(error.status === 401) navigateTo('/login')
-  })
+  const mealResponse = await fetchMealID(authStore, id ? id : props.mealID.id)
   meal.value = mealResponse.data
 
   // Use the food id from meal data to fetch the food data
-  const foodId = meal.value.food
-  const foodResponse = await axios.get(`${url}/Food/${foodId}/`, {
-    headers: {
-      Authorization: `Bearer ${authStore.accessToken}`
-    },
-  }).catch((error) => {
-    console.log(`Food error: ${error.status}`)
-    if(error.status === 401) navigateTo('/login')
-  })
+  const foodId = meal.value?.food
+  const foodResponse = await fetchFoodID(authStore, foodId)
   food.value = foodResponse.data
   counter.value += 1
-  console.log(counter)
 }
 
 function updateMeal(newMeal){
-  meal.value.fed = newMeal.fed
-  meal.value.food = newMeal.food.id
-  meal.value.quantity = newMeal.quantity
-
+  // create meal Data
+  let tempMeal = {
+    quantity: newMeal.quantity,
+    food: newMeal.food.id,
+    pet: newMeal.fed,
+    time: `${newMeal.date}T${newMeal.time}`
+  }
+  // Post if it doesn't exist put to update and refresh the meal data
   if(meal.value.id === undefined){
-    axios.post(`${url}/Meal/`, {
-      quantity: newMeal.quantity,
-      food: newMeal.food.id,
-      pet: newMeal.fed,
-      time: `${newMeal.date}T${newMeal.time}`
-    }, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      },
-    }).then((response) => fetchMeal(response.data.id)).catch((error) => {
-      console.log(`Meal error: ${error}`)
-      if(error.status === 401) navigateTo('/login')
-    })
+    const postResponse = postMeal(authStore, tempMeal)
+    postResponse.then((response) => fetchMeal(response.data.id))
   }else{
-    axios.put(`${url}/Meal/${meal.value.id}/`, {
-      quantity: newMeal.quantity,
-      food: newMeal.food.id,
-      pet: newMeal.fed,
-      time: `${newMeal.date}T${newMeal.time}`
-    }, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      },
-    }).then(() => fetchMeal(meal.value.id)).catch((error) => {
-      console.log(`Meal error: ${error}`)
-      if(error.status === 401) navigateTo('/login')
-    })
+    const putResponse = putMeal(authStore, meal.value.id, tempMeal)
+    putResponse.then(() => fetchMeal(meal.value.id))
   }
 }
 function deleteMeal(){
+  // only delete if the meal exists in the database (if id doesn't exist, then it means it is only local)
   if(meal.value.id !== undefined){
-    axios.delete(`${url}/Meal/${meal.value.id}`, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      },
-    }).then((response) => {console.log("meal: ", meal.value.id); emits('refresh-list')}).catch((error) => {
-      console.log(`Meal delete error: ${error}`)
-      if(error.status === 401) navigateTo('/login')
-    })
+    const deleteResponse = deleteMealID(authStore, meal.value.id)
+    deleteResponse.then(() => emits('refresh-list'))
   }
 }
 </script>

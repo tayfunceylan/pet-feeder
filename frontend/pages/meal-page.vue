@@ -1,74 +1,46 @@
 <script setup lang="js">
-
 import {useAuthStore} from "~/stores/auth";
-import {url} from "~/helpers/api";
-import axios from "axios";
+import {fetchMealListURL} from "~/helpers/api";
+import {usePetsStore} from "~/stores/pets";
 
-// const formatted = useDateFormat(useNow(), 'YYYY-MM-DD')
 const date = ref(new Date().toISOString().substring(0, 10))
-const counter = ref(0)
-const authStore = useAuthStore()
-const mealcounter = ref(0)
 const dateMeals = ref(null)
 
-async function fetchMealList(){
-  const listResponse = await axios.get(`${url}/Meal/get_day/?date=${date.value}`, {
-    headers: {
-      Authorization: `Bearer ${authStore.accessToken}`
-    },
-  }).catch((error) => {
-    console.log(`mealsList error: ${error.response.status}`)
-    if(error.response.status === 401) navigateTo('/login')
-  })
-  dateMeals.value = listResponse.data
-  mealcounter.value++
-}
+//define useStores Authentication and Pets
+const authStore = useAuthStore()
+const petStore = usePetsStore()
+
+// variables for hard-refresh
+const mealcounter = ref(0)
+const counter = ref(0)
 
 onMounted(async () => {
-   await  fetchMealList()
-  console.log("meal_list: ", meal_list.value)
+  // when page is loaded fetch the meal and pets
+  await  fetchMealList()
+  await petStore.fetchPets()
 })
-/*
-const {pending: pendingMeals, data: dateMeals, refresh: refreshMeals} = await useAsyncData(
-    "mealsList",
-    () => $fetch(`${url}/Meal/get_day/?date=${date.value}`, {
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      },
-      lazy: true,
-      server: false,
-    }).catch((error) => {
-      console.log(`mealsList error: ${error.status}`)
-      if(error.status === 401) navigateTo('/login')
-    }),
-    {
-      watch: [date]
-    }
-)
-*/
-const {pending: pendingPets, data: pets} = await useAsyncData(
-    "pets",
-    () => $fetch(`${url}/Pet/`,{
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`
-      },
-      lazy: true,
-      server: false,
-    }).catch((error) => {
-      console.log(`Pets error: ${error.status}`)
-      if(error.status === 401) navigateTo('/login')
-    })
-)
+
+async function fetchMealList(){
+  // fetch meal from API and add the data to ref, if not null
+  const listResponse = await fetchMealListURL(authStore, date.value)
+  dateMeals.value = listResponse?.data
+  mealcounter.value++
+  // increase meal counter to hard-reset the meal-list through :key
+}
+
 const changeDate = (day) => {
+  // Change the date to the next day +1 for tomorrow and -1 for yesterday
   let temp = date.value
   const currentDate = new Date(temp)
   const nextDate = new Date(currentDate)
   nextDate.setDate(currentDate.getDate() + day)
+  // set the date.value and refresh the meal list
   date.value = nextDate.toISOString().substring(0, 10)
   fetchMealList()
 }
 
 const addMeal = () => {
+  // add a temp meal, to the list. this meal will be posted upon saving in meal-card
   let meal = {
     quantity: 0,
     food: 1,
@@ -76,8 +48,6 @@ const addMeal = () => {
     time: Date.now()
   }
   dateMeals.value.meals.push(meal)
-  console.log(dateMeals.value.meals)
-
 }
 </script>>
 
@@ -87,10 +57,11 @@ const addMeal = () => {
       <input type="date" v-model="date">
       <button @click="changeDate(1)">></button>
     </div>
-    <p v-if="!dateMeals !== null && pendingPets">Loading ...</p>
-    <div class="meal-list" v-else-if="dateMeals != null" :key="mealcounter">
+
+    <p v-if="!dateMeals && !petStore.pets">Loading ...</p>
+    <div v-else class="meal-list" :key="mealcounter">
       <button class="add" @click="addMeal">+</button>
-      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" @refresh-list="fetchMealList"/>
+      <meal-card v-for="meal in dateMeals.meals" :petsList="petStore.pets" :mealID="meal" @refresh-list="fetchMealList"/>
     </div>
 </template>
 

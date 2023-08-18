@@ -12,6 +12,10 @@ const credentials = ref({
   password: "",
   incorrectAuth: false,
 })
+watch(authentication, ()=>{
+  if(authentication.loggedIn) navigateTo('/meal-page')
+
+})
 </script>
 
 <template>
