@@ -2,13 +2,33 @@
 
 import {useAuthStore} from "~/stores/auth";
 import {url} from "~/helpers/api";
+import axios from "axios";
 
 // const formatted = useDateFormat(useNow(), 'YYYY-MM-DD')
 const date = ref(new Date().toISOString().substring(0, 10))
 const counter = ref(0)
 const authStore = useAuthStore()
 const mealcounter = ref(0)
+const dateMeals = ref(null)
 
+async function fetchMealList(){
+  const listResponse = await axios.get(`${url}/Meal/get_day/?date=${date.value}`, {
+    headers: {
+      Authorization: `Bearer ${authStore.accessToken}`
+    },
+  }).catch((error) => {
+    console.log(`mealsList error: ${error.response.status}`)
+    if(error.response.status === 401) navigateTo('/login')
+  })
+  dateMeals.value = listResponse.data
+  mealcounter.value++
+}
+
+onMounted(async () => {
+   await  fetchMealList()
+  console.log("meal_list: ", meal_list.value)
+})
+/*
 const {pending: pendingMeals, data: dateMeals, refresh: refreshMeals} = await useAsyncData(
     "mealsList",
     () => $fetch(`${url}/Meal/get_day/?date=${date.value}`, {
@@ -25,7 +45,7 @@ const {pending: pendingMeals, data: dateMeals, refresh: refreshMeals} = await us
       watch: [date]
     }
 )
-
+*/
 const {pending: pendingPets, data: pets} = await useAsyncData(
     "pets",
     () => $fetch(`${url}/Pet/`,{
@@ -45,6 +65,7 @@ const changeDate = (day) => {
   const nextDate = new Date(currentDate)
   nextDate.setDate(currentDate.getDate() + day)
   date.value = nextDate.toISOString().substring(0, 10)
+  fetchMealList()
 }
 
 const addMeal = () => {
@@ -66,10 +87,10 @@ const addMeal = () => {
       <input type="date" v-model="date">
       <button @click="changeDate(1)">></button>
     </div>
-    <p v-if="pendingMeals && pendingPets">Loading ...</p>
+    <p v-if="!dateMeals !== null && pendingPets">Loading ...</p>
     <div class="meal-list" v-else-if="dateMeals != null" :key="mealcounter">
       <button class="add" @click="addMeal">+</button>
-      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" @refresh-list="refreshMeals"/>
+      <meal-card v-for="meal in dateMeals.meals" :petsList="pets" :mealID="meal" @refresh-list="fetchMealList"/>
     </div>
 </template>
 

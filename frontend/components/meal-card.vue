@@ -8,7 +8,6 @@ import {url} from "~/helpers/api";
 
 const props = defineProps(["mealID", "petsList"])
 const emits = defineEmits(['refresh-list'])
-console.log("created ", props.mealID.id)
 
 let meal = ref(null);
 let food = ref(null);
