@@ -1,3 +1,5 @@
+import json
+
 from django.forms.models import model_to_dict
 from rest_framework import status
 
@@ -9,7 +11,7 @@ class FoodTestCase(BasicTestCase):
     Define All base variables: Url and test food dictionary
     """
 
-    base_url = "/Food"
+    base_url = "/api/food"
     new_Food = {
         "name": "Food2",
         "brand": "mellow",
@@ -25,8 +27,8 @@ class FoodTestCase(BasicTestCase):
         response = self.client.get(f"{self.base_url}/")
         # validate response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), self.number_of_foods)
-        self.check_equality(response.data[0], model_to_dict(self.test_food))
+        self.assertEqual(len(response.data["results"]), self.number_of_foods)
+        self.check_equality(response.data["results"][0], model_to_dict(self.test_food))
         print(f"test_Food_get_list: OK")
 
     def test_create_new_Food(self):
@@ -53,7 +55,7 @@ class FoodTestCase(BasicTestCase):
         # validate if Food has been successfully deleted
         response = self.client.get(f"{self.base_url}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), self.number_of_foods - 1)
+        self.assertEqual(len(response.data["results"]), self.number_of_foods - 1)
         print("test_delete_Food: OK")
 
     def test_update_pet_parameter(self):

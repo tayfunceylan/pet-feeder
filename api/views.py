@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from django.forms.models import model_to_dict
 from .serializers import *
 
+
 class DayPage(PageNumberPagination):
     page_size = 1
 
@@ -15,7 +16,7 @@ class DayPage(PageNumberPagination):
 # ====================[ Get: list of ..., Post: create a new instance ]=========================
 class MealViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Meal.objects.all().order_by('-time')
+    queryset = Meal.objects.all().order_by("-time")
     serializer_class = MealSerializer
 
     # Get Daily Meals in paginate
@@ -102,7 +103,7 @@ class PetViewSet(viewsets.ModelViewSet):
     def get_meals(self, reqeust):
         request_data = reqeust.query_params.get("PID")  # get the data
 
-        # Try to get the Pet with ID. If the ID is wrong return with Error 404
+        # Try to get the Pet with ID. If the ID is a wrong return with Error 404
         try:
             pet = Pet.objects.get(id=request_data)
         except ObjectDoesNotExist:

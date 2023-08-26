@@ -7,11 +7,14 @@ from api.models import Pet, Meal, Food
 
 class BasicTestCase(APITestCase):
     def setUp(self) -> None:
+        # Create User and Login
         self.password = "test"
+        self.username = "test-user"
         self.test_user = User.objects.create_user(
-            username="test-user", password=self.password
+            username=self.username, password=self.password
         )
-        self.client.login(usename="test-user", password=self.password)
+        self.client.login(username=self.username, password=self.password)
+        # Create Pets, food and meals
         self.number_of_pets = 1
         self.number_of_foods = 1
         self.number_of_meals = 1
@@ -27,13 +30,13 @@ class BasicTestCase(APITestCase):
             quantity=100,
             food_id=1,
         )
+
+        # save data
         self.test_meal.save()
         self.test_food.save()
         self.test_pet.save()
         self.test_user.save()
         self.test_meal.pet.add(self.test_pet)
-        self.get_token()
-        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.token)
 
     def check_equality(self, response_data: dict, input_data: dict, keys=None):
         key_list = keys if type(keys) == list else input_data.keys()

@@ -24,6 +24,8 @@ class FoodSerializer(ModelSerializer):
 
 
 class MealSerializer(ModelSerializer):
+    time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False)
+
     class Meta:
         model = Meal
         fields = "__all__"

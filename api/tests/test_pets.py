@@ -6,7 +6,7 @@ from .test_setup import BasicTestCase
 class PetTestCase(BasicTestCase):
     """ """
 
-    base_url = "/Pet"
+    base_url = "/api/pet"
     new_pet = {"name": "Pet2", "age": 3, "race": "dog", "color": "#ffffff"}
 
     def test_pet_get_list(self):
@@ -16,9 +16,8 @@ class PetTestCase(BasicTestCase):
         response = self.client.get(f"{self.base_url}/")
         # validate response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.data)
-        self.assertEqual(len(response.data), self.number_of_pets)
-        self.check_equality(response.data[0], model_to_dict(self.test_pet))
+        self.assertEqual(len(response.data["results"]), self.number_of_pets)
+        self.check_equality(response.data["results"][0], model_to_dict(self.test_pet))
         print(f"test_pet_get_list: OK")
 
     def test_create_new_pet(self):
@@ -38,16 +37,14 @@ class PetTestCase(BasicTestCase):
         Test if we can delete a pet and the counter is 0
         """
         pk = 1
-        response = self.client.delete(
-            f"{self.base_url}/{pk}/", headers=self.header_token
-        )
+        response = self.client.delete(f"{self.base_url}/{pk}/")
         # validate delete
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # validate if a pet has been successfully deleted
         response = self.client.get(f"{self.base_url}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), self.number_of_pets - 1)
+        self.assertEqual(len(response.data["results"]), self.number_of_pets - 1)
         print("test_delete_pet: OK")
 
     def test_cannot_post_two_pets_with_same_name(self):

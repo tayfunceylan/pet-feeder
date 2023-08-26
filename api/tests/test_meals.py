@@ -10,7 +10,7 @@ class MealTestCase(BasicTestCase):
     Define All base variables: Url and test meal dictionary
     """
 
-    base_url = "/Meal"
+    base_url = "/api/meal"
     new_Meal = {
         "food": 1,
         "pet": [1],
@@ -24,13 +24,13 @@ class MealTestCase(BasicTestCase):
         response = self.client.get(f"{self.base_url}/")
         # validate response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), self.number_of_meals)
+        self.assertEqual(len(response.data["results"]), self.number_of_meals)
         self.check_equality(
-            response.data[0],
+            response.data["results"][0],
             model_to_dict(self.test_meal),
             ["quantity", "food"],
         )
-        self.assertEqual(response.data[0]["pet"], [self.number_of_pets])
+        self.assertEqual(response.data["results"][0]["pet"], [self.number_of_pets])
         # TODO: get the datetime
         print(f"test_Meal_get_list: OK")
 
@@ -58,7 +58,7 @@ class MealTestCase(BasicTestCase):
         # validate if Meal has been successfully deleted
         response = self.client.get(f"{self.base_url}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), self.number_of_meals - 1)
+        self.assertEqual(len(response.data["results"]), self.number_of_meals - 1)
         print("test_delete_Meal: OK")
 
     def test_update_pet_parameter(self):
