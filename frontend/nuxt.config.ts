@@ -16,26 +16,5 @@ export default defineNuxtConfig({
       'process.env.DEBUG': false,
       transpile: ['@vuepic/vue-datepicker'],
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: '@use "@/assets/_colors.scss" as *;'
-        }
-      }
-    }
-  },
-  modules: [
-    '@vueuse/nuxt',
-    '@pinia/nuxt',
-  ],
-  pinia: {
-    autoImports: [
-      // automatically imports `defineStore`
-      'defineStore', // import { defineStore } from 'pinia'
-      ['defineStore', 'definePiniaStore'], // import { defineStore as definePiniaStore } from 'pinia'
-    ],
-  },
-  imports:{
-    dirs: ['stores']
   },
 })

@@ -7,34 +7,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
 from .serializers import *
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
-
 
 class DayPage(PageNumberPagination):
     page_size = 1
 
 
-"""@api_view(["POST"])
-def signup(request):
-    serializer = UserSerializers(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        user = User.objects.get(username=request.data["username"])
-        user.set_password(request.data["password"])
-        user.save()
-        token = Token.objects.create(user=user)
-        return Response({"token": token.key, "user": serializer.data})
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-"""
-
-
 # ====================[ Get: list of ..., Post: create a new instance ]=========================
 class MealViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = Meal.objects.all().order_by("-time")
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Meal.objects.all().order_by('-time')
     serializer_class = MealSerializer
 
     # Get Daily Meals in paginate
@@ -79,7 +60,6 @@ class MealViewSet(viewsets.ModelViewSet):
 
 
 class FoodViewSet(viewsets.ModelViewSet):
-    # authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = Food.objects.all()
     serializer_class = FoodSerializer

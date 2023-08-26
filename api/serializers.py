@@ -2,13 +2,6 @@ from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 from .models import Pet, Food, Meal
 from rest_framework.serializers import ModelSerializer
-from django.contrib.auth.models import User
-
-
-class UserSerializers(ModelSerializer):
-    class Meta(object):
-        model = User
-        fields = ["id", "username", "password", "email"]
 
 
 class PetSerializer(ModelSerializer):
