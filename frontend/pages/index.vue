@@ -1,5 +1,6 @@
 <template>
   <v-toolbar color="secondary">
+    {{ petList }}
     <v-spacer></v-spacer>
     <v-btn>&lt</v-btn>
     <v-btn>Heute</v-btn>
@@ -61,6 +62,8 @@
   <br>
   <br>
   <p>{{ date }}</p>
+  <br>
+  <br>
   <v-btn color="primary"  @click=refresh>Refresh data</v-btn>
   <v-btn color="primary"  @click=logout>Logout</v-btn>
 </template>
@@ -68,11 +71,6 @@
 <script setup lang="ts">
 // get date in format YYYY-MM-DD
 let date = new Date().toISOString().slice(0, 10)
-
-// invalidate cache on mount
-onMounted(() => {
-
-})
 
 // fetch data from backend and date in params
 const { data: meals, refresh } = await useFetch('/api/meal/get_day/',
@@ -89,8 +87,12 @@ const { data: meals, refresh } = await useFetch('/api/meal/get_day/',
     },
   },
 )
+// fetch data from backend and date in params
+const { data: petList } = await useFetch('/api/pet/', { server: false })
 
-refresh()
+// petList contains results
+// set petList to petList.results
+
 
 const foodList = ref()
 foodList.value = [
@@ -106,7 +108,7 @@ foodList.value = [
   }
 ]
 
-const petList = ref()
+// const petList = ref()
 petList.value = [
   {
     id: 1,
