@@ -8,13 +8,13 @@ class PetSerializer(ModelSerializer):
     # The name can only occur once and is handled in the views.py
     class Meta:
         model = Pet
-        fields = '__all__'
+        fields = "__all__"
 
 
 class FoodSerializer(ModelSerializer):
     class Meta:
         model = Food
-        fields = '__all__'
+        fields = "__all__"
 
     @staticmethod
     def validate_name(value):
@@ -26,10 +26,9 @@ class FoodSerializer(ModelSerializer):
 class MealSerializer(ModelSerializer):
     class Meta:
         model = Meal
-        fields = '__all__'
+        fields = "__all__"
 
 
 class DailyMealSerializer(serializers.Serializer):
     date = serializers.DateField()
     meals = MealSerializer(many=True)  # `Meal` instances for that day
-
