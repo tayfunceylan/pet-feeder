@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import {useAuthStore} from "#imports";
+// import {useAuthStore} from "#imports";
 
-definePageMeta({
+// definePageMeta({
 
-layout: "auth",
-})
+// layout: "auth",
+// })
 
-const authentication = useAuthStore()
-const credentials = ref({
-  username: "",
-  password: "",
-  incorrectAuth: false,
-})
-watch(authentication, ()=>{
-  if(authentication.loggedIn) navigateTo('/meal-page')
-})
+// const authentication = useAuthStore()
+// const credentials = ref({
+//   username: "",
+//   password: "",
+//   incorrectAuth: false,
+// })
+// watch(authentication, ()=>{
+//   if(authentication.loggedIn) navigateTo('/meal-page')
+// })
 </script>
 
 <template>

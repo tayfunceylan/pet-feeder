@@ -1,6 +1,5 @@
 <template>
   <v-toolbar color="secondary">
-    {{ petList }}
     <v-spacer></v-spacer>
     <v-btn>&lt</v-btn>
     <v-btn>Heute</v-btn>
@@ -8,6 +7,8 @@
     <v-spacer></v-spacer>
   </v-toolbar>
 
+  {{ petList }}
+  
   <v-table v-for="category in categories">
     <thead @click=editMeal(NaN)>
     <tr>
