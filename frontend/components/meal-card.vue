@@ -1,9 +1,9 @@
 <script setup lang="js">
-import {OnClickOutside} from "@vueuse/components/index"
-import {useAuthStore} from "~/stores/auth";
-import MealInfo from "~/components/meal-info.vue"
-import MealInput from "~/components/meal-input.vue";
-import {deleteMealID, fetchFoodID, fetchMealID, postMeal, putMeal} from "~/helpers/api";
+// import {OnClickOutside} from "@vueuse/components/index"
+// import {useAuthStore} from "~/stores/auth";
+// import MealInfo from "~/components/meal-info.vue"
+// import MealInput from "~/components/meal-input.vue";
+// import {deleteMealID, fetchFoodID, fetchMealID, postMeal, putMeal} from "~/helpers/api";
 
 const props = defineProps(["mealID", "petsList"])
 const emits = defineEmits(['refresh-list'])

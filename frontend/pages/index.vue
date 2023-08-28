@@ -66,6 +66,7 @@
   <br>
   <br>
   <v-btn color="primary"  @click=refresh>Refresh data</v-btn>
+  <v-btn color="primary"  @click=postdata>post data</v-btn>
   <v-btn color="primary"  @click=logout>Logout</v-btn>
 </template>
 
@@ -76,7 +77,6 @@ let date = new Date().toISOString().slice(0, 10)
 // fetch data from backend and date in params
 const { data: meals, refresh } = await useFetch('/api/meal/get_day/',
   {
-    server: false,
     query: {
       date: date,
     },
@@ -89,7 +89,7 @@ const { data: meals, refresh } = await useFetch('/api/meal/get_day/',
   },
 )
 // fetch data from backend and date in params
-const { data: petList } = await useFetch('/api/pet/', { server: false })
+const { data: petList } = await useFetch('/api/pet/')
 
 // petList contains results
 // set petList to petList.results
@@ -229,12 +229,60 @@ const editMeal = (meal: any) => {
   dialog.value = true
 }
 
-const saveMeal = (duplicate: boolean = false) => {
+const saveMeal = async (duplicate: boolean = false) => {
   var id = duplicate ? NaN : selectedMeal.value.id
   var pets = petIdsToList(selectedMeal.value.pets)
   var quantitiy = selectedMeal.value.quantitiy + foods.value[selectedMeal.value.food].unit
   var food = foods.value[selectedMeal.value.food]
   console.log(`id: ${id} pets: ${pets} quantitiy: ${quantitiy} food: ${food.name}`)
+  // do post request to /api/meal
+  // with body: {pet: pets, quantitiy: quantitiy, food: food}
+  await useFetch('/api/meal/', {
+    method: 'POST',
+    body: {
+      csrftoken: useCookie('csrftoken'),
+      pet: pets,
+      quantitiy: quantitiy,
+      food: food,
+    },
+    onResponse({ response }) {
+      if (response.status == 200) {
+        refresh()
+        dialog.value = false
+      }
+    },
+  })
+}
+
+const postdata = async () => {
+  // fetch /api first to get csrftokenmiddlewaretoken
+  // content type is text/html
+  await useFetch('/api/token', {
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+    },
+    onResponse({ response }) {
+      if (response.status == 200) {
+        // print response to console
+        
+      }
+    },
+  })
+  // do post request to /api/meal
+  // await useFetch('/api/meal/', {
+  //   method: 'POST',
+  //   body: {
+  //     pet: [1,2],
+  //     quantitiy: 123,
+  //     food: 1,
+  //   },
+  //   onResponse({ response }) {
+  //     if (response.status == 200) {
+  //       refresh()
+  //       dialog.value = true
+  //     }
+  //   },
+  // })
 }
 
 const duplicateMeal = () => {

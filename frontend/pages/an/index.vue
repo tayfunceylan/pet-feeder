@@ -20,8 +20,5 @@ p
 </style>
 
 <script setup lang="ts">
-
-navigateTo('/login')
-
-import ToolBar from "~/components/tool-bar.vue";
+navigateTo('/an/login')
 </script>

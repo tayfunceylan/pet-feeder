@@ -1,24 +1,21 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
 from .serializers import *
 from django.middleware.csrf import get_token
+from rest_framework.views import APIView
 
-@api_view(['GET', 'POST'])
-def hello_world(request):
-    return Response({"message": "Hello, world!"})
-
-# hellow world view 
-class TokenView(viewsets.ViewSet):
+class TokenView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        return Response({"message": "Hello, world!"})
+        return Response(get_token(request))
+
 
 class DayPage(PageNumberPagination):
     page_size = 1

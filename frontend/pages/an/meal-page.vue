@@ -1,8 +1,4 @@
 <script setup lang="js">
-import {useAuthStore} from "~/stores/auth";
-import {fetchMealListURL} from "~/helpers/api";
-import {usePetsStore} from "~/stores/pets";
-
 const date = ref(new Date().toISOString().substring(0, 10))
 const dateMeals = ref(null)
 

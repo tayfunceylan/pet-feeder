@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import {useAuthStore} from "#imports";
-
 // definePageMeta({
 
 // layout: "auth",

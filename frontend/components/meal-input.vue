@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
-import {fetchFoodList} from "~/helpers/api";
+// import '@vuepic/vue-datepicker'
+// import '@vuepic/vue-datepicker/dist/main.css'
+// import {fetchFoodList} from "~/helpers/api";
 
 const props = defineProps(['input', 'active', 'foodDetail', 'mealDetail', 'pets'])
 const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food", 'update-meal'])
