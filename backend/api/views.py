@@ -1,13 +1,24 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions
 from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
 from .serializers import *
+from django.middleware.csrf import get_token
 
+@api_view(['GET', 'POST'])
+def hello_world(request):
+    return Response({"message": "Hello, world!"})
+
+# hellow world view 
+class TokenView(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response({"message": "Hello, world!"})
 
 class DayPage(PageNumberPagination):
     page_size = 1
@@ -18,7 +29,7 @@ class MealViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Meal.objects.all().order_by("-time")
     serializer_class = MealSerializer
-
+    
     # Get Daily Meals in paginate
     @action(detail=False)
     def daily_meals(self, request):
