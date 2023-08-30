@@ -38,7 +38,7 @@ class Food(models.Model):
 
 class Meal(models.Model):
     time = models.DateTimeField(default=time_zone_now, blank=True)
-    food = models.ForeignKey(Food, on_delete=models.CASCADE)
+    food = models.ForeignKey(Food, on_delete=models.CASCADE, related_name="meals")
     pet = models.ManyToManyField(Pet)
     quantity = models.IntegerField()
 

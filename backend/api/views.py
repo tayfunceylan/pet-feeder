@@ -1,3 +1,5 @@
+import http.client
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
 from rest_framework import viewsets, permissions
@@ -65,6 +67,28 @@ class MealViewSet(viewsets.ModelViewSet):
 
         # Prepare daily_data
         daily_data = {"date": request_date, "meals": serialized_meals}
+        return Response(daily_data)
+
+    @action(detail=False)
+    def sort_category(self, request):
+        # Get the `date` from query parameters, or you can define a default date
+        request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
+        categories_query = Food.objects.values("category").distinct()
+        categories = [cat["category"] for cat in categories_query]
+        food_categories = dict(Food.FOOD_CATEGORIES)
+        meals = {}
+        for category in categories:
+            date_meals = (Meal.objects
+                          .filter(time__date=request_date, food__category=category)
+                          .order_by("-time"))
+
+        # Serialize the queryset
+            serializer = MealSerializer(date_meals, many=True)
+            serialized_meals = serializer.data  # This is now a list of dictionaries
+            meals[food_categories[category]] = serialized_meals
+
+        # Prepare daily_data
+        daily_data = {"date": request_date, "meals": meals}
         return Response(daily_data)
 
 
