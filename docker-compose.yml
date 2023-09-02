@@ -11,10 +11,13 @@ services:
             python manage.py runserver 0.0.0.0:8000"
     environment:
       DJANGO_DEBUG: ${DJANGO_DEBUG}
-      DJANGO_SECRET_KEY: ${POSTGRES_USER}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
       DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+      TUYA_ID: ${TUYA_ID}
+      TUYA_IP: ${TUYA_IP}
+      TUYA_KEY: ${TUYA_KEY}
     volumes:
       - ./backend:/app
 

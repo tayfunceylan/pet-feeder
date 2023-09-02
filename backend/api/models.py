@@ -20,9 +20,9 @@ class Food(models.Model):
     name = models.CharField(max_length=100)
     brand = models.CharField(max_length=30)
     FOOD_CATEGORIES = (
-        ("D", "Dry"),
-        ("W", "Wet"),
-        ("S", "Snack"),
+        ("D", "Trockenfutter"),
+        ("W", "Nassfutter"),
+        ("S", "Snacks"),
     )
     category = models.CharField(max_length=1, choices=FOOD_CATEGORIES)
     price = models.IntegerField()
@@ -39,7 +39,7 @@ class Food(models.Model):
 class Meal(models.Model):
     time = models.DateTimeField(default=time_zone_now, blank=True)
     food = models.ForeignKey(Food, on_delete=models.CASCADE, related_name="meals")
-    pet = models.ManyToManyField(Pet)
+    pets = models.ManyToManyField(Pet)
     quantity = models.IntegerField()
 
     class Meta:

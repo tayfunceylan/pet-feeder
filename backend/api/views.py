@@ -1,5 +1,5 @@
-import http.client
-
+import tinytuya
+from os import getenv
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
 from rest_framework import viewsets, permissions
@@ -70,7 +70,7 @@ class MealViewSet(viewsets.ModelViewSet):
         return Response(daily_data)
 
     @action(detail=False)
-    def sort_category(self, request):
+    def sort_category_an(self, request):
         # Get the `date` from query parameters, or you can define a default date
         request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
         categories_query = Food.objects.values("category").distinct()
@@ -90,6 +90,47 @@ class MealViewSet(viewsets.ModelViewSet):
         # Prepare daily_data
         daily_data = {"date": request_date, "meals": meals}
         return Response(daily_data)
+
+    @action(detail=False)
+    def sort_category(self, request):
+        request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
+        meals = Meal.objects.filter(time__date=request_date).order_by("-time")
+        result = {category[1]: [] for category in Food.FOOD_CATEGORIES}
+        for meal in meals:
+            result[meal.food.get_category_display()].append(MealSerializer(meal).data)
+
+        daily_data = {"date": request_date, "meals": result}
+        return Response(daily_data)
+    
+    # dispenses food for cats and logs it
+    @action(detail=False)
+    def dispenser(self, request):
+        id, ip, key = getenv("TUYA_ID"), getenv("TUYA_IP"), getenv("TUYA_KEY")
+        print(id, ip, key)
+        if not id or not ip or not key:
+            return Response({"detail": "Tuya environment variables not set"}, 500)
+        
+        d = tinytuya.OutletDevice(id, ip, key)
+        d.set_version(3.3)
+        d.set_socketTimeout(2.0)
+        d.set_socketRetryLimit(1)
+        payload=d.generate_payload(tinytuya.CONTROL, {'3': 1})
+        binary = d._encode_message(payload)
+        # print binary in hex format
+        print(binary.hex())
+        d.send(payload)
+        answer = d.receive()
+
+        meal = {}
+        if "Error" not in answer:
+            # create a new meal with latest dry food
+            meal = Meal.objects.create(
+                food=Food.objects.last(),
+                quantity=20,
+            )
+            meal.pets.set(Pet.objects.all())
+            meal = MealSerializer(meal).data
+        return Response({"feeder": answer, "meal": meal})
 
 
 class FoodViewSet(viewsets.ModelViewSet):
