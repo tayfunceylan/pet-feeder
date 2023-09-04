@@ -2,14 +2,14 @@ export const getToken = async () => {
     return String((await useFetch('/api/token/')).data.value)
 }
 
-export const postMeal = async (food, quantity, pets, id) => {
+export const postMeal = async (food, quantity, pets, time, id) => {
     let token = getToken()
     let form = new FormData()
     for (let id of pets) form.append('pets', id)
     form.append('quantity', quantity)
     form.append('food', food)
+    form.append('time', time.toISOString())
     form.append('csrfmiddlewaretoken', await token)
-    // form.append('date', await getDate())
     if (id) 
         await useFetch(`/api/meal/${id}/`, {
             method: 'PUT',

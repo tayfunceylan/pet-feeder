@@ -192,8 +192,11 @@ const editMeal = (meal: any) => {
 
 const saveMeal = async (duplicate: boolean = false) => {
   let meal: any = selectedMeal.value
+  meal.time.setHours(meal.timePicker.hours)
+  meal.time.setMinutes(meal.timePicker.minutes)
+  meal.time.setSeconds(meal.timePicker.seconds)
   if (duplicate) meal.id = NaN
-  await postMeal(meal.food, meal.quantity, meal.pets, meal.id)
+  await postMeal(meal.food, meal.quantity, meal.pets, meal.time, meal.id)
   meals.refresh()
   dialog.value = false
 }
