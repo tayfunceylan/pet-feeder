@@ -6,10 +6,11 @@
         Pet Feeder
       </v-app-bar-title>
       
-      <v-btn @click="refreshData" icon="mdi-refresh"></v-btn>
+      <v-btn @click="datePicker=new Date();updateDay()" icon="mdi-undo"/>
+      <v-btn @click="refreshData" icon="mdi-refresh"/>
       <v-menu>
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-dots-vertical"></v-btn>
+          <v-btn v-bind="props" icon="mdi-dots-vertical"/>
         </template>
         
         <v-list>
@@ -29,7 +30,7 @@
         <v-btn @click=jumpdays(-1) icon="mdi-step-backward" variant="plain"/>
         <v-menu location="bottom center" v-model:model-value="dateDialog">
           <template v-slot:activator="{ props }">
-            <v-btn width="70"  v-bind="props" variant="plain">
+            <v-btn width="90"  v-bind="props" variant="plain">
               {{ dayAsText }}
             </v-btn>
 
@@ -72,9 +73,10 @@
             <v-card-item>
               <v-row  class="mt-4">
                 <v-col cols="12" md="4">
-                  <!-- <VueDatePicker 
-                  time-picker mode-height="120" 
-                  v-model=selectedMeal.time/> -->
+                  <VueDatePicker 
+                    time-picker
+                    v-model=selectedMeal.timePicker
+                    mode-height="170"/>
                 </v-col>
                 <v-col cols="12" md="4">
                   <v-select label="Pets" :items=pets.data.value.results item-title="name" item-value="id" v-model=selectedMeal.pets
@@ -85,7 +87,7 @@
                             variant="outlined"></v-select>
                 </v-col>
                 <v-col >
-                  <v-text-field :label="`Menge in ${selectedMeal.food.length ? foodsMap[selectedMeal.food].unit : ''}`"
+                  <v-text-field :label="`Menge in ${selectedMeal.food ? foodsMap[selectedMeal.food].unit : ''}`"
                                 v-model=selectedMeal.quantity variant="outlined" type="number"></v-text-field>
                 </v-col>
               </v-row>
@@ -162,17 +164,28 @@ const petIdsToList = (petIds: number[]) => {
 const selectedMeal = ref()
 
 const editMeal = (meal: any) => {
-  console.log(meal.id)
   selectedMeal.value = {
-    pet: [],
+    pets: [1,2],
     quantity: "",
-    food: [],
+    food: null,
+    time: new Date(),
+    timePicker: {
+      hour: 0,
+      minute: 0,
+      seconds: 0
+    }
   }
   if (meal) {
     selectedMeal.value.id = meal.id
     selectedMeal.value.pets = meal.pets
     selectedMeal.value.quantity = meal.quantity
     selectedMeal.value.food = meal.food
+    selectedMeal.value.time = new Date(meal.time*1000)
+    selectedMeal.value.timePicker = {
+      hours: selectedMeal.value.time.getHours(),
+      minutes: selectedMeal.value.time.getMinutes(),
+      seconds: selectedMeal.value.time.getSeconds()
+    }
   }
   dialog.value = true
 }
