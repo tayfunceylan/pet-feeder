@@ -26,6 +26,7 @@ media
 *.so
 
 # Distribution / packaging
+tempCodeRunnerFile.py
 .Python
 build/
 develop-eggs/
