@@ -79,3 +79,24 @@ export const toTimeString = (timestamp) => {
         minute: '2-digit',
     }) + ' Uhr'
 }
+
+export const connectToWebsocket = async (updateFunc) => {
+    var ws = new WebSocket(`ws://${window.location.host}/ws/notify/`);
+    ws.onopen = function() {
+      console.log('WebSocket Client Connected');
+    };
+  
+    ws.onmessage = function(e) {
+      updateFunc()
+    };
+  
+    ws.onclose = function(e) {
+      console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+      setTimeout(function() { connectToWebsocket(updateFunc) }, 1000);
+    };
+  
+    ws.onerror = function(err) {
+      console.error('Socket encountered error: Closing socket');
+      ws.close();
+    };
+  }

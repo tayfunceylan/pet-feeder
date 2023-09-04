@@ -12,6 +12,9 @@ from .serializers import *
 from django.middleware.csrf import get_token
 from rest_framework.views import APIView
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 class TokenView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -29,6 +32,39 @@ class MealViewSet(viewsets.ModelViewSet):
     queryset = Meal.objects.all().order_by("-time")
     serializer_class = MealSerializer
     
+    # override the create method to notify the frontend
+    def update(self, request, *args, **kwargs):
+        resp = super().update(request, *args, **kwargs)
+        if resp.status_code == 200:
+            layer = get_channel_layer()
+            async_to_sync(layer.group_send)('notify', {
+                'type': 'notify.message',
+                'message': 'reload'
+            })
+        return resp
+    
+    # override the create method to notify the frontend
+    def create(self, request, *args, **kwargs):
+        resp = super().create(request, *args, **kwargs)
+        if resp.status_code == 201:
+            layer = get_channel_layer()
+            async_to_sync(layer.group_send)('notify', {
+                'type': 'notify.message',
+                'message': 'reload'
+            })
+        return resp
+    
+    # override the create method to notify the frontend
+    def destroy(self, request, *args, **kwargs):
+        resp = super().destroy(request, *args, **kwargs)
+        if resp.status_code == 204:
+            layer = get_channel_layer()
+            async_to_sync(layer.group_send)('notify', {
+                'type': 'notify.message',
+                'message': 'reload'
+            })
+        return resp
+
     # Get Daily Meals in paginate
     @action(detail=False)
     def daily_meals(self, request):

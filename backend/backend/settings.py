@@ -33,10 +33,21 @@ DEBUG = bool(os.getenv("DJANGO_DEBUG", default=1))
 
 ALLOWED_HOSTS = ['localhost', '192.168.199.128']
 
+ASGI_APPLICATION = "backend.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -45,6 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'rest_framework',
     'api',
+    'channels',
 ]
 
 REST_FRAMEWORK = {

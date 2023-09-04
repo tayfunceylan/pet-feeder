@@ -29,3 +29,6 @@ services:
       - ./frontend/.output/public:/public
     depends_on:
       - backend
+      
+  redis:
+    image: redis:alpine

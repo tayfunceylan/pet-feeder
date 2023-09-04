@@ -239,7 +239,6 @@ const dayToText = () => {
   })
 }
 
-
 const test = () => {
   console.log("test")
 }
@@ -251,4 +250,6 @@ const refreshData = async () => {
 }
 
 const dayAsText = ref(dayToText())
+
+connectToWebsocket(updateDay)
 </script>
