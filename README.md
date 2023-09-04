@@ -1,5 +1,22 @@
 # pet-tracking
 
+## Table of Contents
+
+- [pet-tracking](#pet-tracking)
+  - [Table of Contents](#table-of-contents)
+  - [Ideas to implementt](#ideas-to-implementt)
+  - [Get Started](#get-started)
+  - [Production](#production)
+
+## Ideas to implementt
+
+- [ ] Planner: possibility to specify that you can feed in the morning or evening then you do not always have to coordinate feedings in your household
+- [ ] Inventory: a page to add new foods and also track remaining amount of the food
+- [ ] Automatic Pet Feeder Machine
+  - [ ] a page to configure the pet feeder machine
+  - [ ] trigger manual feeding
+  - [ ] change schedule for automatic feeding
+
 ## Get Started
 
 First rename `.env.example` to `.env` and adjust the environment vars to your liking.
