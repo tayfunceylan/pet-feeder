@@ -20,6 +20,8 @@ services:
       TUYA_KEY: ${TUYA_KEY}
     volumes:
       - ./backend:/app
+    depends_on:
+      - redis
 
   redis:
     image: redis:alpine
