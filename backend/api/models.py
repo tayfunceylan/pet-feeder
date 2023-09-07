@@ -61,7 +61,7 @@ class Food(models.Model):
     num_packets = models.IntegerField()
     packet_size = models.IntegerField()
     category = models.CharField(max_length=1, choices=FOOD_CATEGORIES)
-    price = models.IntegerField()
+    price = models.FloatField()
     unit = models.CharField(max_length=3, choices=UNIT)
     created_at = models.DateTimeField(default=time_zone_now, blank=True)
     active = models.BooleanField(default=True) # if no food left, set to false
