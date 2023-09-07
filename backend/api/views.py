@@ -189,7 +189,8 @@ class FoodViewSet(viewsets.ModelViewSet):
             {"value": value, "name": name} 
             for value, name in Food.UNIT
         ]
-        return Response({"categories": categories, "units": units})
+        category_dict = dict(Food.FOOD_CATEGORIES)
+        return Response({"categories": categories, "units": units, "maps": {'categories': category_dict}})
 
 
 class PetViewSet(viewsets.ModelViewSet):
@@ -206,7 +207,7 @@ class PetViewSet(viewsets.ModelViewSet):
         if existing_pets.exists():
             return Response(
                 {
-                    "detail": "Pet with the same n ame already exists",
+                    "detail": "Pet with the same name already exists",
                     "your_pet:": new_pet,
                     "existing_pets": [
                         model_to_dict(pet) for pet in existing_pets.iterator()

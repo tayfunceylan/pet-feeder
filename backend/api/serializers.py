@@ -15,12 +15,6 @@ class FoodSerializer(ModelSerializer):
         model = Food
         exclude = ["created_at"]
 
-    @staticmethod
-    def validate_name(value):
-        if Food.objects.filter(name=value).exists():
-            raise serializers.ValidationError("A Pet with this name already exists.")
-        return value
-
 class MealSerializer(ModelSerializer):
     class Meta:
         model = Meal

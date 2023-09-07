@@ -1,5 +1,6 @@
 <template>
   <v-app>
+    <!-- app bar -->
     <v-app-bar :elevation="2">
       <v-app-bar-title>
         <v-progress-circular v-model=isConnected :indeterminate=isLoading size=25 color="primary"/>
@@ -27,6 +28,7 @@
     </v-app-bar>
     
     <v-main>
+      <!-- date picker -->
       <v-toolbar color=white flat>
         <v-spacer></v-spacer>
         <v-btn @click=jumpdays(-1) icon="mdi-step-backward" variant="plain"/>
@@ -35,14 +37,6 @@
             <v-btn width="90"  v-bind="props" variant="plain">
               {{ dayAsText }}
             </v-btn>
-
-            <!-- <v-date-picker 
-              @click:save=updateDay() 
-              @click:cancel="dateDialog = false"
-              color="primary" 
-              elevation="5" 
-              v-model=datePicker
-              show-adjacent-months></v-date-picker> -->
           </template>
 
           <VueDatePicker class="elevation-24" inline auto-apply locale="de"
@@ -54,6 +48,7 @@
         <v-spacer></v-spacer>
       </v-toolbar>
     
+      <!-- meals table -->
       <v-table v-for="(mealsOfCat, category) in meals.data.value.meals">
         <thead @click=editMeal(NaN)>
         <tr>
@@ -70,6 +65,7 @@
         </tbody>
       </v-table>
     
+      <!-- dialog for meals -->
       <v-dialog v-model=dialog width="700">
         <v-card>
             <v-card-item>
@@ -209,8 +205,8 @@ const saveMeal = async (duplicate: boolean = false) => {
     meal.fed_at = new Date()
   }
   await postMeal(meal.food, meal.quantity, meal.pets, meal.fed_at, meal.id)
-  meals.refresh()
   dialog.value = false
+  isLoading.value = true
 }
 
 const duplicateMeal = () => {
@@ -240,7 +236,6 @@ const jumpdays = async (offset: number) => {
 
 const delMeal = async () => {
   await deleteMeal(selectedMeal.value.id);
-  updateDay();
   dialog.value = false;
 }
 
@@ -257,10 +252,6 @@ const dayToText = () => {
     month: 'numeric',
     year: 'numeric'
   })
-}
-
-const test = () => {
-  console.log("test")
 }
 
 const refreshData = async () => {

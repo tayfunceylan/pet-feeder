@@ -52,8 +52,8 @@
             <v-list-item @click="editFood(food)">
                 <v-list-item-title>{{food.name}} <a class="font-italic text-disabled">({{food.left}} übrig)</a></v-list-item-title>
                 <v-list-item-subtitle>
-                    <span class="text-primary">{{food.brand}}</span>
-                    &mdash; {{`${food.num_packets} * ${food.packet_size}${food.unit} für ${food.price}€`}}
+                    <span class="text-primary">{{foodOptions.data.value.maps.categories[food.category]}}</span>
+                    &mdash; {{`${food.num_packets}*${food.packet_size}${food.unit} für ${food.price}€ (${food.pl})`}}
                 </v-list-item-subtitle>
             </v-list-item>
             <v-divider v-if="index < foods.data.value.results.length-1"/>
@@ -78,6 +78,7 @@
                 </v-container>
             </v-sheet>
         </v-dialog>
+
         <!-- dialog to save and edit food -->
         <v-dialog v-model="selectedFood">
             <v-sheet>
@@ -113,10 +114,10 @@ const foods: any = await foodsPromise
 const foodOptions: any = await foodOptionsPromise
 const isLoading = ref(false)
 
-const updateFunc = async () => {
+const updateFunc = async (msg: string) => {
     isLoading.value = true
-    pets.refresh()
-    foods.refresh()
+    if (['newPet', null].includes(msg)) pets.refresh()
+    if (['newFood', null].includes(msg)) foods.refresh()
     isLoading.value = false
 }
 
@@ -130,9 +131,6 @@ const editPet = (pet: any) => {
 const savePet = async () => {
     isLoading.value = true
     await postPet(selectedPet.value)
-    selectedPet.value = false
-    await updateFunc()
-    isLoading.value = false
 }
 
 const selectedFood = ref()
@@ -155,7 +153,6 @@ const saveFood = async () => {
     food.amount = food.num_packets * food.packet_size
     await postFood(selectedFood.value)
     selectedFood.value = false
-    await updateFunc()
     isLoading.value = false
 }
 </script>

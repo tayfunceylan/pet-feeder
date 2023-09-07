@@ -166,7 +166,7 @@ export const connectToWebsocket = async (updateFunc, isConnected) => {
     }
   
     ws.onmessage = function(e) {
-      updateFunc()
+      updateFunc(e.data)
     }
   
     ws.onclose = function(e) {

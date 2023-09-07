@@ -1,3 +1,4 @@
+import math
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import now as time_zone_now
@@ -26,8 +27,7 @@ class Pet(models.Model):
         # on successfull save do the following
         super(Pet, self).save(*args, **kwargs)
         # send a notification to the frontend
-        layer = get_channel_layer()
-        async_to_sync(layer.group_send)('notify', {
+        async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
             'message': 'newPets'
         })
@@ -37,8 +37,7 @@ class Pet(models.Model):
         # on successfull deletion do the following
         super(Pet, self).delete(*args, **kwargs)
         # send a notification to the frontend
-        layer = get_channel_layer()
-        async_to_sync(layer.group_send)('notify', {
+        async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
             'message': 'newPets'
         })
@@ -51,8 +50,8 @@ class Food(models.Model):
         ("stk", "Stück"),
     )
     FOOD_CATEGORIES = (
-        ("D", "Trockenfutter"),
         ("W", "Nassfutter"),
+        ("D", "Trockenfutter"),
         ("S", "Snacks"),
     )
 
@@ -65,23 +64,31 @@ class Food(models.Model):
     price = models.IntegerField()
     unit = models.CharField(max_length=3, choices=UNIT)
     created_at = models.DateTimeField(default=time_zone_now, blank=True)
+    active = models.BooleanField(default=True) # if no food left, set to false
+    pl = models.CharField(max_length=100, default="", blank=True) # preis leistung
 
     @property
     def left(self):
         eaten = self.meals.all().aggregate(Sum('quantity'))['quantity__sum']
         eaten = eaten if eaten else 0
-        return (self.amount - eaten) // self.packet_size
+        left = (self.amount - eaten) / self.packet_size
+        return math.ceil(left)
 
     class Meta:
         db_table = "Food"
 
     # trigger on modifaication of food
     def save(self, *args, **kwargs):
+        if self.unit == "g":
+            self.pl = str(round(self.price / (self.amount/1000), 2)) + "€/kg"
+        elif self.unit == "ml":
+            self.pl = str(round(self.price / (self.amount/1000), 2)) + "€/l"
+        elif self.unit == "stk":
+            self.pl = str(round(self.price / self.amount, 2)) + "€/stk"
         # on successfull save do the following
         super(Food, self).save(*args, **kwargs)
         # send a notification to the frontend
-        layer = get_channel_layer()
-        async_to_sync(layer.group_send)('notify', {
+        async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
             'message': 'newFood'
         })
@@ -91,8 +98,7 @@ class Food(models.Model):
         # on successfull deletion do the following
         super(Food, self).delete(*args, **kwargs)
         # send a notification to the frontend
-        layer = get_channel_layer()
-        async_to_sync(layer.group_send)('notify', {
+        async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
             'message': 'newFood'
         })
@@ -111,11 +117,14 @@ class Meal(models.Model):
 
     # trigger on modifaication of meal
     def save(self, *args, **kwargs):
+        if self.food.left <= 0:
+            if self.food.active: # if active although no food left
+                self.food.active = False
+                self.food.save()
         # on successfull save do the following
         super(Meal, self).save(*args, **kwargs)
         # send a notification to the frontend
-        layer = get_channel_layer()
-        async_to_sync(layer.group_send)('notify', {
+        async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
             'message': 'newMeal'
         })
@@ -125,8 +134,7 @@ class Meal(models.Model):
         # on successfull deletion do the following
         super(Meal, self).delete(*args, **kwargs)
         # send a notification to the frontend
-        layer = get_channel_layer()
-        async_to_sync(layer.group_send)('notify', {
+        async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
             'message': 'newMeal'
         })
