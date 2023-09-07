@@ -158,7 +158,8 @@ export const toTimeString = (timestamp) => {
 }
 
 export const connectToWebsocket = async (updateFunc, isConnected) => {
-    var ws = new WebSocket(`ws://${window.location.host}/ws/notify/`)
+    let protocol = window.location.protocol == 'https:' ? 'wss' : 'ws'
+    var ws = new WebSocket(`${protocol}://${window.location.host}/ws/notify/`)
     ws.onopen = function() {
         if (!isConnected.value) updateFunc() 
         isConnected.value = 100

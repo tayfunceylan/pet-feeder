@@ -31,8 +31,8 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.getenv("DJANGO_DEBUG", default=1))
 
-ALLOWED_HOSTS = ['localhost', '192.168.199.128']
-
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(',')
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS] + [f'https://{host}' for host in ALLOWED_HOSTS]
 ASGI_APPLICATION = "backend.asgi.application"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

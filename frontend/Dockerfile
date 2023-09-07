@@ -1,8 +1,6 @@
-FROM node:alpine
+FROM node:20-alpine3.16
 WORKDIR /usr/src/app
-COPY package.json ./
-COPY yarn.lock ./
+COPY . ./
 RUN yarn install
-COPY . .
 RUN yarn build
 ENV HOST=0.0.0.0
