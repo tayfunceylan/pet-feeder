@@ -1,6 +1,4 @@
 from rest_framework import serializers
-from rest_framework.fields import empty
-from rest_framework.relations import PrimaryKeyRelatedField
 from .models import Pet, Food, Meal
 from rest_framework.serializers import ModelSerializer
 
@@ -9,12 +7,13 @@ class PetSerializer(ModelSerializer):
     # The name can only occur once and is handled in the views.py
     class Meta:
         model = Pet
-        fields = "__all__"
+        exclude = ["created_at"]
 
 class FoodSerializer(ModelSerializer):
+    left = serializers.IntegerField(read_only=True)
     class Meta:
         model = Food
-        fields = "__all__"
+        exclude = ["created_at"]
 
     @staticmethod
     def validate_name(value):
@@ -25,7 +24,7 @@ class FoodSerializer(ModelSerializer):
 class MealSerializer(ModelSerializer):
     class Meta:
         model = Meal
-        fields = "__all__"
+        exclude = ["created_at"]
 
 class DailyMealSerializer(serializers.Serializer):
     date = serializers.DateField()

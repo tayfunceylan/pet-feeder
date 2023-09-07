@@ -2,8 +2,10 @@
   <v-app>
     <v-app-bar :elevation="2">
       <v-app-bar-title>
-        <v-progress-circular model-value=100 :indeterminate=loading size=25 color="primary"/>
-        Pet Feeder
+        <v-progress-circular v-model=isConnected :indeterminate=isLoading size=25 color="primary"/>
+        <NuxtLink to="/" style="text-decoration: none; color: inherit;">
+          Pet Feeder
+        </NuxtLink>
       </v-app-bar-title>
       
       <v-btn @click="datePicker=new Date();updateDay()" icon="mdi-undo"/>
@@ -17,7 +19,7 @@
           <v-list-item @click="logout">
             <v-list-item-title>Ausloggen</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="test">
+          <v-list-item to="/settings">
             <v-list-item-title>Einstellugen</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -60,10 +62,10 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="meal in mealsOfCat" :key="meal.time" @click=editMeal(meal)>
+        <tr v-for="meal in mealsOfCat" :key="meal.fed_at" @click=editMeal(meal)>
           <td>{{ petsToString(meal.pets) }}</td>
           <td>{{ meal.quantity + foodsMap[meal.food].unit }}</td>
-          <td>{{ toTimeString(meal.time) }}</td>
+          <td>{{ toTimeString(meal.fed_at) }}</td>
         </tr>
         </tbody>
       </v-table>
@@ -100,7 +102,7 @@
                     ></v-icon>
                   </v-btn>
                 </v-card-actions>
-                <v-card-actions>
+                <v-card-actions v-if=selectedMeal.id>
                   <v-btn color="primary" block @click=duplicateMeal()>
                     <v-icon
                       size="large"
@@ -133,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-const loading = ref(false)
+const isLoading = ref(false)
 const datePicker = ref(new Date())
 
 // fetch data from backend and date in params
@@ -163,28 +165,35 @@ const petIdsToList = (petIds: number[]) => {
 
 const selectedMeal = ref()
 
+// copy the meal to edit to selectedMeal
 const editMeal = (meal: any) => {
-  selectedMeal.value = {
-    pets: [1,2],
-    quantity: "",
-    food: null,
-    time: new Date(),
-    timePicker: {
-      hour: 0,
-      minute: 0,
-      seconds: 0
+  if (meal) { // copy selected meal to selectedMeal
+    let mealDate = new Date(meal.fed_at*1000)
+    selectedMeal.value = {
+      id: meal.id,
+      pets: meal.pets,
+      quantity: meal.quantity,
+      food: meal.food,
+      fed_at: mealDate,
+      timePicker: {
+        hours: mealDate.getHours(),
+        minutes: mealDate.getMinutes(),
+        seconds: mealDate.getSeconds()
+      }
     }
   }
-  if (meal) {
-    selectedMeal.value.id = meal.id
-    selectedMeal.value.pets = meal.pets
-    selectedMeal.value.quantity = meal.quantity
-    selectedMeal.value.food = meal.food
-    selectedMeal.value.time = new Date(meal.time*1000)
-    selectedMeal.value.timePicker = {
-      hours: selectedMeal.value.time.getHours(),
-      minutes: selectedMeal.value.time.getMinutes(),
-      seconds: selectedMeal.value.time.getSeconds()
+  else { // new meal
+    let now = new Date()
+    selectedMeal.value = {
+      pets: [1,2],
+      quantity: "",
+      food: null,
+      fed_at: now,
+      timePicker: {
+        hours: now.getHours(),
+        minutes: now.getMinutes(),
+        seconds: now.getSeconds()
+      }
     }
   }
   dialog.value = true
@@ -192,11 +201,14 @@ const editMeal = (meal: any) => {
 
 const saveMeal = async (duplicate: boolean = false) => {
   let meal: any = selectedMeal.value
-  meal.time.setHours(meal.timePicker.hours)
-  meal.time.setMinutes(meal.timePicker.minutes)
-  meal.time.setSeconds(meal.timePicker.seconds)
-  if (duplicate) meal.id = NaN
-  await postMeal(meal.food, meal.quantity, meal.pets, meal.time, meal.id)
+  meal.fed_at.setHours(meal.timePicker.hours)
+  meal.fed_at.setMinutes(meal.timePicker.minutes)
+  meal.fed_at.setSeconds(meal.timePicker.seconds)
+  if (duplicate) {
+    meal.id = NaN
+    meal.fed_at = new Date()
+  }
+  await postMeal(meal.food, meal.quantity, meal.pets, meal.fed_at, meal.id)
   meals.refresh()
   dialog.value = false
 }
@@ -206,7 +218,9 @@ const duplicateMeal = () => {
 }
 
 const updateDay = async () => {
+  isLoading.value = true
   const newResult = await getMealsDate(datePicker.value.toLocaleDateString('en-CA'))
+  isLoading.value = false
   meals.data.value = newResult.data.value
   meals.pending = newResult.pending
   meals.error = newResult.error
@@ -215,6 +229,9 @@ const updateDay = async () => {
   dayAsText.value = dayToText()
   dateDialog.value = false
 }
+
+const isConnected = ref(1)
+await connectToWebsocket(updateDay, isConnected)
 
 const jumpdays = async (offset: number) => {
   datePicker.value.setDate(datePicker.value.getDate() + offset)
@@ -247,12 +264,11 @@ const test = () => {
 }
 
 const refreshData = async () => {
-  loading.value = true
+  isLoading.value = true
   await Promise.all([meals.refresh(), pets.refresh(), foods.refresh()])
-  loading.value = false
+  isConnected.value = 100
+  isLoading.value = false
 }
 
 const dayAsText = ref(dayToText())
-
-connectToWebsocket(updateDay)
 </script>

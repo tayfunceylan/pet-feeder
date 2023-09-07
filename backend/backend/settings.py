@@ -35,6 +35,9 @@ ALLOWED_HOSTS = ['localhost', '192.168.199.128']
 
 ASGI_APPLICATION = "backend.asgi.application"
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",

@@ -21,11 +21,12 @@ class NotifyConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         # Send message to room groups
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type": "notify.message", "message": "reload"}
-        )
+        # async_to_sync(self.channel_layer.group_send)(
+        #     self.room_group_name, {"type": "notify.message", "message": "reload"}
+        # )
+        pass
 
     # Receive message from room group
     def notify_message(self, event):
         # Send message to WebSocket
-        self.send('reload')
+        self.send(event["message"])

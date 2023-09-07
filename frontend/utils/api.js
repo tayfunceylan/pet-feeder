@@ -2,13 +2,13 @@ export const getToken = async () => {
     return String((await useFetch('/api/token/')).data.value)
 }
 
-export const postMeal = async (food, quantity, pets, time, id) => {
+export const postMeal = async (food, quantity, pets, fed_at, id) => {
     let token = getToken()
     let form = new FormData()
     for (let id of pets) form.append('pets', id)
     form.append('quantity', quantity)
     form.append('food', food)
-    form.append('time', time.toISOString())
+    form.append('fed_at', fed_at.toISOString())
     form.append('csrfmiddlewaretoken', await token)
     if (id) 
         await useFetch(`/api/meal/${id}/`, {
@@ -23,8 +23,63 @@ export const postMeal = async (food, quantity, pets, time, id) => {
         })
 }
 
+export const postPet = async (pet) => {
+    let token = getToken()
+    let form = new FormData()
+    form.append('id', pet.id)
+    form.append('name', pet.name)
+    form.append('race', pet.race)
+    form.append('description', pet.description)
+    form.append('csrfmiddlewaretoken', await token)
+    if (pet.id) 
+        await useFetch(`/api/pet/${pet.id}/`, {
+            method: 'PUT',
+            body: form,
+            headers: {'X-CSRFToken': useCookie('csrftoken')},
+        })
+    else
+        await useFetch(`/api/pet/`, {
+            method: 'POST',
+            body: form,
+        })
+}
+
+export const postFood = async (food) => {
+    let token = getToken()
+    let form = new FormData()
+    let fields = ['id', 'name', 'brand', 'amount', 'num_packets', 'packet_size', 'category', 'price', 'unit']
+    for (let field of fields) 
+        form.append(field, food[field])
+    form.append('csrfmiddlewaretoken', await token)
+    if (food.id) 
+        await useFetch(`/api/food/${food.id}/`, {
+            method: 'PUT',
+            body: form,
+            headers: {'X-CSRFToken': useCookie('csrftoken')},
+        })
+    else
+        await useFetch(`/api/food/`, {
+            method: 'POST',
+            body: form,
+        })
+}
+
+export const deleteFood = async (id) => {
+    await useFetch(`/api/meal/${id}/`, {
+        method: 'DELETE',
+        headers: {'X-CSRFToken': useCookie('csrftoken')},
+    })
+}
+
 export const deleteMeal = async (id) => {
     await useFetch(`/api/meal/${id}/`, {
+        method: 'DELETE',
+        headers: {'X-CSRFToken': useCookie('csrftoken')},
+    })
+}
+
+export const deletePet = async (id) => {
+    await useFetch(`/api/pet/${id}/`, {
         method: 'DELETE',
         headers: {'X-CSRFToken': useCookie('csrftoken')},
     })
@@ -45,11 +100,33 @@ export const getMealsDate = async (date) => {
 }
 
 export const getPets = async () => {
-    return (await useFetch('/api/pet/'))
+    return (await useFetch('/api/pet/',{
+        onResponse({ response }) {
+            if (response.status == 403) {
+                window.location.href = '/api/auth/login'
+            }
+        }
+    }))
 }
 
 export const getFoods = async () => {
-    return (await useFetch('/api/food/'))
+    return (await useFetch('/api/food/', {
+        onResponse({ response }) {
+            if (response.status == 403) {
+                window.location.href = '/api/auth/login'
+            }
+        }
+    }))
+}
+
+export const getFoodOptions = async () => {
+    return (await useFetch('/api/food/get_options', {
+        onResponse({ response }) {
+            if (response.status == 403) {
+                window.location.href = '/api/auth/login'
+            }
+        }
+    }))
 }
 
 export const getDate = async (date) => {
@@ -80,23 +157,27 @@ export const toTimeString = (timestamp) => {
     }) + ' Uhr'
 }
 
-export const connectToWebsocket = async (updateFunc) => {
-    var ws = new WebSocket(`ws://${window.location.host}/ws/notify/`);
+export const connectToWebsocket = async (updateFunc, isConnected) => {
+    var ws = new WebSocket(`ws://${window.location.host}/ws/notify/`)
     ws.onopen = function() {
-      console.log('WebSocket Client Connected');
-    };
+        if (!isConnected.value) updateFunc() 
+        isConnected.value = 100
+        console.log('WebSocket Client Connected')
+    }
   
     ws.onmessage = function(e) {
       updateFunc()
-    };
+    }
   
     ws.onclose = function(e) {
-      console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-      setTimeout(function() { connectToWebsocket(updateFunc) }, 1000);
-    };
+        isConnected.value = 0
+        console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+        setTimeout(function() { connectToWebsocket(updateFunc, isConnected) }, 1000)
+    }
   
     ws.onerror = function(err) {
-      console.error('Socket encountered error: Closing socket');
-      ws.close();
-    };
-  }
+      console.error('Socket encountered error: Closing socket')
+      ws.close()
+    }
+    return isConnected
+}

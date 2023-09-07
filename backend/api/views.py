@@ -29,41 +29,45 @@ class DayPage(PageNumberPagination):
 # ====================[ Get: list of ..., Post: create a new instance ]=========================
 class MealViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Meal.objects.all().order_by("-time")
+    queryset = Meal.objects.all().order_by("-fed_at")
     serializer_class = MealSerializer
     
-    # override the create method to notify the frontend
-    def update(self, request, *args, **kwargs):
-        resp = super().update(request, *args, **kwargs)
-        if resp.status_code == 200:
-            layer = get_channel_layer()
-            async_to_sync(layer.group_send)('notify', {
-                'type': 'notify.message',
-                'message': 'reload'
-            })
-        return resp
+    # # override the create method to notify the frontend
+    # def update(self, request, *args, **kwargs):
+    #     resp = super().update(request, *args, **kwargs)
+    #     if resp.status_code == 200:
+    #         layer = get_channel_layer()
+    #         async_to_sync(layer.group_send)('notify', {
+    #             'type': 'notify.message',
+    #             'message': 'refresh'
+    #         })
+    #     return resp
     
-    # override the create method to notify the frontend
-    def create(self, request, *args, **kwargs):
-        resp = super().create(request, *args, **kwargs)
-        if resp.status_code == 201:
-            layer = get_channel_layer()
-            async_to_sync(layer.group_send)('notify', {
-                'type': 'notify.message',
-                'message': 'reload'
-            })
-        return resp
+    # # override the create method to notify the frontend
+    # def create(self, request, *args, **kwargs):
+    #     resp = super().create(request, *args, **kwargs)
+    #     if resp.status_code == 201:
+
+    #         layer = get_channel_layer()
+    #         async_to_sync(layer.group_send)('notify', {
+    #             'type': 'notify.message',
+    #             'message': 'refresh'
+    #         })
+    #     return resp
     
-    # override the create method to notify the frontend
-    def destroy(self, request, *args, **kwargs):
-        resp = super().destroy(request, *args, **kwargs)
-        if resp.status_code == 204:
-            layer = get_channel_layer()
-            async_to_sync(layer.group_send)('notify', {
-                'type': 'notify.message',
-                'message': 'reload'
-            })
-        return resp
+    # # def perform_create(self, serializer):
+    # #     serializer.save(user=self.request.user)
+
+    # # override the create method to notify the frontend
+    # def destroy(self, request, *args, **kwargs):
+    #     resp = super().destroy(request, *args, **kwargs)
+    #     if resp.status_code == 204:
+    #         layer = get_channel_layer()
+    #         async_to_sync(layer.group_send)('notify', {
+    #             'type': 'notify.message',
+    #             'message': 'refresh'
+    #         })
+    #     return resp
 
     # Get Daily Meals in paginate
     @action(detail=False)
@@ -82,7 +86,7 @@ class MealViewSet(viewsets.ModelViewSet):
         if page is not None:
             results = []
             for item in page:
-                date_meals = Meal.objects.filter(time__date=item["date"])
+                date_meals = Meal.objects.filter(fed_at__date=item["date"])
                 daily_data = {"date": item["date"], "meals": date_meals}
                 results.append(daily_data)
 
@@ -95,7 +99,7 @@ class MealViewSet(viewsets.ModelViewSet):
     def get_day(self, request):
         # Get the `date` from query parameters, or you can define a default date
         request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
-        date_meals = Meal.objects.filter(time__date=request_date)
+        date_meals = Meal.objects.filter(fed_at__date=request_date)
 
         # Serialize the queryset
         serializer = MealSerializer(date_meals, many=True)
@@ -115,8 +119,8 @@ class MealViewSet(viewsets.ModelViewSet):
         meals = {}
         for category in categories:
             date_meals = (Meal.objects
-                          .filter(time__date=request_date, food__category=category)
-                          .order_by("-time"))
+                          .filter(fed_at__date=request_date, food__category=category)
+                          .order_by("-fed_at"))
 
         # Serialize the queryset
             serializer = MealSerializer(date_meals, many=True)
@@ -130,7 +134,7 @@ class MealViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def sort_category(self, request):
         request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
-        meals = Meal.objects.filter(time__date=request_date).order_by("-time")
+        meals = Meal.objects.filter(fed_at__date=request_date).order_by("-fed_at")
         result = {category[1]: [] for category in Food.FOOD_CATEGORIES}
         for meal in meals:
             result[meal.food.get_category_display()].append(MealSerializer(meal).data)
@@ -173,6 +177,19 @@ class FoodViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
+
+    @action(detail=False)
+    def get_options(self, request):
+        # as list with dict name: long name value: short name
+        categories = [
+            {"value": value, "name": name} 
+            for value, name in Food.FOOD_CATEGORIES
+        ]  
+        units = [
+            {"value": value, "name": name} 
+            for value, name in Food.UNIT
+        ]
+        return Response({"categories": categories, "units": units})
 
 
 class PetViewSet(viewsets.ModelViewSet):
