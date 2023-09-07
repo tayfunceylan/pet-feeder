@@ -66,6 +66,7 @@
       </v-table>
     
       <!-- dialog for meals -->
+      <!-- TODO this dialog form is ugly as hell, pls rewrite -->
       <v-dialog v-model=dialog width="700">
         <v-card>
             <v-card-item>
@@ -131,6 +132,8 @@
 </template>
 
 <script setup lang="ts">
+import { time } from 'console';
+
 const isLoading = ref(false)
 const datePicker = ref(new Date())
 
@@ -184,7 +187,7 @@ const editMeal = (meal: any) => {
       pets: [1,2],
       quantity: "",
       food: null,
-      fed_at: now,
+      fed_at: datePicker.value,
       timePicker: {
         hours: now.getHours(),
         minutes: now.getMinutes(),
