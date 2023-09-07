@@ -21,6 +21,9 @@ services:
     volumes:
       - ./backend:/app
 
+  redis:
+    image: redis:alpine
+
   frontend:
     build:
       context: ./frontend
@@ -44,6 +47,3 @@ services:
     depends_on:
       - backend
       - frontend
-
-  redis:
-    image: redis:alpine

@@ -14,11 +14,29 @@ services:
       DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
       DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+      SQL_ENGINE: ${SQL_ENGINE}
+      SQL_DATABASE: ${SQL_DATABASE}
+      SQL_USER: ${SQL_USER}
+      SQL_PASSWORD: ${SQL_PASSWORD}
+      SQL_HOST: ${SQL_HOST}
+      SQL_PORT: ${SQL_PORT}
       TUYA_ID: ${TUYA_ID}
       TUYA_IP: ${TUYA_IP}
       TUYA_KEY: ${TUYA_KEY}
     volumes:
       - ./backend:/app
+
+  redis:
+    image: redis:alpine
+
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_DB=${SQL_DATABASE}
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+    volumes:
+      - ./database:/var/lib/postgresql/data/
 
   frontend: # just to build the page on startup
     build:
@@ -39,7 +57,3 @@ services:
       - ./backend/media:/media
     depends_on:
       - backend
-      
-  redis:
-    image: redis:alpine
-    command: redis-server --save 20 1
