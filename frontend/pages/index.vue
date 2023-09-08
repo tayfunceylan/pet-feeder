@@ -132,8 +132,6 @@
 </template>
 
 <script setup lang="ts">
-import { time } from 'console';
-
 const isLoading = ref(false)
 const datePicker = ref(new Date())
 

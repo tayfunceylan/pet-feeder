@@ -71,7 +71,9 @@ class Food(models.Model):
     def left(self):
         eaten = self.meals.all().aggregate(Sum('quantity'))['quantity__sum']
         eaten = eaten if eaten else 0
-        left = (self.amount - eaten) / self.packet_size
+        left = (self.amount - eaten)
+        if self.category != 'D':
+            left /= self.packet_size
         return math.ceil(left)
 
     class Meta:
