@@ -75,7 +75,7 @@ class MealViewSet(viewsets.ModelViewSet):
     def get_day(self, request):
         # Get the `date` from query parameters, or you can define a default date
         request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
-        date_meals = Meal.objects.filter(fed_at__date=request_date)
+        date_meals = Meal.objects.filter(fed_at__date=request_date).order_by("fed_at")
 
         # Serialize the queryset
         serialized_meals = MealSerializer(date_meals, many=True)
