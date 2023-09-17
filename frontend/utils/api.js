@@ -2,16 +2,16 @@ export const getToken = async () => {
     return String((await useFetch('/api/token/')).data.value)
 }
 
-export const postMeal = async (food, quantity, pets, fed_at, id) => {
+export const postMeal = async (meal) => {
     let token = getToken()
     let form = new FormData()
-    for (let id of pets) form.append('pets', id)
-    form.append('quantity', quantity)
-    form.append('food', food)
-    form.append('fed_at', fed_at.toISOString())
+    for (let id of meal.pets) form.append('pets', id)
+    form.append('quantity', meal.quantity)
+    form.append('food', meal.food)
+    form.append('fed_at', meal.fed_at.toISOString())
     form.append('csrfmiddlewaretoken', await token)
-    if (id) 
-        await useFetch(`/api/meal/${id}/`, {
+    if (meal.id) 
+        await useFetch(`/api/meal/${meal.id}/`, {
             method: 'PUT',
             body: form,
             headers: {'X-CSRFToken': useCookie('csrftoken')},
@@ -99,6 +99,32 @@ export const getMealsDate = async (date) => {
     return result
 }
 
+export const getHelper = async () => {
+    const result = await useFetch('/api/helper/', {
+        // redirect to /api/auth/login if status is 403
+        onResponse({ response }) {
+            if (response.status == 403) {
+                window.location.href = '/api/auth/login'
+            }
+        }
+    })
+    return result
+}
+
+export const getMeals = async (date) => {
+    if (!date) date = getDate()
+    const result = await useFetch('/api/meal/get_day/', {
+        query: { date: await date },
+        // redirect to /api/auth/login if status is 403
+        onResponse({ response }) {
+            if (response.status == 403) {
+                window.location.href = '/api/auth/login'
+            }
+        }
+    })
+    return result
+}
+
 export const getPets = async () => {
     return (await useFetch('/api/pet/',{
         onResponse({ response }) {
@@ -160,6 +186,7 @@ export const toTimeString = (timestamp) => {
 export const connectToWebsocket = async (updateFunc, isConnected) => {
     let protocol = window.location.protocol == 'https:' ? 'wss' : 'ws'
     var ws = new WebSocket(`${protocol}://${window.location.host}/ws/notify/`)
+    var shouldReconnect = true
     ws.onopen = function() {
         if (!isConnected.value) updateFunc() 
         isConnected.value = 100
@@ -172,13 +199,19 @@ export const connectToWebsocket = async (updateFunc, isConnected) => {
   
     ws.onclose = function(e) {
         isConnected.value = 0
-        console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-        setTimeout(function() { connectToWebsocket(updateFunc, isConnected) }, 1000)
+        if(shouldReconnect){
+            console.log('Socket is closed. Reconnect will be attempted in 1 second.');
+            setTimeout(function() { connectToWebsocket(updateFunc, isConnected) }, 1000)
+        }
     }
   
     ws.onerror = function(err) {
       console.error('Socket encountered error: Closing socket')
       ws.close()
     }
-    return isConnected
+    ws.customClose = function() {
+        shouldReconnect = false
+        ws.close()
+    }
+    return ws
 }

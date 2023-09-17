@@ -11,4 +11,5 @@ urlpatterns = router.urls
 
 urlpatterns += [
     path("token/", TokenView.as_view()),
+    path("helper/", MapsView.as_view()),
 ]

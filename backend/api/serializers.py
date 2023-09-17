@@ -11,6 +11,7 @@ class PetSerializer(ModelSerializer):
 
 class FoodSerializer(ModelSerializer):
     left = serializers.IntegerField(read_only=True)
+    top_quantities = serializers.ListField(read_only=True)
     class Meta:
         model = Food
         exclude = ["created_at"]

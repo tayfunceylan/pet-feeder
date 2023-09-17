@@ -14,10 +14,25 @@ from rest_framework.views import APIView
 
 
 class TokenView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = []
 
     def get(self, request):
         return Response(get_token(request))
+
+class MapsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        units_map = dict(Food.UNIT)
+        categories_map = dict(Food.FOOD_CATEGORIES)
+        pets_map = {pet.id: pet.name for pet in Pet.objects.all()}
+        
+        categories_list = [ {"k": k, "v": v} for k, v in Food.FOOD_CATEGORIES ]
+        units_list = [ {"k": k, "v": v} for k, v in Food.UNIT ]
+
+        maps = {"units": units_map, "categories": categories_map, "pets": pets_map}
+        lists = {"units": units_list, "categories": categories_list}
+        return Response({"maps": maps, "lists": lists})
 
 
 class DayPage(PageNumberPagination):
@@ -63,11 +78,10 @@ class MealViewSet(viewsets.ModelViewSet):
         date_meals = Meal.objects.filter(fed_at__date=request_date)
 
         # Serialize the queryset
-        serializer = MealSerializer(date_meals, many=True)
-        serialized_meals = serializer.data  # This is now a list of dictionaries
+        serialized_meals = MealSerializer(date_meals, many=True)
 
         # Prepare daily_data
-        daily_data = {"date": request_date, "meals": serialized_meals}
+        daily_data = {"date": request_date, "meals": serialized_meals.data}
         return Response(daily_data)
 
     @action(detail=False)

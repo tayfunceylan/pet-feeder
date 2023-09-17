@@ -45,14 +45,13 @@
         <!-- listing of foods -->
         <v-list item-props lines="two">
             <p @click="editFood(null)" class="text-h5 ml-4 mt-3">
-                Foods
-                <v-btn icon="mdi-plus" variant="plain"/>
+                Foods<v-btn icon="mdi-plus" variant="plain"/>
             </p>
             <template v-for="(food, index) in foods.data.value.results">
             <v-list-item @click="editFood(food)">
                 <v-list-item-title>{{food.name}} <a class="font-italic text-disabled">({{food.left}} übrig)</a></v-list-item-title>
                 <v-list-item-subtitle>
-                    <span class="text-primary">{{foodOptions.data.value.maps.categories[food.category]}}</span>
+                    <span class="text-primary">{{maps.categories[food.category]}}</span>
                     &mdash; {{`${food.num_packets}*${food.packet_size}${food.unit} für ${food.price}€ (${food.pl})`}}
                 </v-list-item-subtitle>
             </v-list-item>
@@ -105,24 +104,27 @@
 </template>
 
 <script setup lang="ts">
-// fetch data from backend and date in params
 let petsPromise = getPets()
 let foodsPromise = getFoods()
 let foodOptionsPromise = getFoodOptions()
+let helperPromise = getHelper()
 const pets: any = await petsPromise
 const foods: any = await foodsPromise
 const foodOptions: any = await foodOptionsPromise
+const helper: any = await helperPromise
+const maps = ref(helper.data.value.maps)
+
 const isLoading = ref(false)
 
 const updateFunc = async (msg: string) => {
     isLoading.value = true
     if (['newPet', null].includes(msg)) pets.refresh()
-    if (['newFood', null].includes(msg)) foods.refresh()
+    if (['newFood', 'newMeal', null].includes(msg)) foods.refresh()
     isLoading.value = false
 }
 
 const isConnected = ref(1)
-await connectToWebsocket(updateFunc, isConnected)
+const ws: any = await connectToWebsocket(updateFunc, isConnected)
 
 const selectedPet = ref()
 const editPet = (pet: any) => {
@@ -135,7 +137,7 @@ const savePet = async () => {
 
 const selectedFood = ref()
 const editFood = (pet: any) => {
-    if (pet) selectedFood.value = structuredClone({...pet})
+    if (pet) selectedFood.value = JSON.parse(JSON.stringify(pet))
     else selectedFood.value = {
         name: null,
         brand: null,
@@ -155,4 +157,10 @@ const saveFood = async () => {
     selectedFood.value = false
     isLoading.value = false
 }
+
+// on unmount disconnect from websocket
+onUnmounted(() => {
+    console.log('disconnecting from websocket')
+    ws.customClose()
+})
 </script>

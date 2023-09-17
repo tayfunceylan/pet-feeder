@@ -75,7 +75,13 @@ class Food(models.Model):
         if self.category != 'D':
             left /= self.packet_size
         return math.ceil(left)
-
+    
+    @property
+    def top_quantities(self):
+        # most 3 chosen quantity for this food in meals
+        top3 = self.meals.all().values('quantity').annotate(count=models.Count('quantity')).order_by('-count')[:3].values_list('quantity', flat=True)
+        return top3
+    
     class Meta:
         db_table = "Food"
 
