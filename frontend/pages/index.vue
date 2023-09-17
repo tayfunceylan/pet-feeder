@@ -26,7 +26,7 @@
       </v-app-bar>
 
       <v-main>
-        <v-container class="mt-2">
+        <v-container class="mt-3">
             <v-row justify="center" align="center">
                 <v-btn @click=jumpdays(-1) icon="mdi-step-backward" variant="plain"/>
                 <v-menu location="bottom center" v-model:model-value="dateDialog">
@@ -59,8 +59,10 @@
                 </v-list-item>
                 <v-divider v-if="index < meals.data.value.meals.length-1"/>
             </template>
-            <v-list-item @click="editMeal(null)" align="center">
-                <v-btn color="grey-darken-2" block variant="outlined">ADD MEAL</v-btn>
+            <v-list-item @click="editMeal(null)">
+                <v-btn block color="grey-darken-2" variant="outlined">
+                    ADD MEAL
+                </v-btn>
             </v-list-item>
         </v-list>
 

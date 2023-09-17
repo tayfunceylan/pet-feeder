@@ -4,14 +4,16 @@
 
 - [pet-tracking](#pet-tracking)
   - [Table of Contents](#table-of-contents)
-  - [Ideas to implementt](#ideas-to-implementt)
+  - [Ideas to implement](#ideas-to-implement)
   - [Get Started](#get-started)
   - [Production](#production)
 
-## Ideas to implementt
+## Ideas to implement
 
+- [ ] Native app for ios and android
+  - [ ] widgets for ios (and maybe android)
 - [ ] Planner: possibility to specify that you can feed in the morning or evening then you do not always have to coordinate feedings in your household
-- [ ] Inventory: a page to add new foods and also track remaining amount of the food
+- [x] Inventory: a page to add new foods and also track remaining amount of the food
 - [ ] Automatic Pet Feeder Machine
   - [ ] a page to configure the pet feeder machine
   - [ ] trigger manual feeding
