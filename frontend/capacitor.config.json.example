@@ -1,0 +1,9 @@
+{
+  "appId": "com.example",
+  "appName": "Pet Feeder",
+  "webDir": ".output/public",
+  "server": {
+    "androidScheme": "https",
+    "url": "https://api.example.com"
+  }
+}
