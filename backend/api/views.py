@@ -2,6 +2,7 @@ import tinytuya
 from os import getenv
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.functions import TruncDate
+from django.contrib.auth import authenticate, login
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -18,6 +19,28 @@ class TokenView(APIView):
 
     def get(self, request):
         return Response(get_token(request))
+
+
+class LoginView(APIView):
+    permission_classes = []
+    def post(self, request):
+        # get username and password from request
+        username = request.data.get("username")
+        password = request.data.get("password")
+        # authenticate user
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return Response({"detail": "Login successful"}, 200)
+        else:
+            return Response({"detail": "Login failed"}, 401)
+    
+    def get(self, request):
+        if request.user.is_authenticated:
+            return Response({"detail": "User is logged in"}, 200)
+        else:
+            return Response({"detail": "User is not logged in"}, 401)
+
 
 class MapsView(APIView):
     permission_classes = [IsAuthenticated]

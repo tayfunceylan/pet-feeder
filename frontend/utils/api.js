@@ -89,10 +89,10 @@ export const getMealsDate = async (date) => {
     if (!date) date = getDate()
     const result = await useFetch('/api/meal/sort_category/', {
         query: { date: await date },
-        // redirect to /api/auth/login if status is 403
+        // redirect to /login if status is 403
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/api/auth/login'
+                window.location.href = '/login'
             }
         }
     })
@@ -101,10 +101,10 @@ export const getMealsDate = async (date) => {
 
 export const getHelper = async () => {
     const result = await useFetch('/api/helper/', {
-        // redirect to /api/auth/login if status is 403
+        // redirect to /login if status is 403
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/api/auth/login'
+                window.location.href = '/login'
             }
         }
     })
@@ -112,13 +112,12 @@ export const getHelper = async () => {
 }
 
 export const getMeals = async (date) => {
-    if (!date) date = getDate()
     const result = await useFetch('/api/meal/get_day/', {
-        query: { date: await date },
-        // redirect to /api/auth/login if status is 403
+        query: { date: date },
+        // redirect to /login if status is 403
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/api/auth/login'
+                window.location.href = '/login'
             }
         }
     })
@@ -129,7 +128,7 @@ export const getPets = async () => {
     return (await useFetch('/api/pet/',{
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/api/auth/login'
+                window.location.href = '/login'
             }
         }
     }))
@@ -139,7 +138,7 @@ export const getFoods = async () => {
     return (await useFetch('/api/food/', {
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/api/auth/login'
+                window.location.href = '/login'
             }
         }
     }))
@@ -149,7 +148,7 @@ export const getFoodOptions = async () => {
     return (await useFetch('/api/food/get_options', {
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/api/auth/login'
+                window.location.href = '/login'
             }
         }
     }))
@@ -162,8 +161,34 @@ export const getDate = async (date) => {
 export const logout = async () => {
     await useFetch('/api/auth/logout', {
     onResponse({ response }) {
-        if (response.status == 200) window.location.href = '/api/auth/login'
+        if (response.status == 200) window.location.href = '/login'
     },
+    })
+}
+
+export const login = async (username, password) => {
+    let form = new URLSearchParams()
+    // get token
+    let token = getToken()
+    form.append('username', username)
+    form.append('password', password)
+    form.append('submit', 'Log in')
+    form.append('next', '')
+    form.append('csrfmiddlewaretoken', await token)
+    await useFetch('/api/login/', {
+        method: 'POST',
+        body: form,
+        onResponse({ response }) {
+            if (response.status == 200) window.location.href = '/'
+        }
+    })
+}
+export const checkIfLoggedIn = async () => {
+    await useFetch('/api/login', {
+        onResponse({ response }) {
+            if (response.status == 200) 
+                window.location.href = '/'
+        }
     })
 }
 
@@ -193,9 +218,7 @@ export const connectToWebsocket = async (updateFunc, isConnected) => {
         console.log('WebSocket Client Connected')
     }
   
-    ws.onmessage = function(e) {
-      updateFunc(e.data)
-    }
+    ws.onmessage = updateFunc
   
     ws.onclose = function(e) {
         isConnected.value = 0

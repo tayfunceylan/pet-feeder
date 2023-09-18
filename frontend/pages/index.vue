@@ -139,9 +139,10 @@
 <script setup lang="ts">
 // fetch data from backend and date in params
 const datePicker = ref(new Date())
+const mealDate = ref(datePicker.value.toLocaleDateString('en-CA'))
 
 // fetch data from backend and date in params
-let mealsPromise = getMeals(datePicker.value.toLocaleDateString('en-CA'))
+let mealsPromise = getMeals(mealDate)
 let petsPromise = getPets()
 let foodsPromise = getFoods()
 let helperPromise = getHelper()
@@ -156,7 +157,8 @@ const foodsMap = ref(reduceList(foods.data.value.results))
 
 const isLoading = ref(false)
 
-const updateFunc = async (msg: string) => {
+const updateFunc = async (e: MessageEvent) => {
+    let msg = e.data
     isLoading.value = true
     if (['newPet', null].includes(msg)) pets.refresh()
     if (['newFood', null].includes(msg)) foods.refresh()
@@ -200,7 +202,11 @@ const editMeal = (meal: any) => {
 }
 const saveMeal = async () => {
     isLoading.value = true
-    await postMeal(selectedMeal.value)
+    let meal: any = selectedMeal.value
+    meal.fed_at.setHours(meal.timePicker.hours)
+    meal.fed_at.setMinutes(meal.timePicker.minutes)
+    meal.fed_at.setSeconds(meal.timePicker.seconds)
+    await postMeal(meal)
     selectedMeal.value = false
     isLoading.value = false
 }
@@ -212,12 +218,8 @@ const delMeal = async () => {
 const dateDialog = ref(false)
 const updateDay = async () => {
   isLoading.value = true
-  const newResult = await getMeals(datePicker.value.toLocaleDateString('en-CA'))
+  mealDate.value = datePicker.value.toLocaleDateString('en-CA')
   isLoading.value = false
-  meals.data.value = newResult.data.value
-  meals.pending = newResult.pending
-  meals.error = newResult.error
-  meals.refresh = newResult.refresh
 
   dayAsText.value = dayToText()
   dateDialog.value = false
@@ -225,6 +227,7 @@ const updateDay = async () => {
 const jumpdays = async (offset: number) => {
   datePicker.value.setDate(datePicker.value.getDate() + offset)
   await updateDay()
+//   ws.onmessage = () => console.log('message received')
 }
 const dayToText = () => {
   // return today, tomorrow, yesterday, or date

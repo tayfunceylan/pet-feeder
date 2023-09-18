@@ -116,7 +116,8 @@ const maps = ref(helper.data.value.maps)
 
 const isLoading = ref(false)
 
-const updateFunc = async (msg: string) => {
+const updateFunc = async (e: MessageEvent) => {
+    let msg = e.data
     isLoading.value = true
     if (['newPet', null].includes(msg)) pets.refresh()
     if (['newFood', 'newMeal', null].includes(msg)) foods.refresh()
