@@ -26,7 +26,6 @@ const error = ref(false)
 await checkIfLoggedIn()
 const login = async () => {
     const result = await postLogin(username.value, password.value)
-    console.log(result)
     if (result.status.value == 'error') {
         error.value = true
     }

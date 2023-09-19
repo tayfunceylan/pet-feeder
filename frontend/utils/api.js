@@ -1,10 +1,5 @@
-// wrapper for useApiFetch but with url already set
-export const useApiFetch  = (url, options) => {
-    return useFetch(url, { baseURL: useRuntimeConfig().public.api, ...options })
-}
-
 export const getToken = async () => {
-    return String((await useApiFetch('/api/token/')).data.value)
+    return String((await useFetch('/api/token/')).data.value)
 }
 
 export const postMeal = async (meal) => {
@@ -16,13 +11,13 @@ export const postMeal = async (meal) => {
     form.append('fed_at', meal.fed_at.toISOString())
     form.append('csrfmiddlewaretoken', await token)
     if (meal.id) 
-        await useApiFetch(`/api/meal/${meal.id}/`, {
+        await useFetch(`/api/meal/${meal.id}/`, {
             method: 'PUT',
             body: form,
             headers: {'X-CSRFToken': useCookie('csrftoken')},
         })
     else
-        await useApiFetch(`/api/meal/`, {
+        await useFetch(`/api/meal/`, {
             method: 'POST',
             body: form,
         })
@@ -37,13 +32,13 @@ export const postPet = async (pet) => {
     form.append('description', pet.description)
     form.append('csrfmiddlewaretoken', await token)
     if (pet.id) 
-        await useApiFetch(`/api/pet/${pet.id}/`, {
+        await useFetch(`/api/pet/${pet.id}/`, {
             method: 'PUT',
             body: form,
             headers: {'X-CSRFToken': useCookie('csrftoken')},
         })
     else
-        await useApiFetch(`/api/pet/`, {
+        await useFetch(`/api/pet/`, {
             method: 'POST',
             body: form,
         })
@@ -57,34 +52,34 @@ export const postFood = async (food) => {
         form.append(field, food[field])
     form.append('csrfmiddlewaretoken', await token)
     if (food.id) 
-        await useApiFetch(`/api/food/${food.id}/`, {
+        await useFetch(`/api/food/${food.id}/`, {
             method: 'PUT',
             body: form,
             headers: {'X-CSRFToken': useCookie('csrftoken')},
         })
     else
-        await useApiFetch(`/api/food/`, {
+        await useFetch(`/api/food/`, {
             method: 'POST',
             body: form,
         })
 }
 
 export const deleteFood = async (id) => {
-    await useApiFetch(`/api/meal/${id}/`, {
+    await useFetch(`/api/meal/${id}/`, {
         method: 'DELETE',
         headers: {'X-CSRFToken': useCookie('csrftoken')},
     })
 }
 
 export const deleteMeal = async (id) => {
-    await useApiFetch(`/api/meal/${id}/`, {
+    await useFetch(`/api/meal/${id}/`, {
         method: 'DELETE',
         headers: {'X-CSRFToken': useCookie('csrftoken')},
     })
 }
 
 export const deletePet = async (id) => {
-    await useApiFetch(`/api/pet/${id}/`, {
+    await useFetch(`/api/pet/${id}/`, {
         method: 'DELETE',
         headers: {'X-CSRFToken': useCookie('csrftoken')},
     })
@@ -92,7 +87,7 @@ export const deletePet = async (id) => {
 
 export const getMealsDate = async (date) => {
     if (!date) date = getDate()
-    const result = await useApiFetch('/api/meal/sort_category/', {
+    const result = await useFetch('/api/meal/sort_category/', {
         query: { date: await date },
         // redirect to /login if status is 403
         onResponse({ response }) {
@@ -105,7 +100,7 @@ export const getMealsDate = async (date) => {
 }
 
 export const getHelper = async () => {
-    const result = await useApiFetch('/api/helper/', {
+    const result = await useFetch('/api/helper/', {
         // redirect to /login if status is 403
         onResponse({ response }) {
             if (response.status == 403) {
@@ -117,7 +112,7 @@ export const getHelper = async () => {
 }
 
 export const getMeals = async (date) => {
-    const result = await useApiFetch('/api/meal/get_day/', {
+    const result = await useFetch('/api/meal/get_day/', {
         query: { date: date },
         // redirect to /login if status is 403
         onResponse({ response }) {
@@ -130,7 +125,7 @@ export const getMeals = async (date) => {
 }
 
 export const getPets = async () => {
-    return await useApiFetch('/api/pet/',{
+    return await useFetch('/api/pet/',{
         onResponse({ response }) {
             if (response.status == 403) {
                 window.location.href = '/login'
@@ -140,7 +135,7 @@ export const getPets = async () => {
 }
 
 export const getFoods = async () => {
-    return (await useApiFetch('/api/food/', {
+    return (await useFetch('/api/food/', {
         onResponse({ response }) {
             if (response.status == 403) {
                 window.location.href = '/login'
@@ -150,7 +145,7 @@ export const getFoods = async () => {
 }
 
 export const getFoodOptions = async () => {
-    return (await useApiFetch('/api/food/get_options', {
+    return (await useFetch('/api/food/get_options', {
         onResponse({ response }) {
             if (response.status == 403) {
                 window.location.href = '/login'
@@ -164,7 +159,7 @@ export const getDate = async (date) => {
 }
 
 export const logout = async () => {
-    await useApiFetch('/api/auth/logout', {
+    await useFetch('/api/auth/logout', {
     onResponse({ response }) {
         if (response.status == 200) window.location.href = '/login'
     },
@@ -180,7 +175,7 @@ export const postLogin = async (username, password) => {
     form.append('submit', 'Log in')
     form.append('next', '')
     form.append('csrfmiddlewaretoken', await token)
-    return await useApiFetch('/api/login/', {
+    return await useFetch('/api/login/', {
         method: 'POST',
         body: form,
         onResponse({ response }) {
@@ -189,7 +184,7 @@ export const postLogin = async (username, password) => {
     })
 }
 export const checkIfLoggedIn = async () => {
-    await useApiFetch('/api/login', {
+    await useFetch('/api/login', {
         onResponse({ response }) {
             if (response.status == 200) 
                 window.location.href = '/'
