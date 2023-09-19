@@ -196,6 +196,13 @@ class PetViewSet(viewsets.ModelViewSet):
     queryset = Pet.objects.all()
     serializer_class = PetSerializer
 
+    # add trailing slash to the picture field
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        for pet in response.data['results']:
+            pet["picture"] = f"/{pet['picture']}"
+        return response
+
     # Handle multiple occurrence of names
     def create(self, request, *args, **kwargs):
         new_pet = request.data
