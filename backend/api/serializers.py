@@ -4,7 +4,7 @@ from rest_framework.serializers import ModelSerializer
 
 
 class PetSerializer(ModelSerializer):
-    picture = serializers.ImageField(max_length=None, use_url=False)
+    picture = serializers.ImageField(max_length=None, use_url=False, required=False)
     class Meta:
         model = Pet
         exclude = ["created_at"]

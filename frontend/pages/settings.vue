@@ -134,6 +134,8 @@ const editPet = (pet: any) => {
 const savePet = async () => {
     isLoading.value = true
     await postPet(selectedPet.value)
+    selectedPet.value= false
+    isLoading.value = false
 }
 
 const selectedFood = ref()
