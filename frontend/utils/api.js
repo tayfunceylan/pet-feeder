@@ -92,7 +92,7 @@ export const getMealsDate = async (date) => {
         // redirect to /login if status is 403
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/login'
+                navigateTo('/login')
             }
         }
     })
@@ -100,11 +100,11 @@ export const getMealsDate = async (date) => {
 }
 
 export const getHelper = async () => {
-    const result = await useFetch('/api/helper/', {
+    const result = useLazyFetch('/api/helper/', {
         // redirect to /login if status is 403
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/login'
+                navigateTo('/login')
             }
         }
     })
@@ -112,12 +112,12 @@ export const getHelper = async () => {
 }
 
 export const getMeals = async (date) => {
-    const result = await useFetch('/api/meal/get_day/', {
+    const result = useLazyFetch('/api/meal/get_day/', {
         query: { date: date },
         // redirect to /login if status is 403
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/login'
+                navigateTo('/login')
             }
         }
     })
@@ -125,33 +125,33 @@ export const getMeals = async (date) => {
 }
 
 export const getPets = async () => {
-    return await useFetch('/api/pet/',{
+    return useLazyFetch('/api/pet/',{
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/login'
+                navigateTo('/login')
             }
         }
     })
 }
 
 export const getFoods = async () => {
-    return (await useFetch('/api/food/', {
+    return  useLazyFetch('/api/food/map/', {
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/login'
+                navigateTo('/login')
             }
         }
-    }))
+    })
 }
 
 export const getFoodOptions = async () => {
-    return (await useFetch('/api/food/get_options', {
+    return await useLazyFetch('/api/food/get_options', {
         onResponse({ response }) {
             if (response.status == 403) {
-                window.location.href = '/login'
+                navigateTo('/login')
             }
         }
-    }))
+    })
 }
 
 export const getDate = async (date) => {
@@ -161,7 +161,7 @@ export const getDate = async (date) => {
 export const logout = async () => {
     await useFetch('/api/auth/logout', {
     onResponse({ response }) {
-        if (response.status == 200) window.location.href = '/login'
+        if (response.status == 200) navigateTo('/login')
     },
     })
 }
@@ -179,7 +179,7 @@ export const postLogin = async (username, password) => {
         method: 'POST',
         body: form,
         onResponse({ response }) {
-            if (response.status == 200) window.location.href = '/'
+            if (response.status == 200) navigateTo('/')
         }
     })
 }
@@ -187,7 +187,7 @@ export const checkIfLoggedIn = async () => {
     await useFetch('/api/login', {
         onResponse({ response }) {
             if (response.status == 200) 
-                window.location.href = '/'
+                navigateTo('/')
         }
     })
 }
@@ -208,12 +208,13 @@ export const toTimeString = (timestamp) => {
     }) + ' Uhr'
 }
 
-export const connectToWebsocket = async (updateFunc, isConnected) => {
+export const connectToWebsocket = async (updateFunc, isConnected, isLoading) => {
     let protocol = window.location.protocol == 'https:' ? 'wss' : 'ws'
     var ws = new WebSocket(`${protocol}://${window.location.host}/ws/notify/`)
     var shouldReconnect = true
     ws.onopen = function() {
         if (!isConnected.value) updateFunc() 
+        isLoading.value = false
         isConnected.value = 100
         console.log('WebSocket Client Connected')
     }

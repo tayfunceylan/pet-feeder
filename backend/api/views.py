@@ -98,10 +98,10 @@ class MealViewSet(viewsets.ModelViewSet):
     def get_day(self, request):
         # Get the `date` from query parameters, or you can define a default date
         request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
-        date_meals = Meal.objects.filter(fed_at__date=request_date).order_by("fed_at")
+        meals = Meal.objects.filter(fed_at__date=request_date).order_by("fed_at")
 
         # Serialize the queryset
-        serialized_meals = MealSerializer(date_meals, many=True)
+        serialized_meals = MealSerializer(meals, many=True)
 
         # Prepare daily_data
         daily_data = {"date": request_date, "meals": serialized_meals.data}
@@ -175,6 +175,11 @@ class FoodViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
+
+    @action(detail=False)
+    def map(self, request):
+        foods_map = {food.id: FoodSerializer(food).data for food in Food.objects.all()}
+        return Response(foods_map)
 
     @action(detail=False)
     def get_options(self, request):

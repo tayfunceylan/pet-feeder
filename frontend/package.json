@@ -16,9 +16,10 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@capacitor/android": "^5.4.0",
     "@capacitor/core": "^5.4.0",
     "@capacitor/ios": "^5.4.0",
-    "@capacitor/android": "^5.4.0",
+    "@formkit/auto-animate": "^0.8.0",
     "@mdi/font": "^7.2.96",
     "@vuepic/vue-datepicker": "^6.0.2",
     "sass": "^1.64.1",
