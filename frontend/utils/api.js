@@ -225,7 +225,7 @@ export const connectToWebsocket = async (updateFunc, isConnected, isLoading) => 
         isConnected.value = 0
         if(shouldReconnect){
             console.log('Socket is closed. Reconnect will be attempted in 1 second.');
-            setTimeout(function() { connectToWebsocket(updateFunc, isConnected) }, 1000)
+            setTimeout(function() { connectToWebsocket(updateFunc, isConnected, isLoading) }, 1000)
         }
     }
   

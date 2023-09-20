@@ -164,6 +164,7 @@ const foods: any = await foodsPromise
 const helper: any = await helperPromise
 
 const updateFunc = async (e: MessageEvent) => {
+  if (e == undefined) return
   let msg = e.data
   isLoading.value = true
   if (['newPet', null].includes(msg)) pets.refresh()
