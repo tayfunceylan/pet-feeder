@@ -56,7 +56,7 @@
         <v-list-item v-if="meals.data.value.meals.length == 0">
           Keine Meals für diesen Tag
         </v-list-item>
-        <template v-for="(meal, index) in meals.data.value.meals">
+        <template v-for="(meal, index) in meals.data.value.meals" :key="meal.id">
           <v-list-item @click="editMeal(meal)">
             <v-list-item-title>{{ toTimeString(meal.fed_at) }}</v-list-item-title>
             <v-list-item-subtitle>
