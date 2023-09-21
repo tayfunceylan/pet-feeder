@@ -129,11 +129,10 @@ const foods: any = await foodsPromise
 const foodOptions: any = await foodOptionsPromise
 const helper: any = await helperPromise
 
-const updateFunc = async (e: MessageEvent) => {
-  let msg = e.data
+const updateFunc = async (msg: string) => {
   isLoading.value = true
-  if (['newPet', null].includes(msg)) pets.refresh()
-  if (['newFood', 'newMeal', null].includes(msg)) foods.refresh()
+  if (['newPet', undefined].includes(msg)) pets.refresh()
+  if (['newFood', 'newMeal', undefined].includes(msg)) foods.refresh()
   isLoading.value = false
 }
 

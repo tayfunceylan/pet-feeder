@@ -219,7 +219,9 @@ export const connectToWebsocket = async (updateFunc, isConnected, isLoading) => 
         console.log('WebSocket Client Connected')
     }
   
-    ws.onmessage = updateFunc
+    ws.onmessage = function(e) { 
+        updateFunc(e.data)
+    }
   
     ws.onclose = function(e) {
         isConnected.value = 0
