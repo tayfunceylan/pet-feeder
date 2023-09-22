@@ -167,10 +167,7 @@ const updateFunc = async (msg: string) => {
   isLoading.value = true
   if (['newPet', undefined].includes(msg)) pets.refresh()
   if (['newFood', undefined].includes(msg)) foods.refresh()
-  if (['newMeal', undefined].includes(msg)) {
-    meals.refresh()
-    foods.refresh()
-  }
+  if (['newMeal', undefined].includes(msg)) meals.refresh()
   isLoading.value = false
 }
 
