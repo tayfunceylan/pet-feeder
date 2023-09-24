@@ -5,12 +5,11 @@
 
 const props = defineProps(['input', 'active', 'foodDetail', 'mealDetail', 'pets'])
 const emits = defineEmits(['close-meal', "refresh-meal", "refresh-food", 'update-meal'])
-const authStore = useAuthStore()
 const food_types = ref(null)
 
 onMounted( async () => {
   // get the food list through api. TODO: get it from foodStore
-      const response = await fetchFoodList(authStore)
+      const response = await getFoodOptions()
       food_types.value = response?.data
     }
 )
@@ -27,7 +26,7 @@ const input_data = ref({
 })
 
 function change_fed(id){
-  // Push the ped id into fed if the id is not existent. else remove it through splice
+  // Push the pet id into fed if the id is not existent. else remove it through splice
   if(input_data.value.fed.includes(id)) input_data.value.fed.splice(input_data.value.fed.indexOf(id), 1)
   else input_data.value.fed.push(id)
 }

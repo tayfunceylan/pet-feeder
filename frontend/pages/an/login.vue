@@ -1,18 +1,25 @@
 <script setup lang="ts">
-// definePageMeta({
+definePageMeta({
 
-// layout: "auth",
-// })
+layout: "auth",
+})
 
-// const authentication = useAuthStore()
-// const credentials = ref({
-//   username: "",
-//   password: "",
-//   incorrectAuth: false,
-// })
-// watch(authentication, ()=>{
-//   if(authentication.loggedIn) navigateTo('/meal-page')
-// })
+const credentials = ref({
+ username: "",
+ password: "",
+ incorrectAuth: false,
+})
+const error = ref(false)
+
+await checkIfLoggedIn()
+const login = async () => {
+  const result = await postLogin(credentials.value.username, credentials.value.password)
+  if (result.status.value == 'error') {
+   error.value = true
+  }else{
+    navigateTo('an/meal-page/')
+  }
+}
 </script>
 
 <template>
@@ -29,8 +36,9 @@
           <path d="M80 192V144C80 64.47 144.5 0 224 0C303.5 0 368 64.47 368 144V192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80zM144 192H304V144C304 99.82 268.2 64 224 64C179.8 64 144 99.82 144 144V192z"></path></svg>
         <input autocomplete="off" id="logpass" v-model="credentials.password" placeholder="Password" class="input-field" name="logpass" type="password">
       </div>
-      <button class="btn" type="submit" @click="authentication.login(credentials)">Login</button>
+      <button class="btn" type="submit" @click="login">Login</button>
       <a href="#" class="btn-link">Forgot your password?</a>
+      <v-alert :model-value="error" text="Login Fehlgeschlagen, versuch es erneut" type="error"></v-alert>
     </form>
   </div>
 </template>
