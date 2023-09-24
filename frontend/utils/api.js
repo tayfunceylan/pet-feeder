@@ -85,20 +85,6 @@ export const deletePet = async (id) => {
     })
 }
 
-export const getMealsDate = async (date) => {
-    if (!date) date = getDate()
-    const result = await useFetch('/api/meal/sort_category/', {
-        query: { date: await date },
-        // redirect to /login if status is 403
-        onResponse({ response }) {
-            if (response.status == 403) {
-                navigateTo('/login')
-            }
-        }
-    })
-    return result
-}
-
 export const getHelper = async () => {
     const result = useLazyFetch('/api/helper/', {
         // redirect to /login if status is 403
@@ -112,7 +98,7 @@ export const getHelper = async () => {
 }
 
 export const getMeals = async (date) => {
-    const result = useLazyFetch('/api/meal/get_day/', {
+    const result = useLazyFetch('/api/meal/', {
         query: { date: date },
         // redirect to /login if status is 403
         onResponse({ response }) {

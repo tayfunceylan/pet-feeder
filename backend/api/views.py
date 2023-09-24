@@ -68,44 +68,11 @@ class MealViewSet(viewsets.ModelViewSet):
     queryset = Meal.objects.all().order_by("-fed_at")
     serializer_class = MealSerializer
 
-    # Get Daily Meals in paginate
-    @action(detail=False)
-    def daily_meals(self, request):
-        paginator = DayPage()
-        # Get all the distinct dates (all the days with meals)
-        dates = (
-            Meal.objects.order_by()
-            .annotate(date=TruncDate("time"))
-            .values("date")
-            .distinct()
-        )
-        page = paginator.paginate_queryset(dates, request, self)
-
-        # only display the pagination if needed
-        if page is not None:
-            results = []
-            for item in page:
-                date_meals = Meal.objects.filter(fed_at__date=item["date"])
-                daily_data = {"date": item["date"], "meals": date_meals}
-                results.append(daily_data)
-
-            serializer = DailyMealSerializer(results, many=True)
-            return paginator.get_paginated_response(serializer.data)
-
-        return Response({"detail": "No pagination applied."})
-
-    @action(detail=False)
-    def get_day(self, request):
-        # Get the `date` from query parameters, or you can define a default date
-        request_date = request.query_params.get("date")  # format is ?date=YYYY-MM-DD
-        meals = Meal.objects.filter(fed_at__date=request_date).order_by("fed_at")
-
-        # Serialize the queryset
-        serialized_meals = MealSerializer(meals, many=True)
-
-        # Prepare daily_data
-        daily_data = {"date": request_date, "meals": serialized_meals.data}
-        return Response(daily_data)
+    def get_queryset(self):
+        date = self.request.query_params.get('date')
+        if date is not None:
+            return Meal.objects.all().filter(fed_at__date=date)
+        return Meal.objects.all()
 
     @action(detail=False)
     def sort_category_an(self, request):

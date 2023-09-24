@@ -35,7 +35,7 @@
       <!-- listing for pets -->
       <v-list item-props lines="three" v-auto-animate>
         <p class="text-h5 ml-4 mt-3">Pets</p>
-        <template v-for="(pet, index) in pets.data.value.results">
+        <template v-for="(pet, index) in pets.data.value.results" :key="pet.id">
           <v-list-item @click="editPet(pet)">
             <v-list-item-title>{{ pet.name }}</v-list-item-title>
             <v-list-item-subtitle>
@@ -57,7 +57,7 @@
         <p @click="editFood(null)" class="text-h5 ml-4 mt-3">
           Foods<v-btn icon="mdi-plus" variant="plain" />
         </p>
-        <template v-for="food, index in foods.data.value">
+        <template v-for="food, index in foods.data.value" :key="food.id">
           <v-list-item @click="editFood(food)">
             <v-list-item-title>{{ food.name }}
               <a class="font-italic text-disabled">({{ food.left }} übrig)</a>

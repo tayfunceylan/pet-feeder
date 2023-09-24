@@ -53,10 +53,10 @@
 
       <!-- listing of meals -->
       <v-list item-props lines="two" v-auto-animate>
-        <v-list-item v-if="meals.data.value.meals.length == 0">
+        <v-list-item v-if="meals.data.value.results.length == 0">
           Keine Meals für diesen Tag
         </v-list-item>
-        <template v-for="(meal, index) in meals.data.value.meals" :key="meal.id">
+        <template v-for="(meal, index) in meals.data.value.results" :key="meal.id">
           <v-list-item @click="editMeal(meal)">
             <v-list-item-title>{{ toTimeString(meal.fed_at) }}</v-list-item-title>
             <v-list-item-subtitle>
@@ -67,7 +67,7 @@
               &mdash; {{ foods.data.value[meal.food].name }}
             </v-list-item-subtitle>
           </v-list-item>
-          <v-divider v-if="index < meals.data.value.meals.length - 1" />
+          <v-divider v-if="index < meals.data.value.results.length - 1" />
         </template>
         <v-list-item @click="editMeal(null)">
           <v-btn block color="grey-darken-2" variant="outlined">
@@ -167,7 +167,10 @@ const updateFunc = async (msg: string) => {
   isLoading.value = true
   if (['newPet', undefined].includes(msg)) pets.refresh()
   if (['newFood', undefined].includes(msg)) foods.refresh()
-  if (['newMeal', undefined].includes(msg)) meals.refresh()
+  if (['newMeal', undefined].includes(msg)) {
+    meals.refresh()
+    foods.refresh()
+  }
   isLoading.value = false
 }
 
