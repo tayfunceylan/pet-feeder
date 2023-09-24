@@ -24,7 +24,9 @@
         </v-list>
       </v-menu>
     </v-app-bar>
+
     <v-main v-if="meals.error.value">
+      {{ mealDate }}
       <v-alert type="error" dismissible>
         {{ meals.error }}
       </v-alert>
@@ -53,7 +55,7 @@
 
       <!-- listing of meals -->
       <v-list item-props lines="two" v-auto-animate>
-        <v-list-item v-if="meals.data.value.results.length == 0">
+        <v-list-item v-if="meals.data.value.results.length == 0" :key="mealDate">
           Keine Meals für diesen Tag
         </v-list-item>
         <template v-for="(meal, index) in meals.data.value.results" :key="meal.id">
@@ -151,7 +153,7 @@ const isLoading = ref(true)
 
 // fetch data from backend and date in params
 const datePicker = ref(new Date())
-const mealDate = ref(datePicker.value.toLocaleDateString('en-CA'))
+const mealDate = ref(toDateString(datePicker.value))
 
 // fetch data from backend and date in params
 let mealsPromise = getMeals(mealDate)
@@ -223,7 +225,7 @@ const delMeal = async () => {
 const dateDialog = ref(false)
 const updateDay = async () => {
   isLoading.value = true
-  mealDate.value = datePicker.value.toLocaleDateString('en-CA')
+  mealDate.value = toDateString(datePicker.value)
   isLoading.value = false
 
   dayAsText.value = dayToText()

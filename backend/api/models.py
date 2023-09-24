@@ -29,7 +29,7 @@ class Pet(models.Model):
         # send a notification to the frontend
         async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
-            'message': 'newPets'
+            'message': 'newPet'
         })
     
     # trigger on deletion of pet
@@ -39,7 +39,7 @@ class Pet(models.Model):
         # send a notification to the frontend
         async_to_sync(get_channel_layer().group_send)('notify', {
             'type': 'notify.message',
-            'message': 'newPets'
+            'message': 'newPet'
         })
 
 
