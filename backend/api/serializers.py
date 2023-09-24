@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Pet, Food, Meal
+from .models import Pet, Food, Meal, Schedule
 from rest_framework.serializers import ModelSerializer
 
 
@@ -21,6 +21,9 @@ class MealSerializer(ModelSerializer):
         model = Meal
         exclude = ["created_at"]
 
-class DailyMealSerializer(serializers.Serializer):
-    date = serializers.DateField()
-    meals = MealSerializer(many=True)  # `Meal` instances for that day
+class ScheduleSerializer(ModelSerializer):
+    # 0b11111 00001010 00000000 00000010 00000001
+    export_schedule = serializers.CharField(read_only=True)
+    class Meta:
+        model = Schedule
+        exclude = ["created_at"]

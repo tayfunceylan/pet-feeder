@@ -64,6 +64,28 @@ export const postFood = async (food) => {
         })
 }
 
+export const postSchedule = async (schedule) => {
+    let token = getToken()
+    let form = new FormData()
+    form.append('id', schedule.id)
+    form.append('amount', schedule.amount)
+    form.append('hour', schedule.hour)
+    form.append('minute', schedule.minute)
+    form.append('active', schedule.active)
+    form.append('csrfmiddlewaretoken', await token)
+    if (schedule.id) 
+        await useFetch(`/api/schedules/${schedule.id}/`, {
+            method: 'PUT',
+            body: form,
+            headers: {'X-CSRFToken': useCookie('csrftoken')},
+        })
+    else
+        await useFetch(`/api/schedules/`, {
+            method: 'POST',
+            body: form,
+        })
+}
+
 export const deleteFood = async (id) => {
     await useFetch(`/api/meal/${id}/`, {
         method: 'DELETE',
@@ -73,6 +95,13 @@ export const deleteFood = async (id) => {
 
 export const deleteMeal = async (id) => {
     await useFetch(`/api/meal/${id}/`, {
+        method: 'DELETE',
+        headers: {'X-CSRFToken': useCookie('csrftoken')},
+    })
+}
+
+export const deleteSchedule = async (id) => {
+    await useFetch(`/api/schedules/${id}/`, {
         method: 'DELETE',
         headers: {'X-CSRFToken': useCookie('csrftoken')},
     })
@@ -122,6 +151,16 @@ export const getPets = async () => {
 
 export const getFoods = async () => {
     return  useLazyFetch('/api/food/map/', {
+        onResponse({ response }) {
+            if (response.status == 403) {
+                navigateTo('/login')
+            }
+        }
+    })
+}
+
+export const getSchedules = async () => {
+    return  useLazyFetch('/api/schedules/', {
         onResponse({ response }) {
             if (response.status == 403) {
                 navigateTo('/login')
@@ -181,6 +220,16 @@ export const checkIfLoggedIn = async () => {
 // function that turns timestamp into a date string HH:MM
 export const toTimeString = (timestamp) => {
     return new Date(timestamp * 1000).toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit',
+    }) + ' Uhr'
+}
+
+export const getScheduleTimeString = (hour, minute) => {
+    let date = new Date()
+    date.setHours(hour)
+    date.setMinutes(minute)
+    return date.toLocaleTimeString('de-DE', {
         hour: '2-digit',
         minute: '2-digit',
     }) + ' Uhr'

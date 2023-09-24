@@ -6,6 +6,7 @@ router = DefaultRouter()
 router.register(r"meal", MealViewSet, basename="meal")
 router.register(r"food", FoodViewSet, basename="food")
 router.register(r"pet", PetViewSet, basename="pet")
+router.register(r"schedules", ScheduleViewSet, basename="schedule")
 
 urlpatterns = router.urls
 

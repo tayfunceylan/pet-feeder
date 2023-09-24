@@ -78,6 +78,24 @@
         </v-list-item>
       </v-list>
 
+      <!-- listing of schedules -->
+      <v-list item-props lines="two" v-auto-animate>
+        <p @click="editSchedule(null)" class="text-h5 ml-4 mt-3">
+          Schedules<v-btn icon="mdi-plus" variant="plain" />
+        </p>
+        <template v-for="schedule, index in schedules.data.value.results" :key="schedule.id">
+          <v-list-item @click="editSchedule(schedule)">
+            <v-list-item-title>{{ getScheduleTimeString(schedule.hour, schedule.minute) }}
+              <a class="font-italic text-disabled">Amount: {{ schedule.amount * 8 }}g</a>
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              <span class="text-primary">Mo Di Mi Do Fr Sa So</span>
+            </v-list-item-subtitle>
+          </v-list-item>
+          <v-divider v-if="index < schedules.data.value.results.length - 1" />
+        </template>
+      </v-list>
+
       <!-- dialog to save and edit meals -->
       <v-dialog v-model="selectedMeal">
         <v-sheet>
@@ -144,6 +162,37 @@
           </v-container>
         </v-sheet>
       </v-dialog>
+
+      <!-- dialog to save and edit schedules -->
+      <v-dialog v-model="selectedSchedule">
+        <v-sheet>
+          <v-container>
+            <v-form>
+              <VueDatePicker time-picker v-model=selectedSchedule.timePicker mode-height="170" class="mb-10" />
+              <!-- select pets -->
+
+              <v-slider v-model="selectedSchedule.amount" :min="1" :max="10" :step="1" thumb-label="always"
+                color="indigo">
+                <template v-slot:thumb-label="{ modelValue }">
+                  {{ modelValue * 8 }}g
+                </template>
+              </v-slider>
+
+              <v-chip v-for="day in ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']" @click="" class="mb-2 ma-1"
+                :color="true ? 'indigo' : 'grey'" text-color="white">
+                {{ day }}
+              </v-chip>
+
+              <v-row class="justify-space-evenly mt-4 mb-0">
+                <v-btn @click="delSchedule()" rounded variant="outlined" color="grey">
+                  <v-icon size="large" color="red" icon="mdi-delete" />
+                </v-btn>
+                <v-btn @click="saveSchedule()" rounded variant="outlined" color="grey">Save</v-btn>
+              </v-row>
+            </v-form>
+          </v-container>
+        </v-sheet>
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
@@ -160,10 +209,12 @@ let mealsPromise = getMeals(mealDate)
 let petsPromise = getPets()
 let foodsPromise = getFoods()
 let helperPromise = getHelper()
+let schedulesPromise = getSchedules()
 const meals: any = await mealsPromise
 const pets: any = await petsPromise
 const foods: any = await foodsPromise
 const helper: any = await helperPromise
+const schedules: any = await schedulesPromise
 
 const updateFunc = async (msg: string) => {
   isLoading.value = true
@@ -173,11 +224,49 @@ const updateFunc = async (msg: string) => {
     meals.refresh()
     foods.refresh()
   }
+  if (['newSchedule', undefined].includes(msg)) schedules.refresh()
   isLoading.value = false
 }
 
 const isConnected = ref(1)
 const ws: any = await connectToWebsocket(updateFunc, isConnected, isLoading)
+
+const selectedSchedule = ref()
+const editSchedule = (schedule: any) => {
+  if (schedule) {
+    selectedSchedule.value = structuredClone({ ...toRaw(schedule) })
+    selectedSchedule.value.timePicker = {
+      hours: schedule.hour,
+      minutes: schedule.minute,
+      seconds: 0
+    }
+  }
+  else {
+    let now = new Date()
+    selectedSchedule.value = {
+      amount: 1,
+      active: true,
+      timePicker: {
+        hours: now.getHours(),
+        minutes: now.getMinutes(),
+        seconds: now.getSeconds()
+      }
+    }
+  }
+}
+const saveSchedule = async () => {
+  isLoading.value = true
+  let schedule: any = selectedSchedule.value
+  schedule.hour = schedule.timePicker.hours
+  schedule.minute = schedule.timePicker.minutes
+  await postSchedule(schedule)
+  selectedSchedule.value = false
+  isLoading.value = false
+}
+const delSchedule = async () => {
+  await deleteSchedule(selectedSchedule.value.id);
+  selectedSchedule.value = false;
+}
 
 const selectedMeal = ref()
 const editMeal = (meal: any) => {

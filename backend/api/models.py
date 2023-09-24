@@ -5,6 +5,10 @@ from django.utils.timezone import now as time_zone_now
 from django.db.models import Sum
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from django.core.validators import MaxValueValidator, MinValueValidator
+import base64
+from os import getenv
+import tinytuya
 
 class Pet(models.Model):
     name = models.CharField(max_length=30)
@@ -147,3 +151,70 @@ class Meal(models.Model):
             'message': 'newMeal'
         })
 
+
+class Schedule(models.Model):
+    # byte 1 is for weekdays 7th bit is for monday, 1st bit is for sunday
+    # byte 2 is for hour
+    # byte 3 is for minute
+    # byte 4 is for amount of feedings (1-12)
+    # byte 5 is for on or off (0 or 1)
+    weekdays = models.IntegerField(default=0b01111111, validators=[MaxValueValidator(0b01111111)])
+    hour = models.IntegerField(validators=[MaxValueValidator(23), MinValueValidator(0)])
+    minute = models.IntegerField(validators=[MaxValueValidator(59), MinValueValidator(0)])
+    amount = models.IntegerField(validators=[MaxValueValidator(12), MinValueValidator(1)])
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=time_zone_now, blank=True)
+
+    @property
+    def export_schedule(self):
+        weekdays = self.weekdays.to_bytes(1, byteorder='big')
+        hour = self.hour.to_bytes(1, byteorder='big')
+        minute = self.minute.to_bytes(1, byteorder='big')
+        amount = self.amount.to_bytes(1, byteorder='big')
+        active = self.active.to_bytes(1, byteorder='big')
+        export = weekdays + hour + minute + amount + active
+        return export.hex()
+
+    # trigger on modifaication of meal
+    def save(self, *args, **kwargs):
+        if not self.update_schedule(): return
+        # on successfull save do the following
+        super(Schedule, self).save(*args, **kwargs)
+        # send a notification to the frontend
+        async_to_sync(get_channel_layer().group_send)('notify', {
+            'type': 'notify.message',
+            'message': 'newSchedule'
+        })
+    
+    # trigger on deletion of meal
+    def delete(self, *args, **kwargs):
+        if not self.update_schedule(True): return
+        # on successfull deletion do the following
+        super(Schedule, self).delete(*args, **kwargs)
+        # send a notification to the frontend
+        async_to_sync(get_channel_layer().group_send)('notify', {
+            'type': 'notify.message',
+            'message': 'newSchedule'
+        })
+
+    def update_schedule(self, delete=False):
+        all_schedules = Schedule.objects.all().exclude(id=self.id)
+        all_schedules = ''.join([schedule.export_schedule for schedule in all_schedules])
+        if not delete: all_schedules += self.export_schedule
+        print("all: ", all_schedules)
+        all_schedules = base64.b64encode(bytes.fromhex(all_schedules)).decode('ascii')
+        id, ip, key = getenv("TUYA_ID"), getenv("TUYA_IP"), getenv("TUYA_KEY")
+        if not id or not ip or not key: return False
+        
+        d = tinytuya.OutletDevice(id, ip, key)
+        d.set_version(3.3)
+        d.set_socketTimeout(2.0)
+        d.set_socketRetryLimit(1)
+
+        payload = d.generate_payload(tinytuya.CONTROL, {'1': all_schedules})
+        d.send(payload)
+        resp = d.receive()
+        if "Error" in resp:
+            print(resp)
+            return False
+        return True

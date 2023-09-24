@@ -1,7 +1,6 @@
 import tinytuya
 from os import getenv
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.functions import TruncDate
 from django.contrib.auth import authenticate, login
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
@@ -223,3 +222,8 @@ class PetViewSet(viewsets.ModelViewSet):
         # return both objects
         pet_data = {"pet": pet_serializer, "meals": serialized_meals}
         return Response(pet_data)
+    
+class ScheduleViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
