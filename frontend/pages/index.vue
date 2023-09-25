@@ -55,7 +55,7 @@
 
       <!-- listing of meals -->
       <v-list item-props lines="two" v-auto-animate>
-        <v-list-item v-if="meals.data.value.results.length == 0" :key="mealDate">
+        <v-list-item v-if="meals.data.value.results.length == 0">
           Keine Meals für diesen Tag
         </v-list-item>
         <template v-for="(meal, index) in meals.data.value.results" :key="meal.id">
