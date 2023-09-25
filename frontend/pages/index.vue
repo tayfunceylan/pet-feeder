@@ -81,7 +81,7 @@
       <!-- listing of schedules -->
       <v-list item-props lines="two" v-auto-animate>
         <p @click="editSchedule(null)" class="text-h5 ml-4 mt-3">
-          Schedules<v-btn icon="mdi-plus" variant="plain" />
+          Schedules
         </p>
         <template v-for="schedule, index in schedules.data.value.results" :key="schedule.id">
           <v-list-item @click="editSchedule(schedule)">
@@ -94,6 +94,11 @@
           </v-list-item>
           <v-divider v-if="index < schedules.data.value.results.length - 1" />
         </template>
+        <v-list-item @click="editSchedule(null)">
+          <v-btn block color="grey-darken-2" variant="outlined">
+            ADD SCHEDULE
+          </v-btn>
+        </v-list-item>
       </v-list>
 
       <!-- dialog to save and edit meals -->
