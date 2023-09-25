@@ -253,8 +253,8 @@ const editSchedule = (schedule: any) => {
       active: true,
       timePicker: {
         hours: now.getHours(),
-        minutes: now.getMinutes(),
-        seconds: now.getSeconds()
+        minutes: 0,
+        seconds: 0
       }
     }
   }
