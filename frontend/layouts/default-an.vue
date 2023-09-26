@@ -15,6 +15,9 @@ import ToolBar from "~/components/tool-bar.vue";
 <style scoped lang="sass">
 @import "assets/colors"
 
+.body
+  background-color: $background-dark
+
 .page
   height: 100vh
   width: 100vw

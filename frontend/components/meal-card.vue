@@ -11,7 +11,6 @@ const emits = defineEmits(['refresh-list'])
 let meal = ref(null);
 let food = ref(null);
 let isActive = ref(false);
-const authStore = useAuthStore()
 // hard update counter
 const counter = ref(0)
 
@@ -21,7 +20,7 @@ onMounted(async () => {
   if(props.mealID.id !== undefined) await fetchMeal()
   else{
     meal.value = props.mealID
-    const foodResponse = await fetchFoodID(authStore, meal.value.food)
+    const foodResponse = await getFoodID(meal.value.food)
     food.value = foodResponse.data
     counter.value += 1
   }
@@ -30,12 +29,12 @@ onMounted(async () => {
 
 // Fetch Meal with id and food name / units from meal
 async function fetchMeal(id = null){
-  const mealResponse = await fetchMealID(authStore, id ? id : props.mealID.id)
+  const mealResponse = await getMealID(id ? id : props.mealID.id)
   meal.value = mealResponse.data
 
   // Use the food id from meal data to fetch the food data
   const foodId = meal.value?.food
-  const foodResponse = await fetchFoodID(authStore, foodId)
+  const foodResponse = await getFoodID(foodId)
   food.value = foodResponse.data
   counter.value += 1
 }
@@ -49,18 +48,23 @@ function updateMeal(newMeal){
     time: `${newMeal.date}T${newMeal.time}`
   }
   // Post if it doesn't exist put to update and refresh the meal data
+  /*
   if(meal.value.id === undefined){
-    const postResponse = postMeal(authStore, tempMeal)
+    const postResponse = postMeal(tempMeal)
     postResponse.then((response) => fetchMeal(response.data.id))
   }else{
     const putResponse = putMeal(authStore, meal.value.id, tempMeal)
     putResponse.then(() => fetchMeal(meal.value.id))
   }
+  */
+  const postResponse = postMeal(tempMeal)
+  postResponse.then((response) => fetchMeal(response.data.id))
+
 }
-function deleteMeal(){
+function deleteMealCard(){
   // only delete if the meal exists in the database (if id doesn't exist, then it means it is only local)
   if(meal.value.id !== undefined){
-    const deleteResponse = deleteMealID(authStore, meal.value.id)
+    const deleteResponse = deleteMeal(meal.value.id)
     deleteResponse.then(() => emits('refresh-list'))
   }
 }
@@ -78,7 +82,7 @@ function deleteMeal(){
                 :mealDetail="meal"
                 :pets="petsList"
                 @open-meal="isActive=true"
-                @delete-meal="deleteMeal"
+                @delete-meal="deleteMealCard"
             />
           </Transition>
           <Transition>

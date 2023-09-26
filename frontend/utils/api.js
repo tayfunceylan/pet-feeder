@@ -93,6 +93,18 @@ export const deleteFood = async (id) => {
     })
 }
 
+export const getFoodID = async (id) => {
+    await useFetch(`/api/meal/${id}/`, {
+        method: 'GET',
+        headers: {'X-CSRFToken': useCookie('csrftoken')},
+    })
+}
+export const getMealID = async (id) => {
+    await useFetch(`/api/meal/${id}/`, {
+        method: 'GET',
+        headers: {'X-CSRFToken': useCookie('csrftoken')},
+    })
+}
 export const deleteMeal = async (id) => {
     await useFetch(`/api/meal/${id}/`, {
         method: 'DELETE',
