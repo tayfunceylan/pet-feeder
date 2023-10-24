@@ -11,6 +11,8 @@
   - [Get Started](#get-started)
   - [Production](#production)
 
+I would like to thank [Vinh An](https://github.com/anvinh01) for his contributions to this project. He laid the foundation for the backend in Django using [Django REST framework](https://www.django-rest-framework.org).
+
 ## Why Pet Feeder?
 
 I am living in household where multiple people are feeding the pets. So knowing if your roommate has fed the pets is essential in order to avoid instances where we are double feeding or not feeding at all. So to keep track is one the core features. Of course there are also many more features.
