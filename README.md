@@ -4,20 +4,36 @@
 
 - [pet-tracking](#pet-tracking)
   - [Table of Contents](#table-of-contents)
+  - [What does it look like?](#what-does-it-look-like)
   - [Ideas to implement](#ideas-to-implement)
   - [Get Started](#get-started)
   - [Production](#production)
 
+## What does it look like?
+
+Login Page                                |  Home Page
+------------------------------------------|--------------------------
+![Login Picture](demo/00-login.jpg)       |  ![Home Picture](demo/01-homescreen.jpg)
+
+Adding Meal                               |  Setting Page
+------------------------------------------|--------------------------
+![Adding Meal](demo/02-adding-meal.jpg)   |  ![Setting Page](demo/04-settings.jpg)
+
+Process Adding Meal                       |  Animation
+------------------------------------------|--------------------------
+adding a meal is quick and easy           |  animations provide better user experience
+![Process Meal](demo/adding_meal.gif)     |  ![Animation](demo/animations.gif)
 ## Ideas to implement
 
 - [ ] Native app for ios and android
   - [ ] widgets for ios (and maybe android)
 - [ ] Planner: possibility to specify that you can feed in the morning or evening then you do not always have to coordinate feedings in your household
 - [x] Inventory: a page to add new foods and also track remaining amount of the food
-- [ ] Automatic Pet Feeder Machine
-  - [ ] a page to configure the pet feeder machine
+- [x] Automatic Pet Feeder Machine
+  - [x] a page to configure the pet feeder machine
   - [ ] trigger manual feeding
-  - [ ] change schedule for automatic feeding
+  - [x] change schedule for automatic feeding
+- [x] Animations
 
 ## Get Started
 
