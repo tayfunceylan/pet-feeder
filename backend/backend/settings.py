@@ -31,7 +31,10 @@ SECRET_KEY = os.getenv(
 DEBUG = bool(os.getenv("DJANGO_DEBUG", default=1))
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(',')
-CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS] + [f'https://{host}' for host in ALLOWED_HOSTS]
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS] + [f'capacitor://{host}' for host in ALLOWED_HOSTS]
+CORS_ORIGIN_WHITELIST = [f'http://{host}' for host in ALLOWED_HOSTS] + [f'capacitor://{host}' for host in ALLOWED_HOSTS]
+CORS_ALLOW_CREDENTIALS = True
+
 ASGI_APPLICATION = "backend.asgi.application"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'corsheaders',
     'rest_framework',
     'api',
     'channels',
@@ -76,6 +80,7 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
