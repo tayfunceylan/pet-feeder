@@ -1,5 +1,32 @@
+// you need X-CSRFToken header for PUT and DELET Requests
+// you dont need it for get and post requests
+
+export const ownUseFetch = async (url, options) => {
+    // credentials: 'include' is needed to send the cookie
+    const isLoading = useLoading()
+    const config = useRuntimeConfig()
+    return useFetch(url, { 
+        ...options, credentials: 'include', baseURL: config.public.baseURL,
+        onRequest({ response }) {
+            isLoading.value = true
+        },
+        onResponse({ response }) {
+            isLoading.value = false
+            if (response.status == 403) {
+                navigateTo('/login')
+            }
+        }
+    })
+}
+
+export const ownUseLazyFetch = async (url, options) => {
+    options = options || {} 
+    options.lazy = true
+    return ownUseFetch(url, options)
+}
+
 export const getToken = async () => {
-    return String((await useFetch('/api/token/')).data.value)
+    return String((await ownUseFetch('/api/token/')).data.value)
 }
 
 export const postMeal = async (meal) => {
@@ -11,13 +38,13 @@ export const postMeal = async (meal) => {
     form.append('fed_at', meal.fed_at.toISOString())
     form.append('csrfmiddlewaretoken', await token)
     if (meal.id) 
-        await useFetch(`/api/meal/${meal.id}/`, {
+        await ownUseFetch(`/api/meal/${meal.id}/`, {
             method: 'PUT',
             body: form,
-            headers: {'X-CSRFToken': useCookie('csrftoken')},
+            headers: {'X-CSRFToken': await getToken()},
         })
     else
-        await useFetch(`/api/meal/`, {
+        await ownUseFetch(`/api/meal/`, {
             method: 'POST',
             body: form,
         })
@@ -32,13 +59,13 @@ export const postPet = async (pet) => {
     form.append('description', pet.description)
     form.append('csrfmiddlewaretoken', await token)
     if (pet.id) 
-        await useFetch(`/api/pet/${pet.id}/`, {
+        await ownUseFetch(`/api/pet/${pet.id}/`, {
             method: 'PUT',
             body: form,
-            headers: {'X-CSRFToken': useCookie('csrftoken')},
+            headers: {'X-CSRFToken': await getToken()},
         })
     else
-        await useFetch(`/api/pet/`, {
+        await ownUseFetch(`/api/pet/`, {
             method: 'POST',
             body: form,
         })
@@ -52,13 +79,13 @@ export const postFood = async (food) => {
         form.append(field, food[field])
     form.append('csrfmiddlewaretoken', await token)
     if (food.id) 
-        await useFetch(`/api/food/${food.id}/`, {
+        await ownUseFetch(`/api/food/${food.id}/`, {
             method: 'PUT',
             body: form,
-            headers: {'X-CSRFToken': useCookie('csrftoken')},
+            headers: {'X-CSRFToken': await getToken()},
         })
     else
-        await useFetch(`/api/food/`, {
+        await ownUseFetch(`/api/food/`, {
             method: 'POST',
             body: form,
         })
@@ -74,133 +101,78 @@ export const postSchedule = async (schedule) => {
     form.append('active', schedule.active)
     form.append('csrfmiddlewaretoken', await token)
     if (schedule.id) 
-        await useFetch(`/api/schedules/${schedule.id}/`, {
+        await ownUseFetch(`/api/schedules/${schedule.id}/`, {
             method: 'PUT',
             body: form,
-            headers: {'X-CSRFToken': useCookie('csrftoken')},
+            headers: {'X-CSRFToken': await getToken()},
         })
     else
-        await useFetch(`/api/schedules/`, {
+        await ownUseFetch(`/api/schedules/`, {
             method: 'POST',
             body: form,
         })
 }
 
-export const deleteFood = async (id) => {
-    await useFetch(`/api/meal/${id}/`, {
-        method: 'DELETE',
-        headers: {'X-CSRFToken': useCookie('csrftoken')},
-    })
-}
-
-export const getFoodID = async (id) => {
-    await useFetch(`/api/meal/${id}/`, {
-        method: 'GET',
-        headers: {'X-CSRFToken': useCookie('csrftoken')},
-    })
-}
-export const getMealID = async (id) => {
-    await useFetch(`/api/meal/${id}/`, {
-        method: 'GET',
-        headers: {'X-CSRFToken': useCookie('csrftoken')},
-    })
-}
 export const deleteMeal = async (id) => {
-    await useFetch(`/api/meal/${id}/`, {
+    await ownUseFetch(`/api/meal/${id}/`, {
         method: 'DELETE',
-        headers: {'X-CSRFToken': useCookie('csrftoken')},
+        headers: {'X-CSRFToken': await getToken()},
     })
 }
 
 export const deleteSchedule = async (id) => {
-    await useFetch(`/api/schedules/${id}/`, {
+    await ownUseFetch(`/api/schedules/${id}/`, {
         method: 'DELETE',
-        headers: {'X-CSRFToken': useCookie('csrftoken')},
+        headers: {'X-CSRFToken': await getToken()},
     })
 }
 
 export const deletePet = async (id) => {
-    await useFetch(`/api/pet/${id}/`, {
+    await ownUseFetch(`/api/pet/${id}/`, {
         method: 'DELETE',
-        headers: {'X-CSRFToken': useCookie('csrftoken')},
+        headers: {'X-CSRFToken': await getToken()},
+    })
+}
+
+export const getFoodID = async (id) => {
+    await ownUseFetch(`/api/meal/${id}/`, {
+        method: 'GET',
+    })
+}
+export const getMealID = async (id) => {
+    await ownUseFetch(`/api/meal/${id}/`, {
+        method: 'GET',
     })
 }
 
 export const getHelper = async () => {
-    const result = useLazyFetch('/api/helper/', {
-        // redirect to /login if status is 403
-        onResponse({ response }) {
-            if (response.status == 403) {
-                navigateTo('/login')
-            }
-        }
-    })
+    const result = ownUseLazyFetch('/api/helper/')
     return result
 }
 
 export const getMeals = async (date) => {
-    const result = useLazyFetch('/api/meal/', {
-        query: { date: date },
-        // redirect to /login if status is 403
-        onResponse({ response }) {
-            if (response.status == 403) {
-                navigateTo('/login')
-            }
-        }
-    })
+    const result = ownUseLazyFetch('/api/meal/', { query: { date: date } })
     return result
 }
 
 export const getPets = async () => {
-    return useLazyFetch('/api/pet/',{
-        onResponse({ response }) {
-            if (response.status == 403) {
-                navigateTo('/login')
-            }
-        }
-    })
+    return ownUseLazyFetch('/api/pet/')
 }
 
 export const getFoods = async () => {
-    return  useLazyFetch('/api/food/map/', {
-        onResponse({ response }) {
-            if (response.status == 403) {
-                navigateTo('/login')
-            }
-        }
-    })
+    return  ownUseLazyFetch('/api/food/map/')
 }
 
 export const getSchedules = async () => {
-    return  useLazyFetch('/api/schedules/', {
-        onResponse({ response }) {
-            if (response.status == 403) {
-                navigateTo('/login')
-            }
-        }
-    })
+    return  ownUseLazyFetch('/api/schedules/')
 }
 
 export const getFoodOptions = async () => {
-    return await useLazyFetch('/api/food/get_options', {
-        onResponse({ response }) {
-            if (response.status == 403) {
-                navigateTo('/login')
-            }
-        }
-    })
+    return await ownUseLazyFetch('/api/food/get_options')
 }
 
 export const getDate = async (date) => {
     return new Date().toISOString().slice(0, 10)
-}
-
-export const logout = async () => {
-    await useFetch('/api/auth/logout', {
-    onResponse({ response }) {
-        if (response.status == 200) navigateTo('/login')
-    },
-    })
 }
 
 export const postLogin = async (username, password) => {
@@ -212,77 +184,21 @@ export const postLogin = async (username, password) => {
     form.append('submit', 'Log in')
     form.append('next', '')
     form.append('csrfmiddlewaretoken', await token)
-    return await useFetch('/api/login/', {
+    return await ownUseFetch('/api/login/', {
         method: 'POST',
-        body: form,
-        onResponse({ response }) {
-            if (response.status == 200) navigateTo('/')
-        }
+        body: form
     })
 }
+
 export const checkIfLoggedIn = async () => {
-    await useFetch('/api/login', {
-        onResponse({ response }) {
-            if (response.status == 200) 
-                navigateTo('/')
-        }
-    })
+    const resp = await ownUseFetch('/api/login')
+    if (resp.status.value == 'success') {
+        console.log('logged in')
+        navigateTo('/')
+    }
 }
 
-// function that turns timestamp into a date string HH:MM
-export const toTimeString = (timestamp) => {
-    return new Date(timestamp * 1000).toLocaleTimeString('de-DE', {
-        hour: '2-digit',
-        minute: '2-digit',
-    }) + ' Uhr'
-}
-
-export const getScheduleTimeString = (hour, minute) => {
-    let date = new Date()
-    date.setHours(hour)
-    date.setMinutes(minute)
-    return date.toLocaleTimeString('de-DE', {
-        hour: '2-digit',
-        minute: '2-digit',
-    }) + ' Uhr'
-}
-
-// function that turns date obj into YYYY-MM-DD with leading zeros
-export const toDateString = (date) => {
-    return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
-
-}
-
-export const connectToWebsocket = async (updateFunc, isConnected, isLoading) => {
-    let protocol = window.location.protocol == 'https:' ? 'wss' : 'ws'
-    var ws = new WebSocket(`${protocol}://${window.location.host}/ws/notify/`)
-    var shouldReconnect = true
-    ws.onopen = function() {
-        if (!isConnected.value) updateFunc() 
-        isLoading.value = false
-        isConnected.value = 100
-        console.log('WebSocket Client Connected')
-    }
-  
-    ws.onmessage = function(e) { 
-        updateFunc(e.data)
-    }
-  
-    ws.onclose = function(e) {
-        isConnected.value = 0
-        if(shouldReconnect){
-            console.log('Socket is closed. Reconnect will be attempted in 1 second.');
-            setTimeout(function() { connectToWebsocket(updateFunc, isConnected, isLoading) }, 1000)
-        }
-    }
-  
-    ws.onerror = function(err) {
-      console.error('Socket encountered error: Closing socket')
-      ws.close()
-    }
-    ws.customClose = function() {
-        shouldReconnect = false
-        ws.close()
-    }
-    return ws
+export const logout = async () => {
+    const resp = await ownUseFetch('/api/auth/logout')
+    if (resp.status.value == 'success') navigateTo('/login')
 }

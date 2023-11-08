@@ -29,5 +29,8 @@ const login = async () => {
     if (result.status.value == 'error') {
         error.value = true
     }
+    else {
+        navigateTo('/')
+    }
 }
 </script>

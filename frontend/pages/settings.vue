@@ -44,7 +44,7 @@
             </v-list-item-subtitle>
             <template v-slot:prepend>
               <v-avatar size="50">
-                <v-img :src=pet.picture></v-img>
+                <v-img :src=baseURL+pet.picture></v-img>
               </v-avatar>
             </template>
           </v-list-item>
@@ -118,7 +118,9 @@
 </template>
 
 <script setup lang="ts">
-const isLoading = ref(true)
+const isLoading = useLoading()
+const isConnected = useConnected()
+const baseURL = useRuntimeConfig().public.baseURL
 
 let petsPromise = getPets()
 let foodsPromise = getFoods()
@@ -136,8 +138,7 @@ const updateFunc = async (msg: string) => {
   isLoading.value = false
 }
 
-const isConnected = ref(1)
-const ws: any = await connectToWebsocket(updateFunc, isConnected, isLoading)
+const ws: any = await connectToWebsocket(updateFunc)
 
 const selectedPet = ref()
 const editPet = (pet: any) => {
@@ -177,5 +178,6 @@ const saveFood = async () => {
 onUnmounted(() => {
   console.log('disconnecting from websocket')
   ws.customClose()
+  isConnected.value = 0
 })
 </script>

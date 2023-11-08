@@ -10,6 +10,7 @@
   - [Ideas to implement](#ideas-to-implement)
   - [Get Started](#get-started)
   - [Production](#production)
+  - [Deploy to iOS](#deploy-to-ios)
 
 I would like to thank [Vinh An](https://github.com/anvinh01) for his contributions to this project. He laid the foundation for the backend in Django using [Django REST framework](https://www.django-rest-framework.org).
 
@@ -78,3 +79,20 @@ For production, there are two steps:
 
 2. frontend:
    1. run `npx nuxi generate` in the frontend folder to generate .output/public and serve the public folder with an nginx/apache server
+
+## Deploy to iOS
+
+Cross platform app build with [Capacitor](https://capacitorjs.com/).
+
+Following steps explain how to deploy for production on iOS ([Capacitor iOS](https://capacitorjs.com/docs/ios)):
+
+1. `cd frontend`
+2. rename `.env.example` to `.env` and the url to your backend where the app can fetch the data
+3. rename `capacitor.config.example.json` to `capacitor.config.json` and adjust the environment vars to your liking, also change server.hostname to the hostname of your backend server
+4. if not already: `yarn install`
+5. `npx nuxi generate` to build our Nuxt app
+6. `npx cap add ios` to ios app to the project
+   1. this step is only needed if you want to deploy to an iOS Device instead of Simulator: open the project in Xcode with `npx cap open ios` and add a signing team under `App > Signing & Capabilities`
+7. `npx cap run ios` to deploy the app to the simulator/device
+
+**Repeat steps 5 and 7** if you have made **changes** to the frontend.

@@ -203,7 +203,8 @@
 </template>
 
 <script setup lang="ts">
-const isLoading = ref(true)
+const isLoading = useLoading()
+const isConnected = useConnected()
 
 // fetch data from backend and date in params
 const datePicker = ref(new Date())
@@ -222,7 +223,6 @@ const helper: any = await helperPromise
 const schedules: any = await schedulesPromise
 
 const updateFunc = async (msg: string) => {
-  isLoading.value = true
   if (['newPet', undefined].includes(msg)) pets.refresh()
   if (['newFood', undefined].includes(msg)) foods.refresh()
   if (['newMeal', undefined].includes(msg)) {
@@ -230,11 +230,9 @@ const updateFunc = async (msg: string) => {
     foods.refresh()
   }
   if (['newSchedule', undefined].includes(msg)) schedules.refresh()
-  isLoading.value = false
 }
 
-const isConnected = ref(1)
-const ws: any = await connectToWebsocket(updateFunc, isConnected, isLoading)
+const ws: any = await connectToWebsocket(updateFunc)
 
 const selectedSchedule = ref()
 const editSchedule = (schedule: any) => {
@@ -260,13 +258,11 @@ const editSchedule = (schedule: any) => {
   }
 }
 const saveSchedule = async () => {
-  isLoading.value = true
   let schedule: any = selectedSchedule.value
   schedule.hour = schedule.timePicker.hours
   schedule.minute = schedule.timePicker.minutes
   await postSchedule(schedule)
   selectedSchedule.value = false
-  isLoading.value = false
 }
 const delSchedule = async () => {
   await deleteSchedule(selectedSchedule.value.id);
@@ -302,14 +298,12 @@ const editMeal = (meal: any) => {
   }
 }
 const saveMeal = async () => {
-  isLoading.value = true
   let meal: any = selectedMeal.value
   meal.fed_at.setHours(meal.timePicker.hours)
   meal.fed_at.setMinutes(meal.timePicker.minutes)
   meal.fed_at.setSeconds(meal.timePicker.seconds)
   await postMeal(meal)
   selectedMeal.value = false
-  isLoading.value = false
 }
 const delMeal = async () => {
   await deleteMeal(selectedMeal.value.id);
@@ -318,9 +312,7 @@ const delMeal = async () => {
 
 const dateDialog = ref(false)
 const updateDay = async () => {
-  isLoading.value = true
   mealDate.value = toDateString(datePicker.value)
-  isLoading.value = false
 
   dayAsText.value = dayToText()
   dateDialog.value = false
@@ -364,5 +356,6 @@ const selectFood = async (food: any) => {
 onUnmounted(() => {
   console.log('disconnecting from websocket')
   ws.customClose()
+  isConnected.value = 0
 })
 </script>

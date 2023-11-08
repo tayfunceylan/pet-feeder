@@ -3,7 +3,10 @@
   "appName": "Pet Feeder",
   "webDir": ".output/public",
   "server": {
-    "androidScheme": "https",
-    "url": "https://api.example.com"
+    "hostname": "api.example.com"
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#ffffff" 
   }
 }

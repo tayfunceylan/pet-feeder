@@ -4,6 +4,11 @@ import { defineNuxtConfig } from 'nuxt/config'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   ssr: false,
+  runtimeConfig: {
+    public: {
+      baseURL: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost',
+    },
+  },
   devtools: { enabled: true },
   modules: ['@formkit/auto-animate/nuxt'],
   css: [
