@@ -1,14 +1,15 @@
 <template>
   <v-app>
+    <!-- app bard -->
     <v-app-bar :elevation="2">
       <v-app-bar-title>
-        <v-progress-circular v-model=isConnected :indeterminate=isLoading size=25 color="primary" />
+        <v-progress-circular v-model=ws.isConnected :indeterminate=ws.isLoading size=25 color="primary" />
         <NuxtLink to="/" style="text-decoration: none; color: inherit;">
           Pet Feeder
         </NuxtLink>
       </v-app-bar-title>
 
-      <v-btn @click="datePicker = new Date(); updateDay()" icon="mdi-undo" />
+      <v-btn @click="meals.datePicker = new Date();" icon="mdi-undo" />
       <v-menu>
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" icon="mdi-dots-vertical" />
@@ -25,8 +26,8 @@
       </v-menu>
     </v-app-bar>
 
-    <v-main v-if="meals.error.value">
-      {{ mealDate }}
+    <v-main v-if="meals.error">
+      {{ meals.date }}
       <v-alert type="error" dismissible>
         {{ meals.error }}
       </v-alert>
@@ -34,9 +35,10 @@
         maybe try to refresh page
       </v-alert>
     </v-main>
-    <v-main v-else-if="[meals, foods, pets, helper].some((item) => item.data.value == null)">
+    <v-main v-else-if="[meals, foods, pets, helper].some((resp) => resp.data == null)">
     </v-main>
     <v-main v-else>
+      <!-- date picker -->
       <v-container class="mt-3">
         <v-row justify="center" align="center">
           <v-btn @click=jumpdays(-1) icon="mdi-step-backward" variant="plain" />
@@ -46,8 +48,8 @@
                 {{ dayAsText }}
               </v-btn>
             </template>
-            <VueDatePicker class="elevation-24" inline auto-apply locale="de" v-model=datePicker
-              @update:model-value=updateDay() :enable-time-picker="false" />
+            <VueDatePicker class="elevation-24" inline auto-apply locale="de" v-model=meals.datePicker
+              @update:model-value='dateDialog=false' :enable-time-picker="false" />
           </v-menu>
           <v-btn @click=jumpdays(+1) icon="mdi-step-forward" variant="plain" />
         </v-row>
@@ -55,21 +57,21 @@
 
       <!-- listing of meals -->
       <v-list item-props lines="two" v-auto-animate>
-        <v-list-item v-if="meals.data.value.results.length == 0">
+        <v-list-item v-if="meals.data.results.length == 0">
           Keine Meals für diesen Tag
         </v-list-item>
-        <template v-for="(meal, index) in meals.data.value.results" :key="meal.id">
+        <template v-for="(meal, index) in meals.data.results" :key="meal.id">
           <v-list-item @click="editMeal(meal)">
             <v-list-item-title>{{ toTimeString(meal.fed_at) }}</v-list-item-title>
             <v-list-item-subtitle>
               <span class="text-primary">
-                {{ `${meal.quantity}${foods.data.value[meal.food].unit}
-                                ${helper.data.value.maps.categories[foods.data.value[meal.food].category]}` }}
+                {{ `${meal.quantity}${foods.data[meal.food].unit}
+                                ${helper.data.maps.categories[foods.data[meal.food].category]}` }}
               </span>
-              &mdash; {{ foods.data.value[meal.food].name }}
+              &mdash; {{ foods.data[meal.food].name }}
             </v-list-item-subtitle>
           </v-list-item>
-          <v-divider v-if="index < meals.data.value.results.length - 1" />
+          <v-divider v-if="index < meals.data.results.length - 1" />
         </template>
         <v-list-item @click="editMeal(null)">
           <v-btn block color="grey-darken-2" variant="outlined">
@@ -83,7 +85,7 @@
         <p @click="editSchedule(null)" class="text-h5 ml-4 mt-3">
           Schedules
         </p>
-        <template v-for="schedule, index in schedules.data.value.results" :key="schedule.id">
+        <template v-for="schedule, index in schedules.data.results" :key="schedule.id">
           <v-list-item @click="editSchedule(schedule)">
             <v-list-item-title>{{ getScheduleTimeString(schedule.hour, schedule.minute) }}
               <a class="font-italic text-disabled">Amount: {{ schedule.amount * 8 }}g</a>
@@ -92,7 +94,7 @@
               <span class="text-primary">Mo Di Mi Do Fr Sa So</span>
             </v-list-item-subtitle>
           </v-list-item>
-          <v-divider v-if="index < schedules.data.value.results.length - 1" />
+          <v-divider v-if="index < schedules.data.results.length - 1" />
         </template>
         <v-list-item @click="editSchedule(null)">
           <v-btn block color="grey-darken-2" variant="outlined">
@@ -109,7 +111,7 @@
               <VueDatePicker time-picker v-model=selectedMeal.timePicker mode-height="170" class="mb-6" />
               <!-- select pets -->
               <div class="mt-2 mb-2">
-                <v-chip v-for="pet in pets.data.value.results" @click="addOrRemovePet(pet.id)" class="mb-2 ma-1"
+                <v-chip v-for="pet in pets.data.results" @click="addOrRemovePet(pet.id)" class="mb-2 ma-1"
                   :color="selectedMeal && selectedMeal.pets.includes(pet.id) ? 'indigo' : 'grey'" text-color="white"
                   prepend-icon="mdi-account-circle">
                   {{ pet.name }}
@@ -118,7 +120,7 @@
               <v-divider />
               <!-- select food category -->
               <div class="mt-2 mb-2">
-                <v-chip v-for="category in helper.data.value.lists.categories" @click="selectCategory(category)"
+                <v-chip v-for="category in helper.data.lists.categories" @click="selectCategory(category)"
                   class="mb-2 ma-1" :color="selectedMeal.category == category.k ? 'deep-purple' : 'grey'"
                   text-color="white" prepend-icon="mdi-cards-outline">
                   {{ category.v }}
@@ -128,9 +130,9 @@
               <template v-if="selectedMeal.category">
                 <v-divider />
                 <div class="mt-2 mb-2">
-                  <template v-for="food in foods.data.value">
+                  <template v-for="food in foods.data">
 
-                    <v-chip v-if="selectedMeal.category == foods.data.value[food.id].category" @click="selectFood(food)"
+                    <v-chip v-if="selectedMeal.category == foods.data[food.id].category" @click="selectFood(food)"
                       class="mb-2 ma-1" :color="selectedMeal.food == food.id ? 'purple' : 'grey'" text-color="white"
                       prepend-icon="mdi-cards-outline">
                       {{ food.name }}
@@ -144,14 +146,14 @@
                 <v-row no-gutters class="mt-6">
                   <v-col cols="4" class="mr-4">
                     <v-text-field density="compact"
-                      :label="`Menge in ${selectedMeal.food ? foods.data.value[selectedMeal.food].unit : ''}`"
+                      :label="`Menge in ${selectedMeal.food ? foods.data[selectedMeal.food].unit : ''}`"
                       v-model=selectedMeal.quantity variant="outlined" type="number" />
                   </v-col>
                   <v-col class="mt-1">
-                    <v-chip v-for="quantity in foods.data.value[selectedMeal.food].top_quantities"
+                    <v-chip v-for="quantity in foods.data[selectedMeal.food].top_quantities"
                       @click="selectedMeal.quantity = quantity" class="mb-2 ma-1"
                       :color="selectedMeal.quantity == quantity ? 'purple' : 'grey'" text-color="white">
-                      {{ `${quantity}${foods.data.value[selectedMeal.food].unit}` }}
+                      {{ `${quantity}${foods.data[selectedMeal.food].unit}` }}
                     </v-chip>
                   </v-col>
                 </v-row>
@@ -203,36 +205,14 @@
 </template>
 
 <script setup lang="ts">
-const isLoading = useLoading()
-const isConnected = useConnected()
-
 // fetch data from backend and date in params
-const datePicker = ref(new Date())
-const mealDate = ref(toDateString(datePicker.value))
+const meals = useMealsStore()
+const pets = usePetsStore()
+const foods = useFoodsStore()
+const helper = useHelperStore()
+const schedules = useSchedulesStore()
 
-// fetch data from backend and date in params
-let mealsPromise = getMeals(mealDate)
-let petsPromise = getPets()
-let foodsPromise = getFoods()
-let helperPromise = getHelper()
-let schedulesPromise = getSchedules()
-const meals: any = await mealsPromise
-const pets: any = await petsPromise
-const foods: any = await foodsPromise
-const helper: any = await helperPromise
-const schedules: any = await schedulesPromise
-
-const updateFunc = async (msg: string) => {
-  if (['newPet', undefined].includes(msg)) pets.refresh()
-  if (['newFood', undefined].includes(msg)) foods.refresh()
-  if (['newMeal', undefined].includes(msg)) {
-    meals.refresh()
-    foods.refresh()
-  }
-  if (['newSchedule', undefined].includes(msg)) schedules.refresh()
-}
-
-const ws: any = await connectToWebsocket(updateFunc)
+const ws: any = useWebsocketStore()
 
 const selectedSchedule = ref()
 const editSchedule = (schedule: any) => {
@@ -274,7 +254,7 @@ const editMeal = (meal: any) => {
   if (meal) {
     let mealDate = new Date(meal.fed_at * 1000)
     selectedMeal.value = structuredClone({ ...toRaw(meal) })
-    selectedMeal.value.category = foods.data.value[meal.food].category
+    selectedMeal.value.category = foods.data[meal.food].category
     selectedMeal.value.fed_at = mealDate
     selectedMeal.value.timePicker = {
       hours: mealDate.getHours(),
@@ -288,7 +268,7 @@ const editMeal = (meal: any) => {
       pets: [1, 2],
       quantity: "",
       food: null,
-      fed_at: datePicker.value,
+      fed_at: meals.datePicker,
       timePicker: {
         hours: now.getHours(),
         minutes: now.getMinutes(),
@@ -311,32 +291,25 @@ const delMeal = async () => {
 }
 
 const dateDialog = ref(false)
-const updateDay = async () => {
-  mealDate.value = toDateString(datePicker.value)
 
-  dayAsText.value = dayToText()
-  dateDialog.value = false
-}
 const jumpdays = async (offset: number) => {
-  datePicker.value.setDate(datePicker.value.getDate() + offset)
-  await updateDay()
-  //   ws.onmessage = () => console.log('message received')
+  meals.datePicker = new Date(new Date().setDate(meals.datePicker.getDate()+offset))
 }
 const dayToText = () => {
   // return today, tomorrow, yesterday, or date
   const today = new Date()
   // total numbers of days between today and selected date
-  let diff = Math.round((datePicker.value.getTime() - today.getTime()) / (1000 * 3600 * 24))
+  let diff = Math.round((meals.datePicker.getTime() - today.getTime()) / (1000 * 3600 * 24))
   if (diff === 0) return 'Heute'
   if (diff === 1) return 'Morgen'
   if (diff === -1) return 'Gestern'
-  return datePicker.value.toLocaleDateString('de-DE', {
+  return meals.datePicker.toLocaleDateString('de-DE', {
     day: 'numeric',
     month: 'numeric',
     year: 'numeric'
   })
 }
-const dayAsText = ref(dayToText())
+const dayAsText = computed(dayToText)
 
 const addOrRemovePet = async (id: number) => {
   if (selectedMeal.value.pets.includes(id)) selectedMeal.value.pets = selectedMeal.value.pets.filter((petId: number) => petId !== id)
@@ -349,13 +322,6 @@ const selectCategory = async (category: any) => {
 }
 const selectFood = async (food: any) => {
   selectedMeal.value.food = selectedMeal.value.food == food.id ? '' : food.id
-  selectedMeal.value.quantity = foods.data.value[food.id].top_quantities[0]
+  selectedMeal.value.quantity = foods.data[food.id].top_quantities[0]
 }
-
-// on unmount disconnect from websocket
-onUnmounted(() => {
-  console.log('disconnecting from websocket')
-  ws.customClose()
-  isConnected.value = 0
-})
 </script>

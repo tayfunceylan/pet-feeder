@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar :elevation="2">
       <v-app-bar-title>
-        <v-progress-circular v-model=isConnected :indeterminate=isLoading size=25 color="primary" />
+        <v-progress-circular v-model=ws.isConnected :indeterminate=ws.isLoading size=25 color="primary" />
         <NuxtLink to="/" style="text-decoration: none; color: inherit;">
           Pet Feeder
         </NuxtLink>
@@ -21,7 +21,7 @@
       </v-menu>
     </v-app-bar>
 
-    <v-main v-if="pets.error.value">
+    <v-main v-if="pets.error">
       <v-alert type="error" dismissible>
         {{ pets.error }}
       </v-alert>
@@ -29,13 +29,13 @@
         refresh page
       </v-alert>
     </v-main>
-    <v-main v-else-if="[foods, foodOptions, pets, helper].some((item) => item.data.value == null)">
+    <v-main v-else-if="[foods.data, foodOptions.data, pets.data, helper.data].some((data) => data == null)">
     </v-main>
     <v-main v-else>
       <!-- listing for pets -->
       <v-list item-props lines="three" v-auto-animate>
         <p class="text-h5 ml-4 mt-3">Pets</p>
-        <template v-for="(pet, index) in pets.data.value.results" :key="pet.id">
+        <template v-for="(pet, index) in pets.data.results" :key="pet.id">
           <v-list-item @click="editPet(pet)">
             <v-list-item-title>{{ pet.name }}</v-list-item-title>
             <v-list-item-subtitle>
@@ -48,7 +48,7 @@
               </v-avatar>
             </template>
           </v-list-item>
-          <v-divider v-if="index < pets.data.value.results.length - 1" inset />
+          <v-divider v-if="index < pets.data.results.length - 1" inset />
         </template>
       </v-list>
 
@@ -57,17 +57,17 @@
         <p @click="editFood(null)" class="text-h5 ml-4 mt-3">
           Foods<v-btn icon="mdi-plus" variant="plain" />
         </p>
-        <template v-for="food, index in foods.data.value" :key="food.id">
+        <template v-for="food, index in foods.data" :key="food.id">
           <v-list-item @click="editFood(food)">
             <v-list-item-title>{{ food.name }}
               <a class="font-italic text-disabled">({{ food.left }} übrig)</a>
             </v-list-item-title>
             <v-list-item-subtitle>
-              <span class="text-primary">{{ helper.data.value.maps.categories[food.category] }}</span>
+              <span class="text-primary">{{ helper.data.maps.categories[food.category] }}</span>
               &mdash; {{ `${food.num_packets}*${food.packet_size}${food.unit} für ${food.price}€ (${food.pl})` }}
             </v-list-item-subtitle>
           </v-list-item>
-          <v-divider v-if="index < foods.data.value.length - 1" />
+          <v-divider v-if="index < foods.data.length - 1" />
         </template>
       </v-list>
 
@@ -99,9 +99,9 @@
               <v-text-field v-model="selectedFood.num_packets" label="Anzahl Packungen" variant="outlined"
                 type="number" />
               <v-text-field v-model="selectedFood.packet_size" label="Packungen Größe" variant="outlined" type="number" />
-              <v-select v-model="selectedFood.unit" :items=foodOptions.data.value.units item-title="name"
+              <v-select v-model="selectedFood.unit" :items=foodOptions.data.units item-title="name"
                 item-value="value" label="Einheit" variant="outlined" />
-              <v-select v-model="selectedFood.category" :items=foodOptions.data.value.categories item-title="name"
+              <v-select v-model="selectedFood.category" :items=foodOptions.data.categories item-title="name"
                 item-value="value" label="Kategorie" variant="outlined" />
               <v-text-field v-model="selectedFood.price" label="Preis in €" variant="outlined" type="number" />
 
@@ -118,37 +118,22 @@
 </template>
 
 <script setup lang="ts">
-const isLoading = useLoading()
-const isConnected = useConnected()
 const baseURL = useRuntimeConfig().public.baseURL
 
-let petsPromise = getPets()
-let foodsPromise = getFoods()
-let foodOptionsPromise = getFoodOptions()
-let helperPromise = getHelper()
-const pets: any = await petsPromise
-const foods: any = await foodsPromise
-const foodOptions: any = await foodOptionsPromise
-const helper: any = await helperPromise
+const pets = usePetsStore()
+const foods = useFoodsStore()
+const helper = useHelperStore()
+const foodOptions = useFoodOptionsStore()
 
-const updateFunc = async (msg: string) => {
-  isLoading.value = true
-  if (['newPet', undefined].includes(msg)) pets.refresh()
-  if (['newFood', 'newMeal', undefined].includes(msg)) foods.refresh()
-  isLoading.value = false
-}
-
-const ws: any = await connectToWebsocket(updateFunc)
+const ws: any = useWebsocketStore()
 
 const selectedPet = ref()
 const editPet = (pet: any) => {
   selectedPet.value = structuredClone({ ...pet })
 }
 const savePet = async () => {
-  isLoading.value = true
   await postPet(selectedPet.value)
   selectedPet.value = false
-  isLoading.value = false
 }
 
 const selectedFood = ref()
@@ -166,18 +151,9 @@ const editFood = (pet: any) => {
 
 }
 const saveFood = async () => {
-  isLoading.value = true
   let food = selectedFood.value
   food.amount = food.num_packets * food.packet_size
   await postFood(selectedFood.value)
   selectedFood.value = false
-  isLoading.value = false
 }
-
-// on unmount disconnect from websocket
-onUnmounted(() => {
-  console.log('disconnecting from websocket')
-  ws.customClose()
-  isConnected.value = 0
-})
 </script>

@@ -339,3 +339,5 @@ fabric.properties
 frontend/android
 frontend/ios
 frontend/capacitor.config.json
+
+prod.yml

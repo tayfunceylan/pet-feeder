@@ -10,7 +10,10 @@ export default defineNuxtConfig({
     },
   },
   devtools: { enabled: true },
-  modules: ['@formkit/auto-animate/nuxt'],
+  modules: [
+    '@formkit/auto-animate/nuxt',
+    '@pinia/nuxt',
+  ],
   css: [
     'vuetify/lib/styles/main.sass',
     '@mdi/font/css/materialdesignicons.min.css',
