@@ -41,7 +41,7 @@
       <!-- date picker -->
       <v-container class="mt-3">
         <v-row justify="center" align="center">
-          <v-btn @click=jumpdays(-1) icon="mdi-step-backward" variant="plain" />
+          <v-btn @click=meals.jumpdays(-1) icon="mdi-step-backward" variant="plain" />
           <v-menu location="bottom center" v-model:model-value="dateDialog">
             <template v-slot:activator="{ props }">
               <v-btn width="90" v-bind="props" variant="plain">
@@ -51,7 +51,7 @@
             <VueDatePicker class="elevation-24" inline auto-apply locale="de" v-model=meals.datePicker
               @update:model-value='dateDialog=false' :enable-time-picker="false" />
           </v-menu>
-          <v-btn @click=jumpdays(+1) icon="mdi-step-forward" variant="plain" />
+          <v-btn @click=meals.jumpdays(+1) icon="mdi-step-forward" variant="plain" />
         </v-row>
       </v-container>
 
@@ -292,9 +292,6 @@ const delMeal = async () => {
 
 const dateDialog = ref(false)
 
-const jumpdays = async (offset: number) => {
-  meals.datePicker = new Date(new Date().setDate(meals.datePicker.getDate()+offset))
-}
 const dayToText = () => {
   // return today, tomorrow, yesterday, or date
   const today = new Date()

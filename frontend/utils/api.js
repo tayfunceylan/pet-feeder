@@ -5,16 +5,14 @@ export const useLoading = () => useState('isLoading', () => true)
 export const ownUseFetch = (url, options) => {
   const ws = useWebsocketStore();
   const config = useRuntimeConfig();
-  ws.isLoading = true;
   return useFetch(url, {
     ...options,
     credentials: "include",
     baseURL: config.public.baseURL,
+    onRequest(){ ws.isLoading = true },
     onResponse({ response }) {
       ws.isLoading = false;
-      if (response.status == 403) {
-        navigateTo("/login");
-      }
+      if (response.status == 403) navigateTo("/login");
     },
   });
 };

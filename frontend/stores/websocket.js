@@ -2,12 +2,12 @@ export const useWebsocketStore = defineStore("ws", () => {
   const isConnected = ref(0);
   const isLoading = ref(true);
   const firstRun = ref(true);
+  const meals = useMealsStore();
+  const pets = usePetsStore();
+  const foods = useFoodsStore();
+  const schedules = useSchedulesStore();
 
   const updateFunc = (msg) => {
-    const meals = useMealsStore();
-    const pets = usePetsStore();
-    const foods = useFoodsStore();
-    const schedules = useSchedulesStore();
     if (["newMeal", undefined].includes(msg)) {
       if (meals != undefined) meals.refresh();
       if (foods != undefined) foods.refresh();
@@ -21,14 +21,15 @@ export const useWebsocketStore = defineStore("ws", () => {
   };
   const connectToWebsocket = (updateFunc) => {
     let protocol =
-      window.location.protocol == "https:" ||
-      window.location.protocol == "capacitor:"
-        ? "wss"
-        : "ws";
+    window.location.protocol == "https:" ||
+    window.location.protocol == "capacitor:"
+    ? "wss"
+    : "ws";
     var ws = new WebSocket(`${protocol}://${window.location.host}/ws/notify/`);
-
+    
     var shouldReconnect = true;
     ws.onopen = function () {
+      meals.checkDate() // on open check if midnight past
       if (!firstRun.value) updateFunc(); // dont update on first connect
       firstRun.value = false;
       isLoading.value = false;
@@ -59,5 +60,5 @@ export const useWebsocketStore = defineStore("ws", () => {
     return ws;
   };
   const ws = connectToWebsocket(updateFunc);
-  return { isConnected, isLoading};
+  return { isConnected, isLoading, firstRun };
 });
