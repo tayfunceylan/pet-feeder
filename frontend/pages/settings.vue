@@ -87,7 +87,7 @@
               <v-container>
                 <v-row>
                   <v-avatar size="60" class="mr-2">
-                    <v-img :src="baseURL+selectedPet.picture" alt="pic"
+                    <v-img :src="baseURL+(selectedPet.picture??'/images/default.png')" alt="pic"
                     ></v-img>
                   </v-avatar>
                   <v-file-input v-model="selectedPet.image" label="Upload Picture"></v-file-input>
