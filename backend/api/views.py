@@ -227,3 +227,10 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
+
+    # add value to response
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        response.data["active"] = True if getenv("TUYA_IP") else False
+        return response

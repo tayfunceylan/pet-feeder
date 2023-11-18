@@ -20,3 +20,11 @@ export const getScheduleTimeString = (hour, minute) => {
 export const toDateString = (date) => {
     return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}`
 }
+
+export const dateFormat = (date) => {
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+  
+    return `Geboren am ${day}.${month}.${year}`;
+}

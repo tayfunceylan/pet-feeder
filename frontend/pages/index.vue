@@ -81,7 +81,7 @@
       </v-list>
 
       <!-- listing of schedules -->
-      <v-list item-props lines="two" v-auto-animate>
+      <v-list item-props lines="two" v-auto-animate v-if="schedules.data.active">
         <p @click="editSchedule(null)" class="text-h5 ml-4 mt-3">
           Schedules
         </p>

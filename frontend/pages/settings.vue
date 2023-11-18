@@ -34,7 +34,12 @@
     <v-main v-else>
       <!-- listing for pets -->
       <v-list item-props lines="three" v-auto-animate>
-        <p class="text-h5 ml-4 mt-3">Pets</p>
+        <p @click="editPet(null)" class="text-h5 ml-4 mt-3">
+          Pets<v-btn icon="mdi-plus" variant="plain" />
+        </p>
+        <v-list-item v-if="pets.data.results.length == 0">
+          Klicke auf das Plus um ein Haustier hinzuzufügen
+        </v-list-item>
         <template v-for="(pet, index) in pets.data.results" :key="pet.id">
           <v-list-item @click="editPet(pet)">
             <v-list-item-title>{{ pet.name }}</v-list-item-title>
@@ -57,6 +62,9 @@
         <p @click="editFood(null)" class="text-h5 ml-4 mt-3">
           Foods<v-btn icon="mdi-plus" variant="plain" />
         </p>
+        <v-list-item v-if="Object.keys(foods.data).length === 0 ">
+          Klicke auf das Plus um ein Futter hinzuzufügen
+        </v-list-item>
         <template v-for="food, index in foods.data" :key="food.id">
           <v-list-item @click="editFood(food)">
             <v-list-item-title>{{ food.name }}
@@ -76,6 +84,16 @@
         <v-sheet>
           <v-container>
             <v-form>
+              <v-container>
+                <v-row>
+                  <v-avatar size="60" class="mr-2">
+                    <v-img :src="baseURL+selectedPet.picture" alt="pic"
+                    ></v-img>
+                  </v-avatar>
+                  <v-file-input v-model="selectedPet.image" label="Upload Picture"></v-file-input>
+                </v-row>
+              </v-container>
+              <VueDatePicker class="mb-5" auto-apply locale="de" :enable-time-picker="false" v-model="selectedPet.datePicker" :format="dateFormat" />
               <v-text-field v-model="selectedPet.name" label="Name" variant="outlined" />
               <v-text-field v-model="selectedPet.race" label="Rasse" variant="outlined" />
               <v-textarea v-model="selectedPet.description" label="Beschreibung" variant="outlined" rows="3" />
@@ -129,9 +147,14 @@ const ws: any = useWebsocketStore()
 
 const selectedPet = ref()
 const editPet = (pet: any) => {
-  selectedPet.value = structuredClone({ ...pet })
+  selectedPet.value = structuredClone({
+    ...toRaw(pet),
+    datePicker: new Date(pet?.birthday_on ?? new Date()),
+  })
 }
 const savePet = async () => {
+  // format is YYYY-MM-DD
+  selectedPet.value.birthday_on = selectedPet.value.datePicker.toISOString().substring(0, 10)
   await postPet(selectedPet.value)
   selectedPet.value = false
 }

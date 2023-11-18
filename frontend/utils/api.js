@@ -1,20 +1,37 @@
 // you need X-CSRFToken header for PUT and DELET Requests
 // you dont need it for get and post requests
 
-export const useLoading = () => useState('isLoading', () => true)
-export const ownUseFetch = (url, options) => {
+export const useLoading = () => useState("isLoading", () => true);
+export const ownFetch = (url, options, cache) => {
   const ws = useWebsocketStore();
   const config = useRuntimeConfig();
-  return useFetch(url, {
+  options = {
     ...options,
     credentials: "include",
     baseURL: config.public.baseURL,
-    onRequest(){ ws.isLoading = true },
+    onRequest() {
+      ws.isLoading = true;
+    },
     onResponse({ response }) {
       ws.isLoading = false;
       if (response.status == 403) navigateTo("/login");
     },
-  });
+  };
+  if (cache) {
+    console.log("using cache");
+    return useFetch(url, options);
+  } else {
+    console.log("not using cache");
+    return $fetch(url, options);
+  }
+};
+
+export const ownUseFetch = (url, options) => {
+  return ownFetch(url, options, true);
+};
+
+export const ownUseFetchOnce = (url, options) => {
+  return ownFetch(url, options, false);
 };
 
 export const ownUseLazyFetch = (url, options) => {
@@ -24,7 +41,7 @@ export const ownUseLazyFetch = (url, options) => {
 };
 
 export const getToken = async () => {
-  return (await ownUseFetch("/api/token/")).data.value;
+  return await ownUseFetchOnce("/api/token/");
 };
 
 export const postMeal = async (meal) => {
@@ -36,13 +53,13 @@ export const postMeal = async (meal) => {
   form.append("fed_at", meal.fed_at.toISOString());
   form.append("csrfmiddlewaretoken", await token);
   if (meal.id)
-    await ownUseFetch(`/api/meal/${meal.id}/`, {
+    await ownUseFetchOnce(`/api/meal/${meal.id}/`, {
       method: "PUT",
       body: form,
-      headers: { "X-CSRFToken": await token},
+      headers: { "X-CSRFToken": await token },
     });
   else
-    await ownUseFetch(`/api/meal/`, {
+    await ownUseFetchOnce(`/api/meal/`, {
       method: "POST",
       body: form,
     });
@@ -51,19 +68,22 @@ export const postMeal = async (meal) => {
 export const postPet = async (pet) => {
   let token = getToken();
   let form = new FormData();
+  // pet.picture is a file object
   form.append("id", pet.id);
   form.append("name", pet.name);
   form.append("race", pet.race);
+  form.append("birthday_on", pet.birthday_on);
   form.append("description", pet.description);
+  if (pet.image) form.append("picture", pet.image[0]);
   form.append("csrfmiddlewaretoken", await token);
   if (pet.id)
-    await ownUseFetch(`/api/pet/${pet.id}/`, {
+    await ownUseFetchOnce(`/api/pet/${pet.id}/`, {
       method: "PUT",
       body: form,
       headers: { "X-CSRFToken": await getToken() },
     });
   else
-    await ownUseFetch(`/api/pet/`, {
+    await ownUseFetchOnce(`/api/pet/`, {
       method: "POST",
       body: form,
     });
@@ -86,13 +106,13 @@ export const postFood = async (food) => {
   for (let field of fields) form.append(field, food[field]);
   form.append("csrfmiddlewaretoken", await token);
   if (food.id)
-    await ownUseFetch(`/api/food/${food.id}/`, {
+    await ownUseFetchOnce(`/api/food/${food.id}/`, {
       method: "PUT",
       body: form,
       headers: { "X-CSRFToken": await getToken() },
     });
   else
-    await ownUseFetch(`/api/food/`, {
+    await ownUseFetchOnce(`/api/food/`, {
       method: "POST",
       body: form,
     });
@@ -108,34 +128,34 @@ export const postSchedule = async (schedule) => {
   form.append("active", schedule.active);
   form.append("csrfmiddlewaretoken", await token);
   if (schedule.id)
-    await ownUseFetch(`/api/schedules/${schedule.id}/`, {
+    await ownUseFetchOnce(`/api/schedules/${schedule.id}/`, {
       method: "PUT",
       body: form,
       headers: { "X-CSRFToken": await getToken() },
     });
   else
-    await ownUseFetch(`/api/schedules/`, {
+    await ownUseFetchOnce(`/api/schedules/`, {
       method: "POST",
       body: form,
     });
 };
 
 export const deleteMeal = async (id) => {
-  await ownUseFetch(`/api/meal/${id}/`, {
+  await ownUseFetchOnce(`/api/meal/${id}/`, {
     method: "DELETE",
     headers: { "X-CSRFToken": await getToken() },
   });
 };
 
 export const deleteSchedule = async (id) => {
-  await ownUseFetch(`/api/schedules/${id}/`, {
+  await ownUseFetchOnce(`/api/schedules/${id}/`, {
     method: "DELETE",
     headers: { "X-CSRFToken": await getToken() },
   });
 };
 
 export const deletePet = async (id) => {
-  await ownUseFetch(`/api/pet/${id}/`, {
+  await ownUseFetchOnce(`/api/pet/${id}/`, {
     method: "DELETE",
     headers: { "X-CSRFToken": await getToken() },
   });
@@ -189,18 +209,21 @@ export const postLogin = async (username, password) => {
   form.append("submit", "Log in");
   form.append("next", "");
   form.append("csrfmiddlewaretoken", await token);
-  return await ownUseFetch("/api/login/", {
+  return await $fetch("/api/login/", {
     method: "POST",
     body: form,
+    onResponse({ response }) {
+      if (response.status == 200) window.location.reload();
+    },
   });
 };
 
 export const checkIfLoggedIn = async () => {
-  const resp = await ownUseFetch("/api/login");
-  if (resp.status.value == "success") {
-    console.log("logged in");
-    navigateTo("/");
-  }
+  $fetch("/api/login", {
+    onResponse({ response }) {
+      if (response.status == 200) navigateTo("/");
+    },
+  });
 };
 
 export const logout = async () => {

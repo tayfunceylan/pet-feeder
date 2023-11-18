@@ -25,12 +25,6 @@ const password = ref('')
 const error = ref(false)
 await checkIfLoggedIn()
 const login = async () => {
-    const result = await postLogin(username.value, password.value)
-    if (result.status.value == 'error') {
-        error.value = true
-    }
-    else {
-        navigateTo('/')
-    }
+    await postLogin(username.value, password.value)
 }
 </script>
