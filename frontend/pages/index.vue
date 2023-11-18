@@ -321,4 +321,9 @@ const selectFood = async (food: any) => {
   selectedMeal.value.food = selectedMeal.value.food == food.id ? '' : food.id
   selectedMeal.value.quantity = foods.data[food.id].top_quantities[0]
 }
+
+window.addEventListener('keydown', (e) => {
+  if (e.key == 'ArrowLeft') meals.jumpdays(-1)
+  if (e.key == 'ArrowRight') meals.jumpdays(+1)
+})
 </script>
