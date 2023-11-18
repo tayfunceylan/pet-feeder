@@ -28,3 +28,15 @@ export const dateFormat = (date) => {
   
     return `Geboren am ${day}.${month}.${year}`;
 }
+
+export const getAge = (date) => {
+    // in format: 2 Jahre 1 Monat
+    const today = new Date();
+    const birthDate = new Date(date);
+    const diff = today - birthDate;
+    const age = Math.floor(diff / 31557600000);
+    const months = Math.floor((diff % 31557600000) / 2629800000);
+    const year_str = `${age} Jahr${age!=1?'e':''} + `
+    const month_str = `${months} Monat${months!=1?'e':''}`
+    return `${age?year_str:''}${month_str} alt`;
+}

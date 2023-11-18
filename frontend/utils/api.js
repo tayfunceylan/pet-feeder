@@ -17,13 +17,8 @@ export const ownFetch = (url, options, cache) => {
       if (response.status == 403) navigateTo("/login");
     },
   };
-  if (cache) {
-    console.log("using cache");
-    return useFetch(url, options);
-  } else {
-    console.log("not using cache");
-    return $fetch(url, options);
-  }
+  if (cache) return useFetch(url, options);
+  else return $fetch(url, options);
 };
 
 export const ownUseFetch = (url, options) => {

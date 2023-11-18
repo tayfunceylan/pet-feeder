@@ -42,7 +42,11 @@
         </v-list-item>
         <template v-for="(pet, index) in pets.data.results" :key="pet.id">
           <v-list-item @click="editPet(pet)">
-            <v-list-item-title>{{ pet.name }}</v-list-item-title>
+            <v-list-item-title>{{pet.name}}
+              <span class="font-italic text-disabled">
+              {{`(${getAge(pet.birthday_on)})`}}
+              </span>
+            </v-list-item-title>
             <v-list-item-subtitle>
               <span class="text-primary">{{ pet.race }}</span>
               &mdash; {{ pet.description }}
