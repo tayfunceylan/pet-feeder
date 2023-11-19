@@ -23,7 +23,7 @@ export const useFoodsStore = defineStore("foods", () => {
   const last2 = computed(() => {
     return [...foods.data.value.results]
             .sort((a, b) => b.last_used - a.last_used)
-            .filter((food) => food.category == 'W')
+            .filter((food) => food.active && food.category == 'W')
             .slice(0, 2)
             .sort((a, b) => a.id - b.id)
   });
