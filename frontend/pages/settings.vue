@@ -35,7 +35,7 @@
       <!-- listing for pets -->
       <v-list item-props lines="three" v-auto-animate>
         <p @click="editPet(null)" class="text-h5 ml-4 mt-3">
-          Pets<v-btn icon="mdi-plus" variant="plain" />
+          Pets <v-icon class="mb-1" size="25">mdi-plus</v-icon>
         </p>
         <v-list-item v-if="pets.data.results.length == 0">
           Klicke auf das Plus um ein Haustier hinzuzufügen
@@ -64,7 +64,7 @@
       <!-- listing of foods -->
       <v-list item-props lines="two" v-auto-animate>
         <p @click="editFood(null)" class="text-h5 ml-4 mt-3">
-          Foods<v-btn icon="mdi-plus" variant="plain" />
+          Foods <v-icon class="mb-1" size="25">mdi-plus</v-icon>
         </p>
         <v-list-item v-if="foods.data.results.length === 0 ">
           Klicke auf das Plus um ein Futter hinzuzufügen
