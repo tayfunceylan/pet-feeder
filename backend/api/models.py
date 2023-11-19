@@ -70,6 +70,7 @@ class Food(models.Model):
     created_at = models.DateTimeField(default=time_zone_now, blank=True)
     active = models.BooleanField(default=True) # if no food left, set to false
     pl = models.CharField(max_length=100, default="", blank=True) # preis leistung
+    last_used = models.DateTimeField(default=time_zone_now, blank=True)
 
     @property
     def left(self):
@@ -78,6 +79,9 @@ class Food(models.Model):
         left = (self.amount - eaten)
         if self.category != 'D':
             left /= self.packet_size
+        if left <= 0: 
+            self.active = False
+            self.save()
         return math.ceil(left)
     
     @property
@@ -129,10 +133,9 @@ class Meal(models.Model):
 
     # trigger on modifaication of meal
     def save(self, *args, **kwargs):
-        if self.food.left <= 0:
-            if self.food.active: # if active although no food left
-                self.food.active = False
-                self.food.save()
+        if not self.pk: # if new meal
+            self.food.last_used = self.fed_at
+            self.food.save()
         # on successfull save do the following
         super(Meal, self).save(*args, **kwargs)
         # send a notification to the frontend

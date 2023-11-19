@@ -29,7 +29,7 @@
         refresh page
       </v-alert>
     </v-main>
-    <v-main v-else-if="[foods.data, foodOptions.data, pets.data, helper.data].some((data) => data == null)">
+    <v-main v-else-if="[foods, foodOptions, pets, helper].some((resp) => resp.data == null)">
     </v-main>
     <v-main v-else>
       <!-- listing for pets -->
@@ -66,12 +66,12 @@
         <p @click="editFood(null)" class="text-h5 ml-4 mt-3">
           Foods<v-btn icon="mdi-plus" variant="plain" />
         </p>
-        <v-list-item v-if="Object.keys(foods.data).length === 0 ">
+        <v-list-item v-if="foods.data.results.length === 0 ">
           Klicke auf das Plus um ein Futter hinzuzufügen
         </v-list-item>
-        <template v-for="food, index in foods.data" :key="food.id">
+        <template v-for="food, index in foods.data.results" :key="food.id">
           <v-list-item @click="editFood(food)">
-            <v-list-item-title>{{ food.name }}
+            <v-list-item-title> <a :class="[food.active?'':'text-disabled']">{{ food.name+" " }}</a>
               <a class="font-italic text-disabled">({{ food.left }} übrig)</a>
             </v-list-item-title>
             <v-list-item-subtitle>
@@ -79,12 +79,12 @@
               &mdash; {{ `${food.num_packets}*${food.packet_size}${food.unit} für ${food.price}€ (${food.pl})` }}
             </v-list-item-subtitle>
           </v-list-item>
-          <v-divider v-if="index < foods.data.length - 1" />
+          <v-divider v-if="index < foods.data.results.length - 1" />
         </template>
       </v-list>
 
       <!-- dialog to save and edit pet -->
-      <v-dialog v-model="selectedPet">
+      <v-dialog v-model="selectedPet.dialog">
         <v-sheet>
           <v-container>
             <v-form>
@@ -112,21 +112,28 @@
       </v-dialog>
 
       <!-- dialog to save and edit food -->
-      <v-dialog v-model="selectedFood">
+      <v-dialog v-model="selectedFood.dialog">
         <v-sheet>
           <v-container>
             <v-form>
               <v-text-field v-model="selectedFood.name" label="Name" variant="outlined" />
-              <v-text-field v-model="selectedFood.brand" label="Marke" variant="outlined" />
+              <v-row>
+                <v-col>
+                  <v-text-field v-model="selectedFood.brand" label="Marke" variant="outlined" />
+                </v-col>
+                <v-col cols="4">
+                  <v-checkbox v-model="selectedFood.active" label="aktiv"></v-checkbox>
+                </v-col>
+              </v-row>
               <v-text-field v-model="selectedFood.num_packets" label="Anzahl Packungen" variant="outlined"
-                type="number" />
+              type="number" />
               <v-text-field v-model="selectedFood.packet_size" label="Packungen Größe" variant="outlined" type="number" />
               <v-select v-model="selectedFood.unit" :items=foodOptions.data.units item-title="name"
-                item-value="value" label="Einheit" variant="outlined" />
+              item-value="value" label="Einheit" variant="outlined" />
               <v-select v-model="selectedFood.category" :items=foodOptions.data.categories item-title="name"
-                item-value="value" label="Kategorie" variant="outlined" />
+              item-value="value" label="Kategorie" variant="outlined" />
               <v-text-field v-model="selectedFood.price" label="Preis in €" variant="outlined" type="number" />
-
+              
               <v-row class="justify-space-evenly">
                 <v-btn @click="saveFood()">Save</v-btn>
                 <!-- <v-btn @click="deletePet()" color="error">Delete</v-btn> -->
@@ -149,13 +156,15 @@ const foodOptions = useFoodOptionsStore()
 
 const ws: any = useWebsocketStore()
 
-const selectedPet = ref()
+const selectedPet = ref({dialog: false})
 const editPet = (pet: any) => {
   selectedPet.value = structuredClone({
     ...toRaw(pet),
     datePicker: new Date(pet?.birthday_on ?? new Date()),
+    dialog: true,
   })
 }
+
 const savePet = async () => {
   // format is YYYY-MM-DD
   selectedPet.value.birthday_on = selectedPet.value.datePicker.toISOString().substring(0, 10)
@@ -163,19 +172,13 @@ const savePet = async () => {
   selectedPet.value = false
 }
 
-const selectedFood = ref()
+const selectedFood = ref({dialog: false})
 const editFood = (pet: any) => {
-  if (pet) selectedFood.value = JSON.parse(JSON.stringify(pet))
-  else selectedFood.value = {
-    name: null,
-    brand: null,
-    category: null,
-    price: null,
-    unit: null,
-    num_packets: null,
-    packet_size: null,
-  }
-
+  selectedFood.value = structuredClone({
+    ...toRaw(pet),
+    dialog: true,
+    active: pet?.active ?? true,
+  })
 }
 const saveFood = async () => {
   let food = selectedFood.value

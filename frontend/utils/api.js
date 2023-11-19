@@ -97,6 +97,7 @@ export const postFood = async (food) => {
     "category",
     "price",
     "unit",
+    "active",
   ];
   for (let field of fields) form.append(field, food[field]);
   form.append("csrfmiddlewaretoken", await token);
@@ -180,7 +181,7 @@ export const getPets = () => {
 };
 
 export const getFoods = () => {
-  return ownUseLazyFetch("/api/food/map/");
+  return ownUseLazyFetch("/api/food/");
 };
 
 export const getSchedules = () => {

@@ -65,10 +65,10 @@
             <v-list-item-title>{{ toTimeString(meal.fed_at) }}</v-list-item-title>
             <v-list-item-subtitle>
               <span class="text-primary">
-                {{ `${meal.quantity}${foods.data[meal.food].unit}
-                                ${helper.data.maps.categories[foods.data[meal.food].category]}` }}
+                {{ `${meal.quantity}${foods.map[meal.food].unit}
+                                ${helper.data.maps.categories[foods.map[meal.food].category]}` }}
               </span>
-              &mdash; {{ foods.data[meal.food].name }}
+              &mdash; {{ foods.map[meal.food].name }}
             </v-list-item-subtitle>
           </v-list-item>
           <v-divider v-if="index < meals.data.results.length - 1" />
@@ -80,10 +80,28 @@
         </v-list-item>
       </v-list>
 
+      <!-- listing of quick meals -->
+      <v-list item-props lines="two" v-auto-animate v-if="schedules.data.active">
+        <p class="text-h5 ml-4 mt-3">
+          Quick Meals
+        </p>
+        <v-list-item>
+          <v-row>
+            <template v-for="food in foods.last2">
+              <v-col v-if="food.top_quantities.length">
+                <v-btn @click="quickSave(food)" cols="2" class="text-subtitle-2" size="x-large" block color="grey-darken-2" variant="outlined">
+                  <span class="text-wrap" >{{`${food.top_quantities[0]??''}${food.unit} ${food.name}`}}</span>
+                </v-btn>
+              </v-col>
+            </template>
+          </v-row>
+        </v-list-item>
+      </v-list>
+
       <!-- listing of schedules -->
       <v-list item-props lines="two" v-auto-animate v-if="schedules.data.active">
         <p @click="editSchedule(null)" class="text-h5 ml-4 mt-3">
-          Schedules
+          Automatic Feeder <v-icon class="ml-1 mb-1" size="25">mdi-plus</v-icon>
         </p>
         <template v-for="schedule, index in schedules.data.results" :key="schedule.id">
           <v-list-item @click="editSchedule(schedule)">
@@ -96,15 +114,10 @@
           </v-list-item>
           <v-divider v-if="index < schedules.data.results.length - 1" />
         </template>
-        <v-list-item @click="editSchedule(null)">
-          <v-btn block color="grey-darken-2" variant="outlined">
-            ADD SCHEDULE
-          </v-btn>
-        </v-list-item>
       </v-list>
 
       <!-- dialog to save and edit meals -->
-      <v-dialog v-model="selectedMeal">
+      <v-dialog v-model="selectedMeal.dialog">
         <v-sheet>
           <v-container>
             <v-form>
@@ -130,9 +143,8 @@
               <template v-if="selectedMeal.category">
                 <v-divider />
                 <div class="mt-2 mb-2">
-                  <template v-for="food in foods.data">
-
-                    <v-chip v-if="selectedMeal.category == foods.data[food.id].category" @click="selectFood(food)"
+                  <template v-for="food in foods.data.results">
+                    <v-chip v-if="food.active && selectedMeal.category == foods.map[food.id].category" @click="selectFood(food)"
                       class="mb-2 ma-1" :color="selectedMeal.food == food.id ? 'purple' : 'grey'" text-color="white"
                       prepend-icon="mdi-cards-outline">
                       {{ food.name }}
@@ -146,14 +158,14 @@
                 <v-row no-gutters class="mt-6">
                   <v-col cols="4" class="mr-4">
                     <v-text-field density="compact"
-                      :label="`Menge in ${selectedMeal.food ? foods.data[selectedMeal.food].unit : ''}`"
+                      :label="`Menge in ${selectedMeal.food ? foods.map[selectedMeal.food].unit : ''}`"
                       v-model=selectedMeal.quantity variant="outlined" type="number" />
                   </v-col>
                   <v-col class="mt-1">
-                    <v-chip v-for="quantity in foods.data[selectedMeal.food].top_quantities"
+                    <v-chip v-for="quantity in foods.map[selectedMeal.food].top_quantities"
                       @click="selectedMeal.quantity = quantity" class="mb-2 ma-1"
                       :color="selectedMeal.quantity == quantity ? 'purple' : 'grey'" text-color="white">
-                      {{ `${quantity}${foods.data[selectedMeal.food].unit}` }}
+                      {{ `${quantity}${foods.map[selectedMeal.food].unit}` }}
                     </v-chip>
                   </v-col>
                 </v-row>
@@ -171,7 +183,7 @@
       </v-dialog>
 
       <!-- dialog to save and edit schedules -->
-      <v-dialog v-model="selectedSchedule">
+      <v-dialog v-model="selectedSchedule.dialog">
         <v-sheet>
           <v-container>
             <v-form>
@@ -214,28 +226,21 @@ const schedules = useSchedulesStore()
 
 const ws: any = useWebsocketStore()
 
-const selectedSchedule = ref()
+const selectedSchedule = ref({ dialog: false })
 const editSchedule = (schedule: any) => {
-  if (schedule) {
-    selectedSchedule.value = structuredClone({ ...toRaw(schedule) })
-    selectedSchedule.value.timePicker = {
+  selectedSchedule.value = structuredClone({
+    ...toRaw(schedule),
+    timePicker: schedule ? {
       hours: schedule.hour,
       minutes: schedule.minute,
       seconds: 0
-    }
-  }
-  else {
-    let now = new Date()
-    selectedSchedule.value = {
-      amount: 1,
-      active: true,
-      timePicker: {
-        hours: now.getHours(),
-        minutes: 0,
-        seconds: 0
-      }
-    }
-  }
+    } : {
+      hours: new Date().getHours(),
+      minutes: 0,
+      seconds: 0
+    },
+    dialog: true,
+  })
 }
 const saveSchedule = async () => {
   let schedule: any = selectedSchedule.value
@@ -249,12 +254,15 @@ const delSchedule = async () => {
   selectedSchedule.value = false;
 }
 
-const selectedMeal = ref()
+const selectedMeal = ref<any>({ dialog: false })
 const editMeal = (meal: any) => {
+  selectedMeal.value = structuredClone({
+    ...toRaw(meal),
+    dialog: true,
+  })
   if (meal) {
     let mealDate = new Date(meal.fed_at * 1000)
-    selectedMeal.value = structuredClone({ ...toRaw(meal) })
-    selectedMeal.value.category = foods.data[meal.food].category
+    selectedMeal.value.category = foods.map[meal.food].category
     selectedMeal.value.fed_at = mealDate
     selectedMeal.value.timePicker = {
       hours: mealDate.getHours(),
@@ -264,16 +272,12 @@ const editMeal = (meal: any) => {
   }
   else {
     let now = new Date()
-    selectedMeal.value = {
-      pets: [1, 2],
-      quantity: "",
-      food: null,
-      fed_at: meals.datePicker,
-      timePicker: {
-        hours: now.getHours(),
-        minutes: now.getMinutes(),
-        seconds: now.getSeconds()
-      }
+    selectedMeal.value.pets = [1,2]
+    selectedMeal.value.fed_at = meals.datePicker
+    selectedMeal.value.timePicker = {
+      hours: now.getHours(),
+      minutes: now.getMinutes(),
+      seconds: now.getSeconds()
     }
   }
 }
@@ -284,6 +288,15 @@ const saveMeal = async () => {
   meal.fed_at.setSeconds(meal.timePicker.seconds)
   await postMeal(meal)
   selectedMeal.value = false
+}
+const quickSave = async (food: any) => {
+  let meal = {
+    fed_at: new Date(),
+    pets: [1,2],
+    food: food.id,
+    quantity: food.top_quantities[0]
+  }
+  await postMeal(meal)
 }
 const delMeal = async () => {
   await deleteMeal(selectedMeal.value.id);
@@ -319,7 +332,7 @@ const selectCategory = async (category: any) => {
 }
 const selectFood = async (food: any) => {
   selectedMeal.value.food = selectedMeal.value.food == food.id ? '' : food.id
-  selectedMeal.value.quantity = foods.data[food.id].top_quantities[0]
+  selectedMeal.value.quantity = foods.map[food.id].top_quantities[0]
 }
 
 window.addEventListener('keydown', (e) => {

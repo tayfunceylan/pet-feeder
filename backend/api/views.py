@@ -139,13 +139,8 @@ class MealViewSet(viewsets.ModelViewSet):
 
 class FoodViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = Food.objects.all()
+    queryset = Food.objects.all().order_by('-id')
     serializer_class = FoodSerializer
-
-    @action(detail=False)
-    def map(self, request):
-        foods_map = {food.id: FoodSerializer(food).data for food in Food.objects.all()}
-        return Response(foods_map)
 
     @action(detail=False)
     def get_options(self, request):
