@@ -219,6 +219,8 @@
 <script setup lang="ts">
 // fetch data from backend and date in params
 const meals = useMealsStore()
+meals.checkDate()
+setInterval(() => meals.checkDate(), 1800000) // alle 30 minuten 1000*60*30
 const pets = usePetsStore()
 const foods = useFoodsStore()
 const helper = useHelperStore()

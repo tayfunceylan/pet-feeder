@@ -29,7 +29,6 @@ export const useWebsocketStore = defineStore("ws", () => {
     
     var shouldReconnect = true;
     ws.onopen = function () {
-      meals.checkDate() // on open check if midnight past
       if (!firstRun.value) updateFunc(); // dont update on first connect
       firstRun.value = false;
       isLoading.value = false;
@@ -60,5 +59,5 @@ export const useWebsocketStore = defineStore("ws", () => {
     return ws;
   };
   const ws = connectToWebsocket(updateFunc);
-  return { isConnected, isLoading, firstRun };
+  return { isConnected, isLoading };
 });
