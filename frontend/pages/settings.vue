@@ -37,10 +37,10 @@
         <p @click="editPet(null)" class="text-h5 ml-4 mt-3">
           Pets <v-icon class="mb-1" size="25">mdi-plus</v-icon>
         </p>
-        <v-list-item v-if="pets.data.results.length == 0">
+        <v-list-item v-if="pets.list.length == 0">
           Klicke auf das Plus um ein Haustier hinzuzufügen
         </v-list-item>
-        <template v-for="(pet, index) in pets.data.results" :key="pet.id">
+        <template v-for="(pet, index) in pets.list" :key="pet.id">
           <v-list-item @click="editPet(pet)">
             <v-list-item-title>{{pet.name}}
               <span class="font-italic text-disabled">
@@ -57,7 +57,7 @@
               </v-avatar>
             </template>
           </v-list-item>
-          <v-divider v-if="index < pets.data.results.length - 1" inset />
+          <v-divider v-if="index < pets.list.length - 1" inset />
         </template>
       </v-list>
 
@@ -66,10 +66,10 @@
         <p @click="editFood(null)" class="text-h5 ml-4 mt-3">
           Foods <v-icon class="mb-1" size="25">mdi-plus</v-icon>
         </p>
-        <v-list-item v-if="foods.data.results.length === 0 ">
+        <v-list-item v-if="foods.list.length === 0 ">
           Klicke auf das Plus um ein Futter hinzuzufügen
         </v-list-item>
-        <template v-for="food, index in foods.data.results" :key="food.id">
+        <template v-for="food, index in foods.list" :key="food.id">
           <v-list-item @click="editFood(food)">
             <v-list-item-title> <a :class="[food.active?'':'text-disabled']">{{ food.name+" " }}</a>
               <a class="font-italic text-disabled">({{ food.left }} übrig)</a>
@@ -79,7 +79,7 @@
               &mdash; {{ `${food.num_packets}*${food.packet_size}${food.unit} für ${food.price}€ (${food.pl})` }}
             </v-list-item-subtitle>
           </v-list-item>
-          <v-divider v-if="index < foods.data.results.length - 1" />
+          <v-divider v-if="index < foods.list.length - 1" />
         </template>
       </v-list>
 
@@ -146,7 +146,7 @@
   </v-app>
 </template>
 
-<script setup lang="ts">
+<script setup lang="js">
 const baseURL = useRuntimeConfig().public.baseURL
 
 const pets = usePetsStore()
@@ -154,12 +154,12 @@ const foods = useFoodsStore()
 const helper = useHelperStore()
 const foodOptions = useFoodOptionsStore()
 
-const ws: any = useWebsocketStore()
+const ws = useWebsocketStore()
 
 const selectedPet = ref({dialog: false})
-const editPet = (pet: any) => {
+const editPet = (pet) => {
   selectedPet.value = structuredClone({
-    ...toRaw(pet),
+    ...pet,
     datePicker: new Date(pet?.birthday_on ?? new Date()),
     dialog: true,
   })
@@ -173,9 +173,9 @@ const savePet = async () => {
 }
 
 const selectedFood = ref({dialog: false})
-const editFood = (pet: any) => {
+const editFood = (pet) => {
   selectedFood.value = structuredClone({
-    ...toRaw(pet),
+    ...pet,
     dialog: true,
     active: pet?.active ?? true,
   })
