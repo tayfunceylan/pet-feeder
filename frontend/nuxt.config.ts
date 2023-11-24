@@ -13,6 +13,7 @@ export default defineNuxtConfig({
   modules: [
     '@formkit/auto-animate/nuxt',
     '@pinia/nuxt',
+    '@vite-pwa/nuxt',
   ],
   css: [
     'vuetify/lib/styles/main.sass',
@@ -26,6 +27,38 @@ export default defineNuxtConfig({
     define: {
       'process.env.DEBUG': false,
       transpile: ['@vuepic/vue-datepicker'],
+    },
+  },
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Pet Feeder',
+      short_name: 'Pet Feeder',
+      theme_color: '#ffffff',
+      icons: [
+        {
+          src: 'android-chrome-192x192.png',
+          sizes: '192x192',
+          type: 'image/png'
+        },
+        {
+          src: 'android-chrome-512x512.png',
+          sizes: '512x512',
+          type: 'image/png'
+        },
+        {
+          src: 'android-chrome-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: 'android-chrome-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
+        }
+      ],
     },
   },
 })

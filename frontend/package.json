@@ -12,6 +12,7 @@
     "@capacitor/cli": "^5.4.0",
     "@nuxt/devtools": "latest",
     "@types/node": "^18.17.1",
+    "@vite-pwa/nuxt": "^0.2.3",
     "nuxt": "^3.6.5",
     "typescript": "^5.2.2"
   },

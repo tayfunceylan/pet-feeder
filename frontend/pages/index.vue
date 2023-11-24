@@ -1,11 +1,12 @@
 <template>
+  <VitePwaManifest/>
   <v-app>
-    <!-- app bard -->
+    <!-- app bar -->
     <v-app-bar :elevation="2">
       <v-app-bar-title>
         <v-progress-circular v-model=ws.isConnected :indeterminate=ws.isLoading size=25 color="primary" />
         <NuxtLink to="/" style="text-decoration: none; color: inherit;">
-          Pet Feeder 
+          Pet Feeder
         </NuxtLink>
       </v-app-bar-title>
 
