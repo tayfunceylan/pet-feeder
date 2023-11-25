@@ -5,23 +5,27 @@
     <v-app-bar :elevation="2">
       <v-app-bar-title>
         <v-progress-circular v-model=ws.isConnected :indeterminate=ws.isLoading size=25 color="primary" />
-        <NuxtLink to="/" style="text-decoration: none; color: inherit;">
+        <NuxtLink to="/" @click="meals.datePicker=new Date();" style="text-decoration: none; color: inherit;">
           Pet Feeder
         </NuxtLink>
       </v-app-bar-title>
 
-      <v-btn @click="meals.datePicker = new Date();" icon="mdi-undo" />
+      <v-btn @click="meals.datePicker=new Date();" icon="mdi-undo" />
       <v-menu>
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" icon="mdi-dots-vertical" />
         </template>
 
         <v-list>
-          <v-list-item @click="logout">
-            <v-list-item-title>Ausloggen</v-list-item-title>
-          </v-list-item>
           <v-list-item to="/settings">
             <v-list-item-title>Einstellugen</v-list-item-title>
+          </v-list-item>
+          <!-- install pwa -->
+          <v-list-item v-if="installPWA" @click="installPWA.prompt(); installPWA = null">
+            <v-list-item-title>App installieren</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="logout">
+            <v-list-item-title>Ausloggen</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -343,5 +347,13 @@ const selectFood = async (food) => {
 window.addEventListener('keydown', (e) => {
   if (e.key == 'ArrowLeft') meals.jumpdays(-1)
   if (e.key == 'ArrowRight') meals.jumpdays(+1)
+})
+
+// show user a button to install the pwa 
+// (only on chromium based browsers currently)
+const installPWA = ref(null)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  installPWA.value = e
 })
 </script>
