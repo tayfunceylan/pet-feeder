@@ -70,6 +70,8 @@ export const useWebsocketStore = defineStore("ws", () => {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
         connectToWebsocket()
+        setTimeout(connectToWebsocket, 100);
+        setTimeout(connectToWebsocket, 500);
       }
     });
   };
