@@ -2,6 +2,7 @@ export const useWebsocketStore = defineStore("ws", () => {
   const isConnected = ref(0);
   const isLoading = ref(true);
   const firstRun = ref(true);
+  const wsIsConnecting = ref(false);
   const meals = useMealsStore();
   const pets = usePetsStore();
   const foods = useFoodsStore();
@@ -19,16 +20,23 @@ export const useWebsocketStore = defineStore("ws", () => {
     if (["newSchedule", undefined].includes(msg))
       if (schedules != undefined) schedules.refresh();
   };
-  const connectToWebsocket = (updateFunc) => {
-    let protocol =
-    window.location.protocol == "https:" ||
-    window.location.protocol == "capacitor:"
-    ? "wss"
-    : "ws";
-    var ws = new WebSocket(`${protocol}://${window.location.host}/ws/notify/`);
-    
+
+  const ws = ref();
+
+  const wsURL = `${
+    ["https:", "capacitor:"].includes(window.location.protocol) ? "wss" : "ws"
+  }://${window.location.host}/ws/notify/`;
+
+  const connectToWebsocket = () => {
+    if (wsIsConnecting.value) return;
+    if(ws.value) ws.value.close()
+    isConnected.value = 0
+    isLoading.value = true
+    wsIsConnecting.value = true
+    const websocket = new WebSocket(wsURL);
+
     var shouldReconnect = true;
-    ws.onopen = function () {
+    websocket.onopen = function () {
       if (!firstRun.value) updateFunc(); // dont update on first connect
       firstRun.value = false;
       isLoading.value = false;
@@ -36,28 +44,40 @@ export const useWebsocketStore = defineStore("ws", () => {
       console.log("WebSocket Client Connected");
     };
 
-    ws.onmessage = function (e) {
+    websocket.onmessage = function (e) {
       updateFunc(e.data);
     };
 
-    ws.onclose = function (e) {
+    websocket.onclose = function (e) {
       isConnected.value = 0;
+      wsIsConnecting.value = false;
       if (shouldReconnect) {
         console.log(
           "Socket is closed. Reconnect will be attempted in 1 second."
         );
-        setTimeout(function () {
-          connectToWebsocket(updateFunc);
-        }, 1000);
+        setTimeout(connectToWebsocket, 10000);
       }
     };
 
-    ws.onerror = function (err) {
+    websocket.onerror = function (err) {
       console.error("Socket encountered error: Closing socket");
       ws.close();
     };
-    return ws;
+    ws.value = websocket;
   };
-  const ws = connectToWebsocket(updateFunc);
-  return { isConnected, isLoading };
+  
+  const addOnForegroundListener = () => {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        connectToWebsocket()
+      }
+    });
+  };
+  
+  const init = function (){
+    connectToWebsocket()
+    addOnForegroundListener()
+  }()
+
+  return { ws, isConnected, isLoading };
 });

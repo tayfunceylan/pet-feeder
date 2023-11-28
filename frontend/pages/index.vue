@@ -17,15 +17,14 @@
         </template>
 
         <v-list>
-          <v-list-item to="/settings">
-            <v-list-item-title>Einstellugen</v-list-item-title>
+          <v-list-item @click="logout">
+            <v-list-item-title>Ausloggen</v-list-item-title>
           </v-list-item>
-          <!-- install pwa -->
           <v-list-item v-if="installPWA" @click="installPWA.prompt(); installPWA = null">
             <v-list-item-title>App installieren</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="logout">
-            <v-list-item-title>Ausloggen</v-list-item-title>
+          <v-list-item to="/settings">
+            <v-list-item-title>Einstellugen</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -79,7 +78,7 @@
           <v-divider v-if="index < meals.list.length - 1" />
         </template>
         <v-list-item @click="editMeal(null)">
-          <v-btn block color="grey-darken-2" variant="outlined">
+          <v-btn block variant="outlined">
             ADD MEAL
           </v-btn>
         </v-list-item>
@@ -94,7 +93,7 @@
           <v-row>
             <template v-for="food in foods.last2">
               <v-col v-if="food.top_quantities.length">
-                <v-btn @click="quickSave(food)" cols="2" class="text-subtitle-2" size="x-large" block color="grey-darken-2" variant="outlined">
+                <v-btn @click="quickSave(food)" cols="2" class="text-subtitle-2" size="x-large" block variant="outlined">
                   <span class="text-wrap" >{{`${food.top_quantities[0]??''}${food.unit} ${food.name}`}}</span>
                 </v-btn>
               </v-col>
