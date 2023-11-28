@@ -55,7 +55,7 @@ export const useWebsocketStore = defineStore("ws", () => {
         console.log(
           "Socket is closed. Reconnect will be attempted in 1 second."
         );
-        setTimeout(connectToWebsocket, 10000);
+        setTimeout(connectToWebsocket, 1000);
       }
     };
 
