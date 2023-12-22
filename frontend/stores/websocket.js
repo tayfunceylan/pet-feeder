@@ -9,16 +9,10 @@ export const useWebsocketStore = defineStore("ws", () => {
   const schedules = useSchedulesStore();
 
   const updateFunc = (msg) => {
-    if (["newMeal", undefined].includes(msg)) {
-      if (meals != undefined) meals.refresh();
-      if (foods != undefined) foods.refresh();
-    }
-    if (["newPet", undefined].includes(msg))
-      if (pets != undefined) pets.refresh();
-    if (["newFood", undefined].includes(msg))
-      if (foods != undefined) foods.refresh();
-    if (["newSchedule", undefined].includes(msg))
-      if (schedules != undefined) schedules.refresh();
+    if (meals && ["newMeal", undefined].includes(msg)) meals.refresh();
+    else if (pets && ["newPet", undefined].includes(msg)) pets.refresh();
+    else if (foods && ["newFood", undefined].includes(msg)) foods.refresh();
+    else if (schedules && ["newSchedule", undefined].includes(msg)) schedules.refresh();
   };
 
   const ws = ref();

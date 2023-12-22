@@ -10,6 +10,12 @@ import base64
 from os import getenv
 import tinytuya
 
+def notify_frontend(msg: str):
+    async_to_sync(get_channel_layer().group_send)('notify', {
+        'type': 'notify.message',
+        'message': msg
+    })
+
 class Pet(models.Model):
     name = models.CharField(max_length=30)
     birthday_on = models.DateField(blank=True)
@@ -28,23 +34,13 @@ class Pet(models.Model):
 
     # trigger on modifaication of pet
     def save(self, *args, **kwargs):
-        # on successfull save do the following
         super(Pet, self).save(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newPet'
-        })
+        notify_frontend('newPet')
     
     # trigger on deletion of pet
     def delete(self, *args, **kwargs):
-        # on successfull deletion do the following
         super(Pet, self).delete(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newPet'
-        })
+        notify_frontend('newPet')
 
 
 class Food(models.Model):
@@ -79,9 +75,8 @@ class Food(models.Model):
         left = (self.amount - eaten)
         if self.category != 'D':
             left /= self.packet_size
-        if left <= 0: 
-            self.active = False
-            self.save()
+        # if left <= 0: 
+        #     self.active = False
         return math.ceil(left)
     
     @property
@@ -103,21 +98,11 @@ class Food(models.Model):
             self.pl = str(round(self.price / self.amount, 2)) + "€/stk"
         # on successfull save do the following
         super(Food, self).save(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newFood'
-        })
+        notify_frontend('newFood')
     
-    # trigger on deletion of food
     def delete(self, *args, **kwargs):
-        # on successfull deletion do the following
         super(Food, self).delete(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newFood'
-        })
+        notify_frontend('newFood')
 
 
 class Meal(models.Model):
@@ -135,25 +120,16 @@ class Meal(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk: # if new meal
             self.food.last_used = self.fed_at
-            self.food.save()
-        # on successfull save do the following
         super(Meal, self).save(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newMeal'
-        })
-    
+        notify_frontend('newMeal')
+        notify_frontend('newFood')
+
     # trigger on deletion of meal
     def delete(self, *args, **kwargs):
         # on successfull deletion do the following
         super(Meal, self).delete(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newMeal'
-        })
-
+        notify_frontend('newMeal')
+        notify_frontend('newFood')
 
 class Schedule(models.Model):
     # byte 1 is for weekdays 7th bit is for monday, 1st bit is for sunday
@@ -181,24 +157,14 @@ class Schedule(models.Model):
     # trigger on modifaication of meal
     def save(self, *args, **kwargs):
         if not self.update_schedule(): return
-        # on successfull save do the following
         super(Schedule, self).save(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newSchedule'
-        })
-    
+        notify_frontend('newSchedule')
+
     # trigger on deletion of meal
     def delete(self, *args, **kwargs):
         if not self.update_schedule(True): return
-        # on successfull deletion do the following
         super(Schedule, self).delete(*args, **kwargs)
-        # send a notification to the frontend
-        async_to_sync(get_channel_layer().group_send)('notify', {
-            'type': 'notify.message',
-            'message': 'newSchedule'
-        })
+        notify_frontend('newSchedule')
 
     def update_schedule(self, delete=False):
         all_schedules = Schedule.objects.all().exclude(id=self.id)
