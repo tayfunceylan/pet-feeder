@@ -247,6 +247,10 @@ const editSchedule = (schedule) => {
     },
     dialog: true,
   })
+  if (!schedule) {
+    selectedSchedule.value.amount = 1
+    selectedSchedule.value.active = true
+  }
 }
 const saveSchedule = async () => {
   let schedule = selectedSchedule.value
